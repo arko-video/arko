@@ -1,0 +1,331 @@
+{
+  "config": {
+    "argv": [
+      "/opt/node22/bin/node",
+      "/home/claude/arko/app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/qa/playwright.qa.config.ts",
+      "--reporter=line,json",
+      "--output",
+      "/home/claude/arko/app/test-results/qa-p6d",
+      "tests/qa/p6-monteur.qa.ts:406"
+    ],
+    "configFile": "/home/claude/arko/app/tests/qa/playwright.qa.config.ts",
+    "rootDir": "/home/claude/arko/app/tests/qa",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/claude/arko/app/test-results/qa-p6d",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.qa\\.ts$/"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/claude/arko/app/test-results/qa-p6d",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "snapshotDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 600000,
+        "use": {
+          "baseURL": "http://localhost:4184/arko/",
+          "channel": "chrome",
+          "headless": true,
+          "viewport": {
+            "width": 360,
+            "height": 740
+          },
+          "deviceScaleFactor": 2,
+          "hasTouch": false,
+          "acceptDownloads": true,
+          "actionTimeout": 15000
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npx vite build --outDir dist-qa && npx vite preview --outDir dist-qa --port 4184 --strictPort",
+      "cwd": "../..",
+      "url": "http://localhost:4184/arko/",
+      "reuseExistingServer": true,
+      "timeout": 300000
+    }
+  },
+  "suites": [
+    {
+      "title": "p6-monteur.qa.ts",
+      "file": "p6-monteur.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(p6-d) vidéo de 2 h : temps, mémoire, Annuler puis Reprendre, Worker et Wake Lock",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 1800000,
+              "annotations": [
+                {
+                  "type": "2 h",
+                  "description": "{\"msAnalyse\":27386,\"clips\":\"Je n’ai trouvé aucun moment fort. Essaie une vidéo avec plus d’action.\",\"repris1\":null,\"nbMoments\":0,\"maxTas\":16,\"maxRss\":1266,\"verrous1\":{\"pris\":2,\"relaches\":2},\"workers1\":[],\"msAvantAnnuler\":30294,\"pourcentAnnule\":\"22%\",\"interrompue\":true,\"reprise\":\"Ta dernière analyse s’est arrêtée à 22 %. | Analyse reprise à 4:00 de ta vidéo. | Je n’ai trouvé aucun moment fort. Essaie une vidéo avec plus d’action.Analyse reprise à 4:00 de ta vidéo.\",\"premierPourcentReprise\":\"0%\",\"msReprise\":24794,\"verrousApresAnnuler\":{\"pris\":4,\"relaches\":4},\"verrous\":{\"pris\":6,\"relaches\":6},\"workersApresAnnuler\":[],\"workers\":[],\"memoire\":[{\"t\":0,\"tas\":13,\"rss\":994},{\"t\":2.1,\"tas\":14,\"rss\":1209},{\"t\":4.2,\"tas\":14,\"rss\":1210},{\"t\":6.4,\"tas\":15,\"rss\":1198},{\"t\":8.5,\"tas\":15,\"rss\":1214},{\"t\":10.6,\"tas\":15,\"rss\":1244},{\"t\":12.7,\"tas\":11,\"rss\":1255},{\"t\":14.8,\"tas\":11,\"rss\":1261},{\"t\":16.9,\"tas\":12,\"rss\":1251},{\"t\":19,\"tas\":12,\"rss\":1256},{\"t\":21.1,\"tas\":13,\"rss\":1251},{\"t\":23.2,\"tas\":13,\"rss\":1266},{\"t\":25.2,\"tas\":13,\"rss\":1254},{\"t\":27.3,\"tas\":14,\"rss\":1264}]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 61034,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:56:59.818Z",
+                  "annotations": [
+                    {
+                      "type": "2 h",
+                      "description": "{\"msAnalyse\":27386,\"clips\":\"Je n’ai trouvé aucun moment fort. Essaie une vidéo avec plus d’action.\",\"repris1\":null,\"nbMoments\":0,\"maxTas\":16,\"maxRss\":1266,\"verrous1\":{\"pris\":2,\"relaches\":2},\"workers1\":[],\"msAvantAnnuler\":30294,\"pourcentAnnule\":\"22%\",\"interrompue\":true,\"reprise\":\"Ta dernière analyse s’est arrêtée à 22 %. | Analyse reprise à 4:00 de ta vidéo. | Je n’ai trouvé aucun moment fort. Essaie une vidéo avec plus d’action.Analyse reprise à 4:00 de ta vidéo.\",\"premierPourcentReprise\":\"0%\",\"msReprise\":24794,\"verrousApresAnnuler\":{\"pris\":4,\"relaches\":4},\"verrous\":{\"pris\":6,\"relaches\":6},\"workersApresAnnuler\":[],\"workers\":[],\"memoire\":[{\"t\":0,\"tas\":13,\"rss\":994},{\"t\":2.1,\"tas\":14,\"rss\":1209},{\"t\":4.2,\"tas\":14,\"rss\":1210},{\"t\":6.4,\"tas\":15,\"rss\":1198},{\"t\":8.5,\"tas\":15,\"rss\":1214},{\"t\":10.6,\"tas\":15,\"rss\":1244},{\"t\":12.7,\"tas\":11,\"rss\":1255},{\"t\":14.8,\"tas\":11,\"rss\":1261},{\"t\":16.9,\"tas\":12,\"rss\":1251},{\"t\":19,\"tas\":12,\"rss\":1256},{\"t\":21.1,\"tas\":13,\"rss\":1251},{\"t\":23.2,\"tas\":13,\"rss\":1266},{\"t\":25.2,\"tas\":13,\"rss\":1254},{\"t\":27.3,\"tas\":14,\"rss\":1264}]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ee570d1fa1887062af9-e15e3f0e9bc77e92e2da",
+          "file": "p6-monteur.qa.ts",
+          "line": 406,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T02:56:58.695Z",
+    "duration": 62690.753,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,268 @@
+/* Écran Couper et frise des plans. */
+
+/* ------------------------------------------------------------ Couper */
+.couper {
+  gap: 12px;
+}
+.couper .apercu {
+  height: min(36dvh, 360px);
+  min-height: 200px;
+}
+.duree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+  font-size: 15px;
+  text-align: center;
+}
+.duree[data-niveau='bien'] {
+  color: var(--vert);
+}
+.duree[data-niveau='long'] {
+  color: var(--orange);
+}
+.duree-conseil {
+  font-size: 13px;
+  font-weight: 500;
+}
+.frise-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: -6px;
+}
+.accroche-legende {
+  font-size: 12px;
+  color: var(--texte-doux);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.accroche-pastille {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  background: var(--accent-voile);
+  border: 1px solid var(--accent);
+}
+.zoom {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.petit-btn {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+.barre-images {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.aide-selection {
+  text-align: center;
+  flex: 1;
+}
+
+/* ------------------------------------------------------------ Frise */
+.frise {
+  position: relative;
+  height: 140px;
+  margin: 0 calc(-1 * var(--marge));
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.frise-regle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 28px;
+  cursor: pointer;
+}
+.graduation {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--texte-doux);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.graduation::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  width: 1px;
+  height: 6px;
+  background: var(--bord-fort);
+}
+.frise-piste {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 32px;
+  height: 64px;
+}
+.frise-accroche {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  background: var(--accent-voile);
+  border-radius: 6px;
+  pointer-events: none;
+}
+.plan {
+  position: absolute;
+  top: 0;
+  height: 64px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: var(--surface-2);
+  overflow: hidden;
+  cursor: pointer;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+}
+.plan::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  border: 1px solid var(--bord);
+  pointer-events: none;
+}
+.plan[data-choisi='1'] {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  z-index: 1;
+}
+.plan[data-choisi='1']::after {
+  border-color: transparent;
+}
+.plan:focus-visible {
+  outline: 3px solid var(--texte);
+}
+.tuile {
+  position: absolute;
+  top: 4px;
+  display: block;
+  background: #2a2f3b;
+  pointer-events: none;
+}
+
+/* Poignées : visuel 24 px, zone de toucher 48 px à l'extérieur du plan. */
+.poignee {
+  position: absolute;
+  top: -8px;
+  width: 48px;
+  height: 80px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: ew-resize;
+  z-index: 3;
+  touch-action: none;
+}
+.poignee-visuel {
+  position: absolute;
+  top: 8px;
+  width: 24px;
+  height: 64px;
+  background: var(--accent);
+  display: block;
+}
+.poignee-visuel::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 3px;
+  height: 20px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--accent-texte);
+  opacity: 0.6;
+}
+.poignee-debut .poignee-visuel {
+  right: 0;
+  border-radius: 10px 0 0 10px;
+}
+.poignee-fin .poignee-visuel {
+  left: 0;
+  border-radius: 0 10px 10px 0;
+}
+.poignee:focus-visible {
+  outline: none;
+}
+.poignee:focus-visible .poignee-visuel {
+  outline: 2px solid var(--texte);
+}
+
+.tete-ligne {
+  position: absolute;
+  top: 26px;
+  bottom: 36px;
+  width: 2px;
+  margin-left: -1px;
+  background: #fff;
+  pointer-events: none;
+  z-index: 4;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+.tete {
+  /* Zone de toucher 48 × 44 px, sous les plans (ne gêne pas leur sélection). */
+  position: absolute;
+  top: 96px;
+  width: 48px;
+  height: 44px;
+  margin-left: -24px;
+  z-index: 5;
+  cursor: grab;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 4px;
+  touch-action: none;
+}
+.tete-bouton {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--fond);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+}
+.tete:focus-visible {
+  outline: none;
+}
+.tete:focus-visible .tete-bouton {
+  box-shadow: 0 0 0 3px var(--accent);
+}
+.bulle {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: var(--texte);
+  color: var(--fond);
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 6;
+  pointer-events: none;
+  white-space: nowrap;
+}
+

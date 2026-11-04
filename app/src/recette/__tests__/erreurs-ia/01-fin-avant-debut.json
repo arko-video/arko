@@ -1,0 +1,6 @@
+{
+  "description": "Fin avant le début : inversées",
+  "entree": { "format": "arko.recette/1", "plans": [{ "de": 15.3, "a": 12 }] },
+  "attendu": { "plans": [{ "de": 12, "a": 15.3 }] },
+  "messages": ["La fin (12,00 s) était avant le début (15,30 s) : je les ai inversées."]
+}

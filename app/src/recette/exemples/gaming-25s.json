@@ -1,0 +1,22 @@
+{
+  "format": "arko.recette/1",
+  "titre": "Clutch 1v3 sur la B",
+  "sources": [
+    { "id": "s1", "nom": "valorant-session.mp4", "taille": 1843200000, "emp": "3f9a0c1d2b4e5f60718293a4b5c6d7e8", "duree": 3612.4, "type": "video", "l": 1920, "h": 1080 }
+  ],
+  "plans": [
+    { "de": 1204.5, "a": 1207.5, "mise": { "type": "recadre", "x": 0.62 } },
+    { "de": 1180, "a": 1188 },
+    { "de": 1195.2, "a": 1203.2, "trans": "glisse" },
+    { "de": 1204.5, "a": 1207.5, "vit": 0.5, "trans": { "type": "flash", "dur": 0.2 } }
+  ],
+  "mise": { "type": "flou", "y": 0.5 },
+  "textes": [{ "txt": "1v3 avec 12 PV", "t": 0, "dur": 3, "y": 0.2 }],
+  "sousTitres": { "mots": "auto" },
+  "sons": [],
+  "zooms": [{ "ts": 1205.1, "force": 1.4 }],
+  "guide": null,
+  "boucle": false,
+  "marqueurs": [{ "ts": 1205.1, "type": "kill", "label": "dernier kill" }],
+  "export": { "h": 1920, "ips": 30, "qualite": "normale" }
+}

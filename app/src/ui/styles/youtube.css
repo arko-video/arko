@@ -1,0 +1,297 @@
+/* YouTube : écran de départ, pastille de plateforme, aperçu 16:9, cadrage, chapitres, intro / outro, miniature. */
+
+/* ---------- écran de départ */
+.depart-corps {
+  justify-content: center;
+  gap: 18px;
+  padding-top: 32px;
+}
+.depart-marque {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.depart-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.depart-bouton {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 116px;
+  padding: 18px 20px;
+  border-radius: var(--r-grand);
+  border: 2px solid var(--bord-fort);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+}
+.depart-bouton:active,
+.depart-bouton[data-actif='1'] {
+  border-color: var(--accent);
+}
+.depart-picto {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 20px;
+  background: var(--accent);
+  color: var(--accent-texte);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.depart-textes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.depart-textes strong {
+  font-family: var(--police-titre);
+  font-size: 24px;
+}
+
+/* ---------- pastille « Pour : TikTok · Changer » et badges de Mes montages */
+.pastille-destination {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 10px;
+  padding: 0 14px;
+  border-radius: 22px;
+  border: 1px solid var(--bord-fort);
+  background: var(--surface-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pastille-changer {
+  color: var(--accent);
+}
+.montages-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.btn-petit {
+  min-height: 44px;
+  width: auto;
+  padding: 0 8px;
+  font-size: 13px;
+}
+.badge-destination {
+  align-self: flex-start;
+  padding: 1px 8px;
+  border-radius: 8px;
+  background: var(--accent-voile);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------- aperçu 16:9 */
+.apercu[data-paysage='1'] {
+  height: auto;
+  min-height: 0;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 16 / 9;
+}
+.habiller-apercu .apercu[data-paysage='1'] {
+  height: auto;
+  min-height: 0;
+  width: 100%;
+  max-height: 100%;
+  align-self: center;
+}
+.clip-apercu[data-paysage='1'] canvas {
+  height: auto;
+  aspect-ratio: 16 / 9;
+  margin: auto 0;
+}
+
+/* ---------- cadrage 16:9 : vignettes en paysage */
+.vertical[data-paysage='1'] .mini {
+  width: 56px;
+  height: 32px;
+}
+.vertical[data-paysage='1'] .mini-flou .mini-jeu {
+  left: 19px;
+  right: 19px;
+  top: 0;
+  height: 32px;
+}
+.mises-169 {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* ---------- puces (choix courts) */
+.puces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.puce {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 22px;
+  border: 1px solid var(--bord-fort);
+  background: var(--surface-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.puce[data-actif='1'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-texte);
+}
+.mini-groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+.mini-groupe input[type='range'] {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--accent);
+}
+.champ {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--bord-fort);
+  background: var(--fond-creux);
+  color: var(--texte);
+  font: inherit;
+}
+.champ:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.liste-simple {
+  margin: 0;
+  padding-left: 16px;
+}
+
+/* ---------- chapitres */
+.chapitres {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chapitre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chapitre .pastille {
+  min-width: 64px;
+  flex-shrink: 0;
+}
+.chapitre-nom {
+  flex: 1;
+  min-width: 0;
+}
+.chapitres-texte {
+  min-height: 0;
+  padding: 10px 12px;
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  resize: vertical;
+}
+.calque[data-genre='chapitre'] .calque-label {
+  background: #d9480f;
+}
+
+/* ---------- intro / outro */
+.generique-apercu {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r);
+  background: #000;
+}
+.mes-generiques {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mes-generiques .pastille {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+/* ---------- miniature */
+.miniature .entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px var(--marge);
+}
+.miniature-apercu canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--r);
+  background: #000;
+}
+.miniature-apercu[data-paysage='0'] canvas {
+  width: auto;
+  max-width: 100%;
+  max-height: 46dvh;
+  margin: 0 auto;
+}
+
+/* ---------- intro / outro sur les frises (dans les marges, non coupables) */
+.tuile-generique {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  background: #d9480f;
+  overflow: hidden;
+  z-index: 1;
+}
+.tuile-lire,
+.tuile-retirer {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+.tuile-lire {
+  flex: 1;
+  min-height: 22px;
+}
+.tuile-retirer {
+  min-height: 22px;
+  font-size: 15px;
+  background: rgba(0, 0, 0, 0.25);
+}

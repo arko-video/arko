@@ -1,0 +1,6 @@
+{
+  "description": "Texte trop bas (sous l'interface TikTok), texte vide, texte trop long",
+  "entree": { "format": "arko.recette/1", "plans": [{ "de": 0, "a": 10 }], "textes": [{ "txt": "Regarde ça", "t": 0, "y": 0.9 }, { "txt": "   ", "t": 1 }, { "txt": "abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij abcdefghij", "t": 2 }] },
+  "attendu": { "textes": [{ "txt": "Regarde ça", "style": "accroche", "t": 0, "dur": 3, "x": 0.5, "y": 0.62 }, { "t": 2, "y": 0.2 }] },
+  "messages": ["Le texte sortait de la zone visible sur TikTok (y = 0,90) : remonté à 0,62.", "Texte vide : supprimé.", "Le texte dépassait 120 caractères : raccourci."]
+}

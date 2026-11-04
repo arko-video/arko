@@ -1,0 +1,87 @@
+/* Mes sons (panneau Sons de Habiller) et réception des sons partagés. Cibles tactiles ≥ 44 px. */
+
+.mes-sons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mes-sons p {
+  margin: 0;
+}
+.mes-sons input[type='search'] {
+  min-height: 48px;
+}
+.mes-sons-import {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 8px;
+  align-items: end;
+}
+.mes-sons-import .btn {
+  min-height: 52px;
+  padding: 0 10px;
+  font-size: 15px;
+}
+.mes-sons-etiquette {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mes-sons-lien {
+  min-height: 48px;
+  text-decoration: none;
+  font-size: 15px;
+}
+.mes-sons-aide {
+  margin: 0;
+  padding-left: 20px;
+}
+.mes-sons-aide li + li {
+  margin-top: 2px;
+}
+.son-secondaire {
+  width: 44px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: var(--r);
+  color: var(--texte-doux);
+}
+.son-etiquette {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--texte-doux);
+  font-size: 12px;
+  font-weight: 500;
+}
+.mon-son-editeur {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--r);
+  border: 1px solid var(--accent);
+  background: var(--surface);
+  list-style: none;
+}
+
+/* son en cours de chargement : petit rond qui tourne à la place du triangle */
+.rond-chargement {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--bord-fort);
+  border-top-color: var(--accent);
+  animation: rond-tourne 0.8s linear infinite;
+}
+@keyframes rond-tourne {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rond-chargement {
+    animation-duration: 2.4s;
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "description": "Vitesse hors limites, transition inconnue, ancien nom « fondu » → noir, durée de transition trop longue, transition sur le premier plan",
+  "entree": { "format": "arko.recette/1", "plans": [{ "de": 0, "a": 4, "trans": "fondu" }, { "de": 4, "a": 6, "vit": 10, "trans": "explosion" }, { "de": 6, "a": 8, "trans": { "type": "fondu", "dur": 2 } }] },
+  "attendu": { "plans": [{ "de": 0, "a": 4 }, { "de": 4, "a": 6, "vit": 4 }, { "de": 6, "a": 8, "trans": { "type": "noir", "dur": 0.6 } }] },
+  "messages": ["La transition \"fondu\" s'appelle maintenant \"noir\" : corrigée.", "La vitesse (10,00) était hors limites : ramené à 4,00.", "La transition \"explosion\" n'existe pas : remplacée par une coupe franche.", "Le premier plan ne peut pas avoir de transition"]
+}

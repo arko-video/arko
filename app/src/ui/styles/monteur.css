@@ -1,0 +1,259 @@
+/* Phase 6 : monteur IA (choix sur Importer, Demande, réglages de l'IA). Analyse et Revue : revue.css. */
+
+/* ------------------------------------------------------------ étoile du monteur */
+.monteur-etoile {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  background: var(--accent);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+.monteur-etoile.grande {
+  width: 30px;
+  height: 30px;
+}
+.monteur .entete-titre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ------------------------------------------------------------ choix sur Importer */
+.choix-monteur {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--r-grand);
+  border: 1px solid var(--bord-fort);
+  background: linear-gradient(160deg, #1d2414, var(--surface) 60%);
+}
+.choix-titre {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-size: 20px;
+  line-height: 1.2;
+}
+.choix-nom {
+  margin: -6px 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.choix {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 76px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1.5px solid var(--bord);
+  background: var(--fond-creux);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.choix:disabled {
+  opacity: 0.5;
+}
+.choix-ia {
+  border-color: var(--accent);
+  background: var(--accent-voile);
+}
+.choix-textes {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.choix-textes strong {
+  font-size: 17px;
+}
+
+.carte-revue {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.carte-revue-btn {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------ écrans du monteur */
+/* Hauteur de l'écran, corps qui défile : les boutons du bas restent toujours visibles. */
+.ecran.monteur {
+  height: 100dvh;
+  min-height: 0;
+}
+.monteur .ecran-corps {
+  overflow-y: auto;
+  padding-bottom: 12px;
+}
+.monteur .ecran-pied {
+  position: static;
+  padding-top: 10px;
+  border-top: 1px solid var(--bord);
+}
+
+/* ------------------------------------------------------------ champs de la Demande */
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.champ-titre {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.monteur input.champ-saisie,
+.monteur select.champ-saisie {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--bord-fort);
+  background: var(--fond-creux);
+  color: var(--texte);
+  font: inherit;
+  font-size: 16px;
+}
+.monteur .champ-saisie:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.compteur-clips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.compteur-valeur {
+  align-self: center;
+  margin-top: -6px;
+  font-family: var(--police-titre);
+  font-size: 22px;
+}
+.segments {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 8px;
+}
+.segments button,
+.mode {
+  min-height: 52px;
+  padding: 8px 10px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--bord);
+  background: var(--surface);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.segments button[data-actif='1'],
+.mode[data-actif='1'] {
+  border-color: var(--accent);
+  background: var(--accent-voile);
+}
+.modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.mode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  padding: 12px;
+}
+.mode strong {
+  font-size: 16px;
+}
+.interrupteur[data-desactive='1'] {
+  opacity: 0.6;
+  cursor: default;
+}
+.lien {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.lien:disabled {
+  opacity: 0.4;
+}
+
+/* ------------------------------------------------------------ réglages de l'IA */
+.reglages-ia {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px;
+  border-radius: var(--r-grand);
+  border: 1px solid var(--bord-fort);
+  background: var(--surface);
+}
+.reglages-ia .segments button {
+  background: var(--fond-creux);
+  font-size: 14px;
+}
+.reglages-ia p {
+  margin: 0;
+}
+.cle-gardee {
+  padding: 14px;
+  border-radius: var(--r);
+  background: var(--fond-creux);
+  font-family: ui-monospace, monospace;
+  font-size: 15px;
+}
+.test-cle[data-etat='ok'] {
+  color: var(--vert);
+}
+.test-cle[data-etat='erreur'] {
+  color: var(--erreur-texte);
+}
+.cout {
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
+}
+
+.panneau-envoi {
+  width: min(calc(100% - 16px), 480px);
+  max-height: 88dvh;
+}
+.panneau-envoi[open] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.panneau-envoi p {
+  margin: 0;
+}
+.envoi-texte {
+  margin: 4px 0 8px;
+  min-height: 120px;
+  max-height: 52dvh;
+  overflow: auto;
+  padding: 12px;
+  border-radius: var(--r);
+  background: var(--fond-creux);
+  border: 1px solid var(--bord);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

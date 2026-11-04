@@ -1,0 +1,120 @@
+/* Phase 5 : écran Aide et conseils du premier lancement (sur Importer). */
+
+.aide-cartes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aide-carte {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: var(--r);
+  background: var(--surface);
+}
+.aide-icone {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--accent-voile);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.aide-icone .monteur-etoile {
+  width: 20px;
+  height: 20px;
+}
+.aide-vertical {
+  width: 12px;
+  height: 20px;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+.aide-textes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.aide-textes strong {
+  font-size: 16px;
+  color: var(--texte);
+}
+.aide-code {
+  justify-content: space-between;
+}
+.aide-licence {
+  margin: -8px 0 16px;
+}
+
+/* ------------------------------------------------------------ conseils du premier lancement */
+.conseils {
+  border-radius: var(--r-grand);
+  border: 1px solid var(--bord-fort);
+  background: linear-gradient(160deg, #1d2414, var(--surface) 70%);
+  overflow: hidden;
+}
+.conseils-piste {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.conseils-piste::-webkit-scrollbar {
+  display: none;
+}
+.conseil {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  padding: 16px 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.conseil strong {
+  font-family: var(--police-titre);
+  font-size: 18px;
+}
+.conseil p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+.conseils-bas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px 12px;
+}
+.conseils-bas .btn {
+  min-height: 44px;
+}
+.conseils-points {
+  display: flex;
+  gap: 6px;
+}
+.conseils-points span {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bord-fort);
+  transition: width 0.2s;
+}
+.conseils-points span[data-actif='1'] {
+  width: 20px;
+  background: var(--accent);
+}
+
+/* Le titre reçoit le focus à l'ouverture (pour les lecteurs d'écran) : pas de cadre pour autant. */
+.aide .entete-titre:focus {
+  outline: none;
+}

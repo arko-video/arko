@@ -1,0 +1,110 @@
+/* ------------------------------------------------------------ Vertical */
+.vertical .apercu {
+  height: min(44dvh, 420px);
+  min-height: 220px;
+}
+.apercu[data-glisse='1'] {
+  cursor: grab;
+}
+.aide-glisse {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background: rgba(15, 17, 21, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.mises {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.carte-mise {
+  position: relative;
+  min-height: 118px;
+  padding: 12px 6px 10px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--bord);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.carte-mise[data-actif='1'] {
+  border-color: var(--accent);
+  background: #1f2418;
+}
+.carte-mise:disabled {
+  cursor: not-allowed;
+}
+.carte-mise:disabled .mini,
+.carte-mise:disabled .carte-mise-label {
+  opacity: 0.45;
+}
+.carte-mise-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+.badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--texte);
+  border: 1px solid var(--bord-fort);
+}
+.mini {
+  position: relative;
+  width: 32px;
+  height: 56px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #2c2740;
+}
+.mini-jeu {
+  position: absolute;
+  background: #4b5a73;
+}
+.mini-flou {
+  background: linear-gradient(180deg, #3a3256, #2c2740 50%, #3a3256);
+}
+.mini-flou .mini-jeu {
+  left: 0;
+  right: 0;
+  top: 19px;
+  height: 18px;
+}
+.mini-recadre .mini-jeu {
+  inset: 0;
+}
+.mini-jeuCam .mini-jeu {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+}
+.mini-cam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 22px;
+  background: #7a6a9a;
+}
+

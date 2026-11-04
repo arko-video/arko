@@ -1,0 +1,7 @@
+{
+  "description": "Plan au-delà de la durée de la source, temps négatif, plan trop court, source inconnue",
+  "sources": [{ "id": "s1", "nom": "clip.mp4", "taille": 1000, "emp": "abc", "duree": 30, "type": "video", "l": 1920, "h": 1080 }],
+  "entree": { "format": "arko.recette/1", "plans": [{ "de": -2, "a": 3 }, { "de": 25, "a": 45, "src": "video1" }, { "de": 10, "a": 10.05 }] },
+  "attendu": { "plans": [{ "de": 0, "a": 3 }, { "src": "s1", "de": 25, "a": 30 }] },
+  "messages": ["Le début (-2,00 s) était négatif : ramené à 0.", "La source \"video1\" n'existe pas : remplacée par \"s1\".", "dépassait la durée de la vidéo", "Ce plan durait moins de 0,10 s : supprimé."]
+}

@@ -1,0 +1,262 @@
+/* Phase 3 : outils Sons et Zoom, réglages partagés, repères de la mini-frise, son guide de Couper. */
+
+/* ---------- réglages partagés */
+.reglage {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.reglages-titre {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+.decaler {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.decaler .btn {
+  min-height: 48px;
+  padding: 0 10px;
+  font-variant-numeric: tabular-nums;
+}
+.decaler-valeur {
+  min-width: 76px;
+  text-align: center;
+  font-size: 15px;
+}
+label.btn[data-occupe='1'] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ---------- outil Sons */
+.liste-sons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.liste-sons-vide {
+  padding: 12px 0;
+}
+.son-ligne {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.son-ecouter {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px 0 8px;
+  border-radius: var(--r);
+  border: 1px solid var(--bord);
+  background: var(--surface);
+  color: var(--texte);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.son-ecouter:active {
+  background: var(--surface-2);
+}
+.son-lecture {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  color: var(--accent);
+}
+.son-nom {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.son-ajouter {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 26px;
+  background: var(--accent);
+  color: var(--accent-texte);
+  border: none;
+}
+.sons-import .btn {
+  padding: 0 10px;
+  font-size: 14px;
+  text-align: center;
+}
+.btn-micro {
+  border-color: #6a2a30;
+  color: #ff9aa2;
+}
+.btn-micro[data-enregistre='1'] {
+  background: #d93848;
+  border-color: #d93848;
+  color: #fff;
+}
+.micro-point {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  background: #fff;
+  animation: micro-pulse 1s ease-in-out infinite;
+}
+@keyframes micro-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+.droits-sons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+/* ---------- outil Zoom */
+.echantillon-zoom {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 2px solid var(--texte-doux);
+  animation: zoom-punch 1.4s infinite;
+}
+.echantillon-zoom[data-style='doux'] {
+  animation-name: zoom-doux;
+  animation-duration: 2.4s;
+}
+@keyframes zoom-punch {
+  0%, 30% { transform: scale(0.7); }
+  36%, 80% { transform: scale(1.05); }
+  90%, 100% { transform: scale(0.7); }
+}
+@keyframes zoom-doux {
+  0% { transform: scale(0.7); }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(0.7); }
+}
+.calque-zoom {
+  /* Pas de z-index : le bouton lecture reste au-dessus, la cible aussi. */
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: crosshair;
+}
+.cible-zoom {
+  position: absolute;
+  z-index: 4;
+  width: 52px;
+  height: 52px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 0 2px rgba(15, 17, 21, 0.6), inset 0 0 0 2px rgba(15, 17, 21, 0.6);
+  background:
+    linear-gradient(var(--accent), var(--accent)) center / 2px 16px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) center / 16px 2px no-repeat;
+  touch-action: none;
+  cursor: grab;
+}
+.cible-zoom:focus-visible {
+  outline: 3px solid var(--texte);
+  outline-offset: 3px;
+}
+
+/* ---------- repères de la mini-frise */
+.calque[data-genre='son'] .calque-label {
+  background: #7b5cff;
+}
+.calque[data-genre='zoom'] .calque-label {
+  background: #2f8f9d;
+}
+.calque[data-genre='coupe'] .calque-label {
+  width: 28px;
+  margin: 0 auto;
+  padding: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 2px solid var(--accent);
+  font-size: 0;
+}
+.calque[data-genre='coupe'][data-choisi='1'] .calque-label {
+  background: var(--accent);
+  outline: none;
+}
+
+/* ---------- son guide (Couper) */
+.temps-fort {
+  position: absolute;
+  top: -6px;
+  width: 2px;
+  height: 10px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: #b9a6ff;
+  z-index: 2;
+  pointer-events: none;
+}
+.guide {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--r);
+  border: 1px solid var(--bord);
+  background: var(--fond-creux);
+}
+.guide-vide {
+  padding: 10px 12px;
+}
+.guide-vide p {
+  margin: 0;
+}
+.guide-entete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.guide-nom {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.guide-choisir {
+  width: 100%;
+}
+
+/* ---------- outil Couper de Habiller : plans côte à côte sur la mini-frise */
+.calque[data-genre='plan'] .calque-label {
+  background: var(--surface-2);
+  border: 1px solid var(--bord-fort);
+}
+.calque[data-genre='plan'][data-choisi='1'] .calque-label {
+  background: var(--accent);
+  color: var(--accent-texte);
+  outline: none;
+}
+.coupe-etat {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 0 0 8px;
+}
