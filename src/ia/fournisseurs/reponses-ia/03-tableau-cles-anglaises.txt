@@ -1,0 +1,10 @@
+[
+  {
+    "title": "Ace en 10 secondes",
+    "reason": "Cinq kills d'affilée, très lisible même sans le son.",
+    "plans": [ { "start": "1:10:05.5", "end": "1:10:27", "transition": "zoom" } ],
+    "texts": [ { "text": "5 KILLS EN 10 SECONDES", "t": 0, "role": "accroche" } ],
+    "sounds": [ { "id": "vine_boom", "ts": 4210 }, { "id": "jeu.piece", "ts": 4212.5 } ],
+    "subtitles": "auto"
+  }
+]

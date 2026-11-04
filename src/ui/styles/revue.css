@@ -1,0 +1,268 @@
+/* Phase 6 : Analyse du monteur IA, puis la Revue en plein écran (un clip à la fois, balayé pour garder ou jeter). */
+
+/* ------------------------------------------------------------ Analyse */
+.analyse-carte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 16px;
+  border-radius: var(--r-grand);
+  background: var(--surface);
+  text-align: center;
+}
+.analyse-carte p {
+  margin: 0;
+}
+.analyse-pourcent {
+  font-family: var(--police-titre);
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+}
+.analyse-pourcent span {
+  font-size: 28px;
+  color: var(--texte-doux);
+}
+.barre {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bord);
+  overflow: hidden;
+}
+.barre span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+.analyse-message {
+  font-weight: 600;
+}
+.moments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.moments p {
+  margin: 0;
+}
+.moments-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.moment {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-petit);
+  background: var(--surface);
+  font-size: 14px;
+}
+.moment-heure {
+  flex-shrink: 0;
+  min-width: 44px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------ Revue */
+.revue {
+  height: 100dvh;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #07080a;
+  padding-top: env(safe-area-inset-top);
+}
+.revue-haut {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px 6px 8px;
+  min-height: 56px;
+}
+.revue-titre {
+  flex: 1;
+  font-family: var(--police-titre);
+  font-weight: 700;
+  font-size: 18px;
+}
+.revue-compteur {
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.revue-scene {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px;
+}
+.revue-carte {
+  position: relative;
+  height: 100%;
+  aspect-ratio: 9 / 16;
+  max-width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  touch-action: pan-y;
+  user-select: none;
+  transition: transform 0.18s ease-out;
+  will-change: transform;
+}
+.clip-apercu {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: #000;
+  cursor: pointer;
+}
+.clip-apercu canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.clip-pause {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tampon {
+  position: absolute;
+  top: 28px;
+  padding: 4px 14px;
+  border: 3px solid currentColor;
+  border-radius: 10px;
+  font-family: var(--police-titre);
+  font-size: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.tampon-garder {
+  left: 18px;
+  color: var(--accent);
+  transform: rotate(-12deg);
+}
+.tampon-jeter {
+  right: 18px;
+  color: #ff7a7a;
+  transform: rotate(12deg);
+}
+.revue-infos {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 48px 14px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 40%, rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+.revue-nom {
+  font-family: var(--police-titre);
+  font-size: 21px;
+  line-height: 1.15;
+}
+.revue-raison {
+  margin: 6px 0 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
+  font-size: 15px;
+  font-weight: 500;
+}
+.revue-aide {
+  margin: 8px 16px 0;
+  text-align: center;
+}
+.revue-boutons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 10px 16px calc(14px + env(safe-area-inset-bottom));
+}
+.revue-btn {
+  min-height: 64px;
+  border-radius: 20px;
+  border: 1.5px solid var(--bord-fort);
+  background: var(--surface);
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.revue-jeter {
+  border-color: var(--erreur-bord);
+  color: var(--erreur-texte);
+}
+.revue-garder {
+  border: none;
+  background: var(--accent);
+  color: var(--accent-texte);
+}
+.revue-btn:active {
+  transform: scale(0.97);
+}
+
+/* ------------------------------------------------------------ fin de la revue */
+.revue-fin {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.revue-fin-icone {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-texte);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.revue-gardes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.revue-gardes li {
+  padding: 10px 14px;
+  border-radius: var(--r-petit);
+  background: var(--surface);
+  font-weight: 600;
+  text-align: left;
+}

@@ -1,0 +1,2111 @@
+{
+  "config": {
+    "argv": [
+      "/opt/node22/bin/node",
+      "/home/claude/arko/app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/qa/playwright.qa.config.ts",
+      "--reporter=line,json",
+      "--output",
+      "/home/claude/arko/app/test-results/qa-p6",
+      "tests/qa/p6-",
+      "tests/qa/p4-modeles"
+    ],
+    "configFile": "/home/claude/arko/app/tests/qa/playwright.qa.config.ts",
+    "rootDir": "/home/claude/arko/app/tests/qa",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/claude/arko/app/test-results/qa-p6",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.qa\\.ts$/"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/claude/arko/app/test-results/qa-p6",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "snapshotDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 600000,
+        "use": {
+          "baseURL": "http://localhost:4184/arko/",
+          "channel": "chrome",
+          "headless": true,
+          "viewport": {
+            "width": 360,
+            "height": 740
+          },
+          "deviceScaleFactor": 2,
+          "hasTouch": false,
+          "acceptDownloads": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npx vite build --outDir dist-qa && npx vite preview --outDir dist-qa --port 4184 --strictPort",
+      "cwd": "../..",
+      "url": "http://localhost:4184/arko/",
+      "reuseExistingServer": true,
+      "timeout": 300000
+    }
+  },
+  "suites": [
+    {
+      "title": "p4-modeles-montages.qa.ts",
+      "file": "p4-modeles-montages.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(p4-c) modèles : Top 3 grisé, rien supprimé ; « Le meilleur d’abord » décale tout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "modèles",
+                  "description": "{\"grise\":{\"desactive\":true,\"texte\":\"Il faut au moins 3 passages : coupe ta vidéo dans Couper.\"},\"plansApresGrise\":2,\"meilleur\":{\"tete\":7,\"plans\":[{\"de\":6.25,\"a\":7.75},{\"de\":0,\"a\":5,\"trans\":\"glitch\"},{\"de\":5,\"a\":10}],\"textes\":[{\"txt\":\"ATTENDS…\",\"style\":\"accroche\",\"t\":0,\"dur\":1.5,\"x\":0.5,\"y\":0.2,\"role\":\"accroche\"},{\"txt\":\"Salut\",\"style\":\"bulle\",\"t\":3.5,\"dur\":1,\"x\":0.5,\"y\":0.2}],\"sons\":[{\"id\":\"interface.ding\",\"t\":7.5,\"vol\":1},{\"id\":\"impact.boom\",\"ts\":7,\"src\":\"s1\",\"vol\":1}],\"zooms\":[{\"t\":5.5,\"dur\":0.5,\"x\":0.5,\"y\":0.5,\"force\":1.3,\"style\":\"punch\",\"zone\":\"tout\"}]},\"annule\":{\"textes\":[[\"Salut\",2]],\"sons\":[{\"id\":\"interface.ding\",\"t\":6,\"vol\":1},{\"id\":\"impact.boom\",\"ts\":7,\"src\":\"s1\",\"vol\":1}],\"zooms\":[{\"t\":4,\"dur\":0.5,\"x\":0.5,\"y\":0.5,\"force\":1.3,\"style\":\"punch\",\"zone\":\"tout\"}]},\"top3\":{\"plans\":4,\"textes\":[[\"Salut\",2],[\"#3\",2],[\"#2\",5],[\"#1\",8],[\"TOP 3\",0]],\"trans\":[null,null,\"zoom\",\"zoom\"]}}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18811,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:18:15.975Z",
+                  "annotations": [
+                    {
+                      "type": "modèles",
+                      "description": "{\"grise\":{\"desactive\":true,\"texte\":\"Il faut au moins 3 passages : coupe ta vidéo dans Couper.\"},\"plansApresGrise\":2,\"meilleur\":{\"tete\":7,\"plans\":[{\"de\":6.25,\"a\":7.75},{\"de\":0,\"a\":5,\"trans\":\"glitch\"},{\"de\":5,\"a\":10}],\"textes\":[{\"txt\":\"ATTENDS…\",\"style\":\"accroche\",\"t\":0,\"dur\":1.5,\"x\":0.5,\"y\":0.2,\"role\":\"accroche\"},{\"txt\":\"Salut\",\"style\":\"bulle\",\"t\":3.5,\"dur\":1,\"x\":0.5,\"y\":0.2}],\"sons\":[{\"id\":\"interface.ding\",\"t\":7.5,\"vol\":1},{\"id\":\"impact.boom\",\"ts\":7,\"src\":\"s1\",\"vol\":1}],\"zooms\":[{\"t\":5.5,\"dur\":0.5,\"x\":0.5,\"y\":0.5,\"force\":1.3,\"style\":\"punch\",\"zone\":\"tout\"}]},\"annule\":{\"textes\":[[\"Salut\",2]],\"sons\":[{\"id\":\"interface.ding\",\"t\":6,\"vol\":1},{\"id\":\"impact.boom\",\"ts\":7,\"src\":\"s1\",\"vol\":1}],\"zooms\":[{\"t\":4,\"dur\":0.5,\"x\":0.5,\"y\":0.5,\"force\":1.3,\"style\":\"punch\",\"zone\":\"tout\"}]},\"top3\":{\"plans\":4,\"textes\":[[\"Salut\",2],[\"#3\",2],[\"#2\",5],[\"#1\",8],[\"TOP 3\",0]],\"trans\":[null,null,\"zoom\",\"zoom\"]}}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9ed81f41aacc4c63b5e3-b64f2bf8a8e2b1376395",
+          "file": "p4-modeles-montages.qa.ts",
+          "line": 18,
+          "column": 1
+        },
+        {
+          "title": "(p4-d) alerte de rythme : un seul repère, sur le pire passage",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "rythme",
+                  "description": "{\"n\":1,\"t\":5,\"toast\":[\"Ça traîne ici : coupe, zoome ou ajoute un son\"],\"nCouper\":1}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6807,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:18:35.045Z",
+                  "annotations": [
+                    {
+                      "type": "rythme",
+                      "description": "{\"n\":1,\"t\":5,\"toast\":[\"Ça traîne ici : coupe, zoome ou ajoute un son\"],\"nCouper\":1}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9ed81f41aacc4c63b5e3-2deeab31608065b2c36a",
+          "file": "p4-modeles-montages.qa.ts",
+          "line": 88,
+          "column": 1
+        },
+        {
+          "title": "(p4-e) Mes montages : 3 projets, ouvrir, renommer, dupliquer, supprimer ; sons des autres projets gardés",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 600081,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 600000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 600000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 600000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/home/claude/arko/app/tests/qa/p4-modeles-montages.qa.ts",
+                        "column": 43,
+                        "line": 210
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('etape')\nExpected substring: \u001b[32m\"Étape 1 sur 5\"\u001b[39m\nReceived string:    \u001b[31m\"\"\u001b[39m\n\n\n  208 |   // Supprimer B : son son n'est plus utilisé, il est effacé (il a plus d'1 h).\n  209 |   for (let k = 0; k < 4; k++) await page.getByTestId('retour').click({ timeout: 3000 }).catch(() => undefined);\n> 210 |   await expect(page.getByTestId('etape')).toContainText('Étape 1 sur 5');\n      |                                           ^\n  211 |   await vieillir();\n  212 |   i = await idx('Mon <b>clutch</b>');\n  213 |   await page.getByTestId(`montage-menu-${i}`).click();\n    at /home/claude/arko/app/tests/qa/p4-modeles-montages.qa.ts:210:43"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:18:41.881Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/claude/arko/app/test-results/qa-p6/p4-modeles-montages.qa.ts--b7b2e-s-des-autres-projets-gardés/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "9ed81f41aacc4c63b5e3-e4a05c4c107292d40def",
+          "file": "p4-modeles-montages.qa.ts",
+          "line": 117,
+          "column": 1
+        },
+        {
+          "title": "(p4-f) migration de l’ancienne clé arko.projet",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "migration",
+                  "description": "{\"carte\":\"Ton dernier montagep4-boite-10s10 s · hierArrêté à : VerticalPour l’ouvrir, choisis à nouveau « p4-boite-10s.mp4 ».\",\"cles\":[\"arko.projet.mw1hzlttjji3\",\"arko.projets\"],\"etape\":\"Étape 2 sur 5\",\"plans\":[{\"de\":0,\"a\":4},{\"de\":4,\"a\":10}]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4772,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:28:42.872Z",
+                  "annotations": [
+                    {
+                      "type": "migration",
+                      "description": "{\"carte\":\"Ton dernier montagep4-boite-10s10 s · hierArrêté à : VerticalPour l’ouvrir, choisis à nouveau « p4-boite-10s.mp4 ».\",\"cles\":[\"arko.projet.mw1hzlttjji3\",\"arko.projets\"],\"etape\":\"Étape 2 sur 5\",\"plans\":[{\"de\":0,\"a\":4},{\"de\":4,\"a\":10}]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9ed81f41aacc4c63b5e3-4bd357fe97e90931243c",
+          "file": "p4-modeles-montages.qa.ts",
+          "line": 233,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "p6-monteur.qa.ts",
+      "file": "p6-monteur.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(p6-a) sans IA : clips autour des bips, garder / jeter, reprendre la revue, ouvrir et exporter",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 63751,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('revue-compteur')\nExpected pattern: \u001b[32m/3 \\/ [34]/\u001b[39m\nReceived string:  \u001b[31m\"1 / 4\"\u001b[39m\nTimeout: 60000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('revue-compteur') with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('revue-compteur')\u001b[22m\n\u001b[2m    121 × locator resolved to <span data-testid=\"revue-compteur\" class=\"revue-compteur chiffres\">1 / 4</span>\u001b[22m\n\u001b[2m        - unexpected value \"1 / 4\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('revue-compteur')\nExpected pattern: \u001b[32m/3 \\/ [34]/\u001b[39m\nReceived string:  \u001b[31m\"1 / 4\"\u001b[39m\nTimeout: 60000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('revue-compteur') with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('revue-compteur')\u001b[22m\n\u001b[2m    121 × locator resolved to <span data-testid=\"revue-compteur\" class=\"revue-compteur chiffres\">1 / 4</span>\u001b[22m\n\u001b[2m        - unexpected value \"1 / 4\"\u001b[22m\n\n    at /home/claude/arko/app/tests/qa/p6-monteur.qa.ts:109:52",
+                    "location": {
+                      "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                      "column": 52,
+                      "line": 109
+                    },
+                    "snippet": "  107 |   const reprendre = await page.getByTestId('reprendre-revue').textContent();\n  108 |   await page.getByTestId('fichier-revue').setInputFiles(SIX);\n> 109 |   await expect(page.getByTestId('revue-compteur')).toHaveText(/3 \\/ [34]/, { timeout: 60_000 });\n      |                                                    ^\n  110 |   const compteurRepris = await page.getByTestId('revue-compteur').textContent();\n  111 |   while (await page.getByTestId('garder').isVisible().catch(() => false)) {\n  112 |     plages.push(await plage(page));"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                        "column": 52,
+                        "line": 109
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('revue-compteur')\nExpected pattern: \u001b[32m/3 \\/ [34]/\u001b[39m\nReceived string:  \u001b[31m\"1 / 4\"\u001b[39m\nTimeout: 60000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" getByTestId('revue-compteur') with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('revue-compteur')\u001b[22m\n\u001b[2m    121 × locator resolved to <span data-testid=\"revue-compteur\" class=\"revue-compteur chiffres\">1 / 4</span>\u001b[22m\n\u001b[2m        - unexpected value \"1 / 4\"\u001b[22m\n\n\n  107 |   const reprendre = await page.getByTestId('reprendre-revue').textContent();\n  108 |   await page.getByTestId('fichier-revue').setInputFiles(SIX);\n> 109 |   await expect(page.getByTestId('revue-compteur')).toHaveText(/3 \\/ [34]/, { timeout: 60_000 });\n      |                                                    ^\n  110 |   const compteurRepris = await page.getByTestId('revue-compteur').textContent();\n  111 |   while (await page.getByTestId('garder').isVisible().catch(() => false)) {\n  112 |     plages.push(await plage(page));\n    at /home/claude/arko/app/tests/qa/p6-monteur.qa.ts:109:52"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:28:48.021Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/claude/arko/app/test-results/qa-p6/p6-monteur.qa.ts--p6-a-san-9449a-la-revue-ouvrir-et-exporter/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                    "column": 52,
+                    "line": 109
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ee570d1fa1887062af9-a36420d152dc7413b581",
+          "file": "p6-monteur.qa.ts",
+          "line": 84,
+          "column": 1
+        },
+        {
+          "title": "(p6-b) avec l’IA (faux fournisseur) : Tester ma clé, envoi, 401, 429, markdown, réponse coupée, injection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "IA",
+                  "description": "{\"cleGardee\":\"Clé gardée : sk-…bbbb\",\"cout\":\"Coût estimé : environ 1 800 tokens, soit quelques centimes avec un petit modèle.\",\"envoiAvant\":\"Ce qui est envoyéAucune image ni vidéo n’est envoyée : seulement ce texte, avec le résumé des moments.Après l’analyse, les moments trouvés remplaceront les lignes d’exemple ci-dessous.Tu es le monteur\",\"msAnalyse\":1863,\"m401\":\"Clé refusée : vérifie-la.\",\"sansIa401\":true,\"m429\":\"Trop de demandes ou crédit épuisé. Attends un peu, ou vérifie ton crédit chez le fournisseur.\",\"sansIa429\":true,\"clipsCoupee\":\"Voir mes 2 clips\",\"ecranCoupee\":\"Monteur IAÉtape 2 sur 3 · AnalyseTes clips sont prêts4 moments trouvés0:59Gros pic de son après un calme2:00Gros pic de son après un calme2:59Gros pic de son après un calme4:59Gros pic de son après un calme1 correction faite sur les propositions de l’IA.Voir ce qui est envoyéVoir mes 2 clips\",\"resultats\":{\"markdown\":\"Voir mes 3 clips\",\"injection\":\"Voir mes 3 clips\"},\"titreInjecte\":\"<img src=x onerror=\\\"window.__xss=1\\\">Bip 1\",\"raisonInjectee\":\"&lt;script&gt;window.__xss=2&lt;/script&gt;&lt;b&gt;gras&lt;/b&gt;\",\"xss\":null,\"imgs\":0,\"requetes\":[\"anthropic /v1/models cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\"],\"cleAilleurs\":0,\"lsContientCle\":false,\"cleConsole\":[],\"cleDansEnvoi\":false}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5668,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:29:52.811Z",
+                  "annotations": [
+                    {
+                      "type": "IA",
+                      "description": "{\"cleGardee\":\"Clé gardée : sk-…bbbb\",\"cout\":\"Coût estimé : environ 1 800 tokens, soit quelques centimes avec un petit modèle.\",\"envoiAvant\":\"Ce qui est envoyéAucune image ni vidéo n’est envoyée : seulement ce texte, avec le résumé des moments.Après l’analyse, les moments trouvés remplaceront les lignes d’exemple ci-dessous.Tu es le monteur\",\"msAnalyse\":1863,\"m401\":\"Clé refusée : vérifie-la.\",\"sansIa401\":true,\"m429\":\"Trop de demandes ou crédit épuisé. Attends un peu, ou vérifie ton crédit chez le fournisseur.\",\"sansIa429\":true,\"clipsCoupee\":\"Voir mes 2 clips\",\"ecranCoupee\":\"Monteur IAÉtape 2 sur 3 · AnalyseTes clips sont prêts4 moments trouvés0:59Gros pic de son après un calme2:00Gros pic de son après un calme2:59Gros pic de son après un calme4:59Gros pic de son après un calme1 correction faite sur les propositions de l’IA.Voir ce qui est envoyéVoir mes 2 clips\",\"resultats\":{\"markdown\":\"Voir mes 3 clips\",\"injection\":\"Voir mes 3 clips\"},\"titreInjecte\":\"<img src=x onerror=\\\"window.__xss=1\\\">Bip 1\",\"raisonInjectee\":\"&lt;script&gt;window.__xss=2&lt;/script&gt;&lt;b&gt;gras&lt;/b&gt;\",\"xss\":null,\"imgs\":0,\"requetes\":[\"anthropic /v1/models cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\",\"anthropic /v1/messages cle=true ver=2023-06-01 direct=true\"],\"cleAilleurs\":0,\"lsContientCle\":false,\"cleConsole\":[],\"cleDansEnvoi\":false}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ee570d1fa1887062af9-0f947e6b160e06df184b",
+          "file": "p6-monteur.qa.ts",
+          "line": 216,
+          "column": 1
+        },
+        {
+          "title": "(p6-c) clé : bon domaine seulement, changement de fournisseur, « Oublier ma clé », CSP",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "clé",
+                  "description": "{\"requetes\":[\"openai /v1/models\",\"gemini /v1beta/models\"],\"champOpenai\":\"LA CLÉ ANTHROPIC\",\"gardeeOpenai\":\"Clé gardée : sk-…2222\",\"champAnthropic\":\"clé anthropic\",\"avantOubli\":{\"cle:gemini\":\"AIzaQA…\",\"cle:openai\":\"sk-qa-…\"},\"apresOubli\":{\"cle:openai\":\"sk-qa-…\"},\"fetchAutre\":\"bloqué : Failed to fetch\",\"fetchHttp\":\"bloqué : Failed to fetch\",\"csp\":[\"Connecting to 'https://example.com/vol?cle=1' violates the following Content Security Policy directive: \\\"connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com\\\". The action has been blocked.\",\"Fetch API cannot load https://example.com/vol?cle=1. Refused to connect because it violates the document's Content Security Policy.\",\"[CSP] connect-src https://example.com/vol?cle=1\",\"Connecting to 'http://localhost:1234/lm-studio' violates the following Content Security Policy directive: \\\"connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com\\\". The action has been blocked.\",\"Fetch API cannot load http://localhost:1234/lm-studio. Refused to connect because it violates the document's Content Security Policy.\",\"[CSP] connect-src http://localhost:1234/lm-studio\"],\"lsContientCle\":false,\"cleOaiAilleurs\":0,\"cleGemAilleurs\":0,\"cleAntAilleurs\":0,\"cleDansUrl\":[]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2863,
+                  "error": {
+                    "message": "Error: la clé tapée pour Anthropic ne doit pas rester dans le champ OpenAI\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"sk-ant-qa-FACTICE-aaaa1111bbbb\"\u001b[39m",
+                    "stack": "Error: la clé tapée pour Anthropic ne doit pas rester dans le champ OpenAI\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"sk-ant-qa-FACTICE-aaaa1111bbbb\"\u001b[39m\n    at /home/claude/arko/app/tests/qa/p6-monteur.qa.ts:395:103",
+                    "location": {
+                      "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                      "column": 103,
+                      "line": 395
+                    },
+                    "snippet": "  393 |   expect.soft(cleAntAilleurs).toEqual([]);\n  394 |   expect.soft(cleDansUrl).toEqual([]);\n> 395 |   expect.soft(champOpenai, 'la clé tapée pour Anthropic ne doit pas rester dans le champ OpenAI').not.toBe(CLE_ANT);\n      |                                                                                                       ^\n  396 |   expect.soft(Object.keys(apresOubli)).not.toContain('cle:gemini');\n  397 |   expect.soft(Object.keys(avantOubli)).toContain('cle:gemini');\n  398 |   expect.soft(fetchAutre).toMatch(/^bloqué/);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                        "column": 103,
+                        "line": 395
+                      },
+                      "message": "Error: la clé tapée pour Anthropic ne doit pas rester dans le champ OpenAI\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: not \u001b[32m\"sk-ant-qa-FACTICE-aaaa1111bbbb\"\u001b[39m\n\n  393 |   expect.soft(cleAntAilleurs).toEqual([]);\n  394 |   expect.soft(cleDansUrl).toEqual([]);\n> 395 |   expect.soft(champOpenai, 'la clé tapée pour Anthropic ne doit pas rester dans le champ OpenAI').not.toBe(CLE_ANT);\n      |                                                                                                       ^\n  396 |   expect.soft(Object.keys(apresOubli)).not.toContain('cle:gemini');\n  397 |   expect.soft(Object.keys(avantOubli)).toContain('cle:gemini');\n  398 |   expect.soft(fetchAutre).toMatch(/^bloqué/);\n    at /home/claude/arko/app/tests/qa/p6-monteur.qa.ts:395:103"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:29:58.778Z",
+                  "annotations": [
+                    {
+                      "type": "clé",
+                      "description": "{\"requetes\":[\"openai /v1/models\",\"gemini /v1beta/models\"],\"champOpenai\":\"LA CLÉ ANTHROPIC\",\"gardeeOpenai\":\"Clé gardée : sk-…2222\",\"champAnthropic\":\"clé anthropic\",\"avantOubli\":{\"cle:gemini\":\"AIzaQA…\",\"cle:openai\":\"sk-qa-…\"},\"apresOubli\":{\"cle:openai\":\"sk-qa-…\"},\"fetchAutre\":\"bloqué : Failed to fetch\",\"fetchHttp\":\"bloqué : Failed to fetch\",\"csp\":[\"Connecting to 'https://example.com/vol?cle=1' violates the following Content Security Policy directive: \\\"connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com\\\". The action has been blocked.\",\"Fetch API cannot load https://example.com/vol?cle=1. Refused to connect because it violates the document's Content Security Policy.\",\"[CSP] connect-src https://example.com/vol?cle=1\",\"Connecting to 'http://localhost:1234/lm-studio' violates the following Content Security Policy directive: \\\"connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com\\\". The action has been blocked.\",\"Fetch API cannot load http://localhost:1234/lm-studio. Refused to connect because it violates the document's Content Security Policy.\",\"[CSP] connect-src http://localhost:1234/lm-studio\"],\"lsContientCle\":false,\"cleOaiAilleurs\":0,\"cleGemAilleurs\":0,\"cleAntAilleurs\":0,\"cleDansUrl\":[]}"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/claude/arko/app/test-results/qa-p6/p6-monteur.qa.ts--p6-c-clé-3456a-seur-«-Oublier-ma-clé-»-CSP/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                    "column": 103,
+                    "line": 395
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ee570d1fa1887062af9-876af2a54a6eb2942930",
+          "file": "p6-monteur.qa.ts",
+          "line": 310,
+          "column": 1
+        },
+        {
+          "title": "(p6-d) vidéo de 2 h : temps, mémoire, Annuler puis Reprendre, Worker et Wake Lock",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 1800000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1507199,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('voir-clips')\nExpected: visible\nTimeout: 1500000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('voir-clips') with timeout 1500000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('voir-clips')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('voir-clips')\nExpected: visible\nTimeout: 1500000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('voir-clips') with timeout 1500000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('voir-clips')\u001b[22m\n\n    at /home/claude/arko/app/tests/qa/p6-monteur.qa.ts:451:48",
+                    "location": {
+                      "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                      "column": 48,
+                      "line": 451
+                    },
+                    "snippet": "  449 |   const t1 = Date.now();\n  450 |   await page.getByTestId('lancer').click();\n> 451 |   const premierPourcent = await page.getByTestId('analyse-pourcent').textContent({ timeout: 30_000 }).catch(() => null);\n      |                                                ^\n  452 |   await page.waitForTimeout(1500);\n  453 |   const pourcentApres15s = await page.getByTestId('analyse-pourcent').textContent().catch(() => null);\n  454 |   await expect(page.getByTestId('voir-clips')).toBeVisible({ timeout: 1_500_000 });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                        "column": 48,
+                        "line": 451
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('voir-clips')\nExpected: visible\nTimeout: 1500000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('voir-clips') with timeout 1500000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('voir-clips')\u001b[22m\n\n\n  449 |   const t1 = Date.now();\n  450 |   await page.getByTestId('lancer').click();\n> 451 |   const premierPourcent = await page.getByTestId('analyse-pourcent').textContent({ timeout: 30_000 }).catch(() => null);\n      |                                                ^\n  452 |   await page.waitForTimeout(1500);\n  453 |   const pourcentApres15s = await page.getByTestId('analyse-pourcent').textContent().catch(() => null);\n  454 |   await expect(page.getByTestId('voir-clips')).toBeVisible({ timeout: 1_500_000 });\n    at /home/claude/arko/app/tests/qa/p6-monteur.qa.ts:451:48"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:30:02.530Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/claude/arko/app/test-results/qa-p6/p6-monteur.qa.ts--p6-d-vid-1bcb9-prendre-Worker-et-Wake-Lock/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/home/claude/arko/app/tests/qa/p6-monteur.qa.ts",
+                    "column": 48,
+                    "line": 451
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1ee570d1fa1887062af9-e15e3f0e9bc77e92e2da",
+          "file": "p6-monteur.qa.ts",
+          "line": 403,
+          "column": 1
+        },
+        {
+          "title": "(p5-a) aide : 3 conseils au 1er lancement, écran Aide accessible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "aide",
+                  "description": "{\"etapes\":[\"L’action d’abordLes 3 premières secondes décident de tout : commence direct sur le moment \",\"L’action d’abordLes 3 premières secondes décident de tout : commence direct sur le moment \",\"L’action d’abordLes 3 premières secondes décident de tout : commence direct sur le moment \"],\"revient\":0,\"a11y\":{\"lang\":\"fr\",\"titres\":[\"H1 Aide\",\"H2 Comment ça marche\"],\"cartes\":5,\"focus\":\"BODY AideComment ça marcheUn clip T\",\"boutonsSansNom\":0,\"lien\":\"noopener noreferrer\"},\"retour\":true}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1946,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:55:10.820Z",
+                  "annotations": [
+                    {
+                      "type": "aide",
+                      "description": "{\"etapes\":[\"L’action d’abordLes 3 premières secondes décident de tout : commence direct sur le moment \",\"L’action d’abordLes 3 premières secondes décident de tout : commence direct sur le moment \",\"L’action d’abordLes 3 premières secondes décident de tout : commence direct sur le moment \"],\"revient\":0,\"a11y\":{\"lang\":\"fr\",\"titres\":[\"H1 Aide\",\"H2 Comment ça marche\"],\"cartes\":5,\"focus\":\"BODY AideComment ça marcheUn clip T\",\"boutonsSansNom\":0,\"lien\":\"noopener noreferrer\"},\"retour\":true}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1ee570d1fa1887062af9-3b7dbce10f4f82447a02",
+          "file": "p6-monteur.qa.ts",
+          "line": 473,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T02:18:14.997Z",
+    "duration": 2218397.019,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

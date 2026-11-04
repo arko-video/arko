@@ -1,0 +1,40 @@
+{
+  "name": "arko",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Arko — éditeur vidéo TikTok gratuit et open source, dans le navigateur",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/copier-ort.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/copier-ort.mjs",
+    "build": "tsc --noEmit && vite build",
+    "apercu": "vite preview",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "verif": "tsc --noEmit && vitest run",
+    "postinstall": "node scripts/copier-ort.mjs"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "@huggingface/transformers": "4.3.2",
+    "@mediabunny/aac-encoder": "1.65.1",
+    "@preact/signals": "^2.11.4",
+    "idb-keyval": "^6.3.0",
+    "mediabunny": "1.65.1",
+    "onnxruntime-web": "1.31.0-dev.20260914-8d85527a0",
+    "preact": "^11.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@preact/preset-vite": "^2.10.6",
+    "prettier": "^3.9.10",
+    "sharp": "^0.35.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0"
+  }
+}

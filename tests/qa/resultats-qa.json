@@ -1,0 +1,1436 @@
+{
+  "config": {
+    "argv": [
+      "/opt/node22/bin/node",
+      "/home/claude/arko/app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/qa/playwright.qa.config.ts"
+    ],
+    "configFile": "/home/claude/arko/app/tests/qa/playwright.qa.config.ts",
+    "rootDir": "/home/claude/arko/app/tests/qa",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/claude/arko/app/test-results/qa",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.qa\\.ts$/"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/claude/arko/app/test-results/qa",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "snapshotDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 600000,
+        "use": {
+          "baseURL": "http://localhost:4173/arko/",
+          "channel": "chrome",
+          "headless": true,
+          "viewport": {
+            "width": 360,
+            "height": 740
+          },
+          "deviceScaleFactor": 2,
+          "hasTouch": false,
+          "acceptDownloads": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "resultats-qa.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run build && npx vite preview --port 4173 --strictPort",
+      "cwd": "../..",
+      "url": "http://localhost:4173/arko/",
+      "reuseExistingServer": true,
+      "timeout": 180000
+    }
+  },
+  "suites": [
+    {
+      "title": "a-vertical.qa.ts",
+      "file": "a-vertical.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(a) vidéo verticale 1080×1920 : Vertical sauté, export OK",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "goForward depuis Couper",
+                  "description": "Étape 4 sur 4"
+                },
+                {
+                  "type": "export vertical",
+                  "description": "{\"ms\":5629,\"duree\":5.013333333333334,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                },
+                {
+                  "type": "audit",
+                  "description": "{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":890,\"petits\":[],\"sansNom\":[]}"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7107,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:27:28.539Z",
+                  "annotations": [
+                    {
+                      "type": "goForward depuis Couper",
+                      "description": "Étape 4 sur 4"
+                    },
+                    {
+                      "type": "export vertical",
+                      "description": "{\"ms\":5629,\"duree\":5.013333333333334,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                    },
+                    {
+                      "type": "audit",
+                      "description": "{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":890,\"petits\":[],\"sansNom\":[]}"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "378f2578e5dede538fd5-9f99e4cbc9f368cfe8cd",
+          "file": "a-vertical.qa.ts",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "b-recadre.qa.ts",
+      "file": "b-recadre.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(b) Plein écran recadré, x déplacé au glissé, export conforme",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "mise après glissé",
+                  "description": "{\"type\":\"recadre\",\"x\":0.63}"
+                },
+                {
+                  "type": "export recadré",
+                  "description": "{\"ms\":3455,\"duree\":5.013333333333334,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\",\"pixelCentre\":[167,54,93],\"x\":0.63}"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6898,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:27:35.911Z",
+                  "annotations": [
+                    {
+                      "type": "mise après glissé",
+                      "description": "{\"type\":\"recadre\",\"x\":0.63}"
+                    },
+                    {
+                      "type": "export recadré",
+                      "description": "{\"ms\":3455,\"duree\":5.013333333333334,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\",\"pixelCentre\":[167,54,93],\"x\":0.63}"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f2696be79652ac14aaec-9ee9d3c5c0f7b9a53678",
+          "file": "b-recadre.qa.ts",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "c-annuler.qa.ts",
+      "file": "c-annuler.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(c) annuler / rétablir après scinder et supprimer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "rognage",
+                  "description": "bulle pendant le glissé=0:01,5 ; durée après=Durée finale : 4,2 sDurée finale : 4,2 s"
+                },
+                {
+                  "type": "plans sauvegardés",
+                  "description": "[{\"de\":0,\"a\":2},{\"de\":2,\"a\":4},{\"de\":4,\"a\":5}]"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5123,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:27:42.842Z",
+                  "annotations": [
+                    {
+                      "type": "rognage",
+                      "description": "bulle pendant le glissé=0:01,5 ; durée après=Durée finale : 4,2 sDurée finale : 4,2 s"
+                    },
+                    {
+                      "type": "plans sauvegardés",
+                      "description": "[{\"de\":0,\"a\":2},{\"de\":2,\"a\":4},{\"de\":4,\"a\":5}]"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c572e4c839d16b6e747-4db3e27af8f37106bec5",
+          "file": "c-annuler.qa.ts",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "d-annuler-export.qa.ts",
+      "file": "d-annuler-export.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(d) annuler l’export à mi-chemin puis relancer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "résumé avant export",
+                  "description": "12 senviron 15 Moenviron 14 s de création"
+                },
+                {
+                  "type": "pendant export",
+                  "description": "Encore environ 13 s"
+                },
+                {
+                  "type": "OPFS après annulation (+3,5 s)",
+                  "description": "[]"
+                },
+                {
+                  "type": "export après annulation",
+                  "description": "{\"ms\":19813,\"duree\":12.010666666666667,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                },
+                {
+                  "type": "OPFS après export",
+                  "description": "[{\"nom\":\"arko-20261103-232759.mp4\",\"taille\":14088062}]"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 31698,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:27:48.013Z",
+                  "annotations": [
+                    {
+                      "type": "résumé avant export",
+                      "description": "12 senviron 15 Moenviron 14 s de création"
+                    },
+                    {
+                      "type": "pendant export",
+                      "description": "Encore environ 13 s"
+                    },
+                    {
+                      "type": "OPFS après annulation (+3,5 s)",
+                      "description": "[]"
+                    },
+                    {
+                      "type": "export après annulation",
+                      "description": "{\"ms\":19813,\"duree\":12.010666666666667,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                    },
+                    {
+                      "type": "OPFS après export",
+                      "description": "[{\"nom\":\"arko-20261103-232759.mp4\",\"taille\":14088062}]"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a3121b88cbbe15052528-d688745a47ac16b8b5bd",
+          "file": "d-annuler-export.qa.ts",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "(d2) annuler puis relancer tout de suite (même seconde)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "relance immédiate",
+                  "description": "{\"ms\":18707,\"duree\":12.010666666666667,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                },
+                {
+                  "type": "OPFS",
+                  "description": "[{\"nom\":\"arko-20261103-232825.mp4\",\"taille\":14080059}]"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 27541,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:28:19.740Z",
+                  "annotations": [
+                    {
+                      "type": "relance immédiate",
+                      "description": "{\"ms\":18707,\"duree\":12.010666666666667,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                    },
+                    {
+                      "type": "OPFS",
+                      "description": "[{\"nom\":\"arko-20261103-232825.mp4\",\"taille\":14080059}]"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a3121b88cbbe15052528-782bd43a14c0548fbd2f",
+          "file": "d-annuler-export.qa.ts",
+          "line": 75,
+          "column": 1
+        },
+        {
+          "title": "(d3) onglet caché pendant l’export (visibilitychange)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "onglet caché",
+                  "description": "export terminé normalement"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20677,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:28:47.307Z",
+                  "annotations": [
+                    {
+                      "type": "onglet caché",
+                      "description": "export terminé normalement"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a3121b88cbbe15052528-27f2ad2e98d9b1ae5ef3",
+          "file": "d-annuler-export.qa.ts",
+          "line": 93,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "e-reprise.qa.ts",
+      "file": "e-reprise.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(e) reprise après rechargement",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "sauvegarde avant rechargement",
+                  "description": "{\"etape\":\"vertical\",\"plans\":[{\"de\":2,\"a\":5}],\"mise\":{\"type\":\"recadre\",\"x\":0.5}}"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3984,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:29:08.047Z",
+                  "annotations": [
+                    {
+                      "type": "sauvegarde avant rechargement",
+                      "description": "{\"etape\":\"vertical\",\"plans\":[{\"de\":2,\"a\":5}],\"mise\":{\"type\":\"recadre\",\"x\":0.5}}"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0f64799cf7c8a08bba26-3723a8440c58666f135b",
+          "file": "e-reprise.qa.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "(e2) erreurs d’import en français",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "messages",
+                  "description": "{\"faux\":\"Format de fichier non reconnu. Choisis une vidéo MP4, MOV ou WebM.\",\"hevc\":\"Cette vidéo est en HEVC (H.265), un format que ton navigateur ne sait pas lire. Dans l'appareil photo, choisis « H.264 » ou « Plus compatible », ou convertis la vidéo, puis réessaie.\",\"etapeApresHevc\":\"Étape 1 sur 4 · Importer\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1298,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:29:12.052Z",
+                  "annotations": [
+                    {
+                      "type": "messages",
+                      "description": "{\"faux\":\"Format de fichier non reconnu. Choisis une vidéo MP4, MOV ou WebM.\",\"hevc\":\"Cette vidéo est en HEVC (H.265), un format que ton navigateur ne sait pas lire. Dans l'appareil photo, choisis « H.264 » ou « Plus compatible », ou convertis la vidéo, puis réessaie.\",\"etapeApresHevc\":\"Étape 1 sur 4 · Importer\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0f64799cf7c8a08bba26-d2bef04825e4f88165b0",
+          "file": "e-reprise.qa.ts",
+          "line": 53,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "f-longue.qa.ts",
+      "file": "f-longue.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(f) vidéo de 2 h : ouverture, 1 h 30, export de 10 s",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "mesures",
+                  "description": "{\"memoireDepart\":4,\"ouvertureMs\":219,\"dureeAffichee\":\"Durée finale : 1 min1 min : un peu long, vise 15 à 30 sDurée finale : 1 min. 1 min : un peu long, vise 15 à 30 s\",\"premiereImageMs\":165,\"memoireApresOuverture\":28,\"repriseMs\":167,\"image1h30Ms\":339,\"sautsClavierMs\":151,\"tempsApresLecture2s\":\"6.97\",\"memoireApresLecture\":32,\"exportMs\":10550,\"export\":{\"duree\":10.005333333333333,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"},\"pixelCentreExport\":[86,96,228],\"memoireApresExport\":23}"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16569,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": ""
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:29:13.386Z",
+                  "annotations": [
+                    {
+                      "type": "mesures",
+                      "description": "{\"memoireDepart\":4,\"ouvertureMs\":219,\"dureeAffichee\":\"Durée finale : 1 min1 min : un peu long, vise 15 à 30 sDurée finale : 1 min. 1 min : un peu long, vise 15 à 30 s\",\"premiereImageMs\":165,\"memoireApresOuverture\":28,\"repriseMs\":167,\"image1h30Ms\":339,\"sautsClavierMs\":151,\"tempsApresLecture2s\":\"6.97\",\"memoireApresLecture\":32,\"exportMs\":10550,\"export\":{\"duree\":10.005333333333333,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"},\"pixelCentreExport\":[86,96,228],\"memoireApresExport\":23}"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00360aa3c73a2c61b59c-1387fa93ad08f677cc8e",
+          "file": "f-longue.qa.ts",
+          "line": 38,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "g-ecrans.qa.ts",
+      "file": "g-ecrans.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(g) écrans à 360 × 740",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "audits",
+                  "description": "{\"1-importer\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"2-couper\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":957,\"petits\":[],\"sansNom\":[]},\"2b-couper-selection\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":957,\"petits\":[],\"sansNom\":[]},\"3-vertical-flou\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":773,\"petits\":[],\"sansNom\":[]},\"3b-vertical-recadre-zone-sure\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":801,\"petits\":[],\"sansNom\":[]},\"4-exporter-avant\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"4b-exporter-pendant\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"4c-exporter-apres\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":890,\"petits\":[],\"sansNom\":[]},\"5-importer-continuer\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"6-importer-reprise\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":754,\"petits\":[],\"sansNom\":[]},\"7-320px\":{\"defilementHorizontal\":false,\"scrollWidth\":320,\"clientWidth\":320,\"hauteurPage\":921,\"petits\":[],\"sansNom\":[]}}"
+                },
+                {
+                  "type": "erreurs console",
+                  "description": "[]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15326,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:29:29.985Z",
+                  "annotations": [
+                    {
+                      "type": "audits",
+                      "description": "{\"1-importer\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"2-couper\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":957,\"petits\":[],\"sansNom\":[]},\"2b-couper-selection\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":957,\"petits\":[],\"sansNom\":[]},\"3-vertical-flou\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":773,\"petits\":[],\"sansNom\":[]},\"3b-vertical-recadre-zone-sure\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":801,\"petits\":[],\"sansNom\":[]},\"4-exporter-avant\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"4b-exporter-pendant\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"4c-exporter-apres\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":890,\"petits\":[],\"sansNom\":[]},\"5-importer-continuer\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":740,\"petits\":[],\"sansNom\":[]},\"6-importer-reprise\":{\"defilementHorizontal\":false,\"scrollWidth\":360,\"clientWidth\":360,\"hauteurPage\":754,\"petits\":[],\"sansNom\":[]},\"7-320px\":{\"defilementHorizontal\":false,\"scrollWidth\":320,\"clientWidth\":320,\"hauteurPage\":921,\"petits\":[],\"sansNom\":[]}}"
+                    },
+                    {
+                      "type": "erreurs console",
+                      "description": "[]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "baf4796de75d61d070f3-2ec2a3b6d6a1c5235ec4",
+          "file": "g-ecrans.qa.ts",
+          "line": 13,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "h-double-clic.qa.ts",
+      "file": "h-double-clic.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(h1) double toucher sur « Créer la vidéo »",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "positions",
+                  "description": "{\"creer\":{\"x\":16,\"y\":664,\"width\":328,\"height\":56},\"annuler\":{\"x\":231.390625,\"y\":168.421875,\"width\":112.609375,\"height\":44}}"
+                },
+                {
+                  "type": "après second toucher",
+                  "description": "export toujours en cours"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1730,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:29:45.352Z",
+                  "annotations": [
+                    {
+                      "type": "positions",
+                      "description": "{\"creer\":{\"x\":16,\"y\":664,\"width\":328,\"height\":56},\"annuler\":{\"x\":231.390625,\"y\":168.421875,\"width\":112.609375,\"height\":44}}"
+                    },
+                    {
+                      "type": "après second toucher",
+                      "description": "export toujours en cours"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0ec8444d1934936f6f3d-4b2eca8e8eec3400c556",
+          "file": "h-double-clic.qa.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "(h2) navigation arrière pendant l’export puis modification",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "export périmé après modification",
+                  "description": "oui (écran avant)"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21453,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:29:47.111Z",
+                  "annotations": [
+                    {
+                      "type": "export périmé après modification",
+                      "description": "oui (écran avant)"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0ec8444d1934936f6f3d-c5ecdf4bfccd166fd167",
+          "file": "h-double-clic.qa.ts",
+          "line": 26,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "i-apercu.qa.ts",
+      "file": "i-apercu.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(i) aperçu : image affichée",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "vidéo de test 5 s",
+                  "description": "{\"importMs\":223,\"sansAction\":[\"223ms:0,0,0\",\"743ms:0,14,253\",\"1248ms:0,14,253\",\"1755ms:0,14,253\",\"2260ms:0,14,253\",\"2765ms:0,14,253\",\"3270ms:0,14,253\",\"3774ms:0,14,253\"],\"apresFleche\":\"0,14,253\",\"apresDebut\":\"0,14,253\",\"pendantLecture\":\"0,14,253\",\"teteApresLecture\":\"1.71\"}"
+                },
+                {
+                  "type": "vidéo 2 h",
+                  "description": "{\"importMs\":100,\"sansAction\":[\"100ms:63,69,191\",\"630ms:63,69,191\",\"1135ms:63,69,191\",\"1639ms:63,69,191\",\"2144ms:63,69,191\",\"2649ms:63,69,191\",\"3153ms:63,69,191\",\"3659ms:63,69,191\"],\"apresFleche\":\"63,69,191\",\"apresDebut\":\"63,69,191\",\"pendantLecture\":\"63,70,190\",\"teteApresLecture\":\"1.48\"}"
+                },
+                {
+                  "type": "console",
+                  "description": "{\"e\":[],\"w\":[\"Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently\",\"Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently\"]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19313,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:30:08.636Z",
+                  "annotations": [
+                    {
+                      "type": "vidéo de test 5 s",
+                      "description": "{\"importMs\":223,\"sansAction\":[\"223ms:0,0,0\",\"743ms:0,14,253\",\"1248ms:0,14,253\",\"1755ms:0,14,253\",\"2260ms:0,14,253\",\"2765ms:0,14,253\",\"3270ms:0,14,253\",\"3774ms:0,14,253\"],\"apresFleche\":\"0,14,253\",\"apresDebut\":\"0,14,253\",\"pendantLecture\":\"0,14,253\",\"teteApresLecture\":\"1.71\"}"
+                    },
+                    {
+                      "type": "vidéo 2 h",
+                      "description": "{\"importMs\":100,\"sansAction\":[\"100ms:63,69,191\",\"630ms:63,69,191\",\"1135ms:63,69,191\",\"1639ms:63,69,191\",\"2144ms:63,69,191\",\"2649ms:63,69,191\",\"3153ms:63,69,191\",\"3659ms:63,69,191\"],\"apresFleche\":\"63,69,191\",\"apresDebut\":\"63,69,191\",\"pendantLecture\":\"63,70,190\",\"teteApresLecture\":\"1.48\"}"
+                    },
+                    {
+                      "type": "console",
+                      "description": "{\"e\":[],\"w\":[\"Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently\",\"Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently\"]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d774993c9be86c8da017-9c63bb9d810444965654",
+          "file": "i-apercu.qa.ts",
+          "line": 43,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "j-limites.qa.ts",
+      "file": "j-limites.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(j1) vidéo de 2 h : étendre le plan à la poignée",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "durée après chaque glissé pleine largeur de la poignée de fin",
+                  "description": "[\"Durée finale : 1 min1 min : un peu long, vise 15 à 30 sDurée finale : 1 min. 1 min : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 9 s1 min 9 s : un peu long, vise 15 à 30 sDurée finale : 1 min 9 s. 1 min 9 s : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 20 s1 min 20 s : un peu long, vise 15 à 30 sDurée finale : 1 min 20 s. 1 min 20 s : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 32 s1 min 32 s : un peu long, vise 15 à 30 sDurée finale : 1 min 32 s. 1 min 32 s : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 46 s1 min 46 s : un peu long, vise 15 à 30 sDurée finale : 1 min 46 s. 1 min 46 s : un peu long, vise 15 à 30 s\",\"Durée finale : 2 min 2 s2 min 2 s : un peu long, vise 15 à 30 sDurée finale : 2 min 2 s. 2 min 2 s : un peu long, vise 15 à 30 s\",\"Durée finale : 2 min 21 s2 min 21 s : un peu long, vise 15 à 30 sDurée finale : 2 min 21 s. 2 min 21 s : un peu long, vise 15 à 30 s\",\"Durée finale : 2 min 43 s2 min 43 s : un peu long, vise 15 à 30 sDurée finale : 2 min 43 s. 2 min 43 s : un peu long, vise 15 à 30 s\",\"Durée finale : 3 min 8 s3 min 8 s : un peu long, vise 15 à 30 sDurée finale : 3 min 8 s. 3 min 8 s : un peu long, vise 15 à 30 s\"]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2781,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:30:27.982Z",
+                  "annotations": [
+                    {
+                      "type": "durée après chaque glissé pleine largeur de la poignée de fin",
+                      "description": "[\"Durée finale : 1 min1 min : un peu long, vise 15 à 30 sDurée finale : 1 min. 1 min : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 9 s1 min 9 s : un peu long, vise 15 à 30 sDurée finale : 1 min 9 s. 1 min 9 s : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 20 s1 min 20 s : un peu long, vise 15 à 30 sDurée finale : 1 min 20 s. 1 min 20 s : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 32 s1 min 32 s : un peu long, vise 15 à 30 sDurée finale : 1 min 32 s. 1 min 32 s : un peu long, vise 15 à 30 s\",\"Durée finale : 1 min 46 s1 min 46 s : un peu long, vise 15 à 30 sDurée finale : 1 min 46 s. 1 min 46 s : un peu long, vise 15 à 30 s\",\"Durée finale : 2 min 2 s2 min 2 s : un peu long, vise 15 à 30 sDurée finale : 2 min 2 s. 2 min 2 s : un peu long, vise 15 à 30 s\",\"Durée finale : 2 min 21 s2 min 21 s : un peu long, vise 15 à 30 sDurée finale : 2 min 21 s. 2 min 21 s : un peu long, vise 15 à 30 s\",\"Durée finale : 2 min 43 s2 min 43 s : un peu long, vise 15 à 30 sDurée finale : 2 min 43 s. 2 min 43 s : un peu long, vise 15 à 30 s\",\"Durée finale : 3 min 8 s3 min 8 s : un peu long, vise 15 à 30 sDurée finale : 3 min 8 s. 3 min 8 s : un peu long, vise 15 à 30 s\"]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7be97a5adf639c3ffa1d-a40c740fb125c56d9494",
+          "file": "j-limites.qa.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "(j2) lecture à travers 8 coupes : avertissements et images",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "lecture multi-coupes",
+                  "description": "{\"duree\":\"Durée finale : 3,0 sDurée finale : 3,0 s\",\"teteApres4s\":\"3\",\"erreurs\":[],\"avertissements\":[]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:30:30.779Z",
+                  "annotations": [
+                    {
+                      "type": "lecture multi-coupes",
+                      "description": "{\"duree\":\"Durée finale : 3,0 sDurée finale : 3,0 s\",\"teteApres4s\":\"3\",\"erreurs\":[],\"avertissements\":[]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7be97a5adf639c3ffa1d-64c73532b7f723a0dc30",
+          "file": "j-limites.qa.ts",
+          "line": 24,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "k-apercu-course.qa.ts",
+      "file": "k-apercu-course.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(k1) aperçu noir après import : fréquence sur 6 essais",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "centre de l’aperçu 2 s après import",
+                  "description": "[\"test:0,14,253\",\"degrade:133,53,126\",\"test:0,14,253\",\"degrade:133,53,126\",\"test:0,14,253\",\"degrade:133,53,126\"]"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14312,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:30:51.547Z",
+                  "annotations": [
+                    {
+                      "type": "centre de l’aperçu 2 s après import",
+                      "description": "[\"test:0,14,253\",\"degrade:133,53,126\",\"test:0,14,253\",\"degrade:133,53,126\",\"test:0,14,253\",\"degrade:133,53,126\"]"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5b2da090d0158d49895b-f53ccfd5d2366e276e51",
+          "file": "k-apercu-course.qa.ts",
+          "line": 14,
+          "column": 1
+        },
+        {
+          "title": "(k2) aperçu après glissé du recadré",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "recadré : centre avant / après glissé (attendu R≈160 après)",
+                  "description": "{\"avant\":[133,53,126],\"apres\":[\"168,55,93\",\"168,55,93\",\"168,55,93\",\"168,55,93\",\"168,55,93\",\"168,55,93\"]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4395,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:05.873Z",
+                  "annotations": [
+                    {
+                      "type": "recadré : centre avant / après glissé (attendu R≈160 après)",
+                      "description": "{\"avant\":[133,53,126],\"apres\":[\"168,55,93\",\"168,55,93\",\"168,55,93\",\"168,55,93\",\"168,55,93\",\"168,55,93\"]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5b2da090d0158d49895b-975ec91edde6278633fd",
+          "file": "k-apercu-course.qa.ts",
+          "line": 25,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "l-coupes-export.qa.ts",
+      "file": "l-coupes-export.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(l) 3 plans gardés sur 6 : couleurs aux bons temps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "export multi-plans",
+                  "description": "{\"ms\":6962,\"duree\":6.016,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\",\"comparaisons\":[{\"tSortie\":0.5,\"tSource\":0.5,\"sortie\":[17,38,58],\"source\":[20,39,60],\"ecart\":3},{\"tSortie\":1.9,\"tSource\":1.9,\"sortie\":[65,133,208],\"source\":[72,134,209],\"ecart\":7},{\"tSortie\":2.05,\"tSource\":4.05,\"sortie\":[237,175,149],\"source\":[231,171,150],\"ecart\":6},{\"tSortie\":3.5,\"tSource\":5.5,\"sortie\":[28,17,47],\"source\":[28,12,48],\"ecart\":5},{\"tSortie\":3.95,\"tSource\":5.95,\"sortie\":[28,17,47],\"source\":[28,12,48],\"ecart\":5},{\"tSortie\":4.05,\"tSource\":8.05,\"sortie\":[197,71,240],\"source\":[187,45,242],\"ecart\":26},{\"tSortie\":5.9,\"tSource\":9.9,\"sortie\":[248,154,138],\"source\":[240,144,138],\"ecart\":10}],\"erreurs\":[]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10935,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:10.285Z",
+                  "annotations": [
+                    {
+                      "type": "export multi-plans",
+                      "description": "{\"ms\":6962,\"duree\":6.016,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\",\"comparaisons\":[{\"tSortie\":0.5,\"tSource\":0.5,\"sortie\":[17,38,58],\"source\":[20,39,60],\"ecart\":3},{\"tSortie\":1.9,\"tSource\":1.9,\"sortie\":[65,133,208],\"source\":[72,134,209],\"ecart\":7},{\"tSortie\":2.05,\"tSource\":4.05,\"sortie\":[237,175,149],\"source\":[231,171,150],\"ecart\":6},{\"tSortie\":3.5,\"tSource\":5.5,\"sortie\":[28,17,47],\"source\":[28,12,48],\"ecart\":5},{\"tSortie\":3.95,\"tSource\":5.95,\"sortie\":[28,17,47],\"source\":[28,12,48],\"ecart\":5},{\"tSortie\":4.05,\"tSource\":8.05,\"sortie\":[197,71,240],\"source\":[187,45,242],\"ecart\":26},{\"tSortie\":5.9,\"tSource\":9.9,\"sortie\":[248,154,138],\"source\":[240,144,138],\"ecart\":10}],\"erreurs\":[]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3d0211e49020ba52cee9-149f94d1eb0f4f39a876",
+          "file": "l-coupes-export.qa.ts",
+          "line": 6,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "m-precision.qa.ts",
+      "file": "m-precision.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(m) Commencer ici à 0,5 s : première image exportée = image source 15",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "précision",
+                  "description": "{\"tete\":\"0.5\",\"res\":[{\"n\":0,\"sortie\":120,\"attendu\":120},{\"n\":1,\"sortie\":128,\"attendu\":128},{\"n\":2,\"sortie\":136,\"attendu\":136},{\"n\":15,\"sortie\":240,\"attendu\":240},{\"n\":30,\"sortie\":104,\"attendu\":104}]}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6539,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:21.287Z",
+                  "annotations": [
+                    {
+                      "type": "précision",
+                      "description": "{\"tete\":\"0.5\",\"res\":[{\"n\":0,\"sortie\":120,\"attendu\":120},{\"n\":1,\"sortie\":128,\"attendu\":128},{\"n\":2,\"sortie\":136,\"attendu\":136},{\"n\":15,\"sortie\":240,\"attendu\":240},{\"n\":30,\"sortie\":104,\"attendu\":104}]}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02ed4d08a489fc503579-1bef09b17c025fda4112",
+          "file": "m-precision.qa.ts",
+          "line": 13,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "n-divers.qa.ts",
+      "file": "n-divers.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(n1) vidéo tournée de 90° : traitée comme verticale",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "rotation 90",
+                  "description": "{\"source\":{\"id\":\"s1\",\"nom\":\"rotation90-1920x1080.mp4\",\"taille\":152329,\"emp\":\"851d086e8c784286ddddb1dd7c839f0a\",\"duree\":5,\"type\":\"video\",\"l\":1080,\"h\":1920},\"etapeApresSuivant\":\"Étape 4 sur 4\"}"
+                },
+                {
+                  "type": "export rotation",
+                  "description": "{\"duree\":5.013333333333334,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9066,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:27.873Z",
+                  "annotations": [
+                    {
+                      "type": "rotation 90",
+                      "description": "{\"source\":{\"id\":\"s1\",\"nom\":\"rotation90-1920x1080.mp4\",\"taille\":152329,\"emp\":\"851d086e8c784286ddddb1dd7c839f0a\",\"duree\":5,\"type\":\"video\",\"l\":1080,\"h\":1920},\"etapeApresSuivant\":\"Étape 4 sur 4\"}"
+                    },
+                    {
+                      "type": "export rotation",
+                      "description": "{\"duree\":5.013333333333334,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ea8fc6a8367dbdfc5969-14fa8e04fc4e4effc552",
+          "file": "n-divers.qa.ts",
+          "line": 6,
+          "column": 1
+        },
+        {
+          "title": "(n2) ±1 image : 30 appuis sur « +1 image » = 1 s ?",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "positions après chaque +1 image",
+                  "description": "0.03 0.07 0.1 0.13 0.17 0.2 0.23 0.27 0.3 0.33 0.37 0.4 0.43 0.47 0.5 0.53 0.57 0.6 0.63 0.67 0.7 0.73 0.77 0.8 0.83 0.87 0.9 0.93 0.97 1"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3247,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:36.953Z",
+                  "annotations": [
+                    {
+                      "type": "positions après chaque +1 image",
+                      "description": "0.03 0.07 0.1 0.13 0.17 0.2 0.23 0.27 0.3 0.33 0.37 0.4 0.43 0.47 0.5 0.53 0.57 0.6 0.63 0.67 0.7 0.73 0.77 0.8 0.83 0.87 0.9 0.93 0.97 1"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ea8fc6a8367dbdfc5969-a30c1190b6ae8eb6d08e",
+          "file": "n-divers.qa.ts",
+          "line": 19,
+          "column": 1
+        },
+        {
+          "title": "(n3) Oublier ce projet / Monter un autre clip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "oublier",
+                  "description": "carte après rechargement : 0"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2904,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:40.212Z",
+                  "annotations": [
+                    {
+                      "type": "oublier",
+                      "description": "carte après rechargement : 0"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ea8fc6a8367dbdfc5969-8ac71eab15789912aa49",
+          "file": "n-divers.qa.ts",
+          "line": 34,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T22:27:23.011Z",
+    "duration": 260238.457,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

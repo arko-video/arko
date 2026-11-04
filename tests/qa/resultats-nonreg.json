@@ -1,0 +1,262 @@
+{
+  "config": {
+    "argv": [
+      "/opt/node22/bin/node",
+      "/home/claude/arko/app/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/qa/playwright.qa.config.ts",
+      "--reporter=line,json",
+      "--output",
+      "/home/claude/arko/app/test-results/qa-nonreg",
+      "tests/qa/p4-nonreg"
+    ],
+    "configFile": "/home/claude/arko/app/tests/qa/playwright.qa.config.ts",
+    "rootDir": "/home/claude/arko/app/tests/qa",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/claude/arko/app/test-results/qa-nonreg",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.qa\\.ts$/"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/claude/arko/app/test-results/qa-nonreg",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/claude/arko/app/tests/qa",
+        "snapshotDir": "/home/claude/arko/app/tests/qa",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 600000,
+        "use": {
+          "baseURL": "http://localhost:4184/arko/",
+          "channel": "chrome",
+          "headless": true,
+          "viewport": {
+            "width": 360,
+            "height": 740
+          },
+          "deviceScaleFactor": 2,
+          "hasTouch": false,
+          "acceptDownloads": true,
+          "actionTimeout": 15000
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npx vite build --outDir dist-qa && npx vite preview --outDir dist-qa --port 4184 --strictPort",
+      "cwd": "../..",
+      "url": "http://localhost:4184/arko/",
+      "reuseExistingServer": true,
+      "timeout": 300000
+    }
+  },
+  "suites": [
+    {
+      "title": "p4-nonreg.qa.ts",
+      "file": "p4-nonreg.qa.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "(p4-nr) parcours complet : coupe, flou, accroche, sous-titres, son, transition, zoom, combo, export",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 1200000,
+              "annotations": [
+                {
+                  "type": "parcours",
+                  "description": "{\"duree\":9.002667,\"infos\":{\"duree\":9.002666666666666,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"},\"plans\":[{\"de\":0,\"a\":5},{\"de\":5,\"a\":9,\"trans\":\"flash\"}],\"mise\":{\"type\":\"flou\",\"y\":0.5},\"textes\":[\"REGARDE ÇA\"],\"sons\":[\"impact.boom\",\"impact.meme\"],\"zooms\":2,\"motsSousTitres\":16,\"accroche\":{\"a0_5\":1425,\"a4\":0},\"sousTitres\":[{\"t\":0.8,\"citron\":true},{\"t\":1.6,\"citron\":true},{\"t\":2.4,\"citron\":false},{\"t\":3.2,\"citron\":true},{\"t\":4.4,\"citron\":true},{\"t\":5.6,\"citron\":true},{\"t\":6.4,\"citron\":true},{\"t\":7.2,\"citron\":true},{\"t\":8,\"citron\":true}],\"flash\":{\"a4_5\":28.875993441358023,\"a5_0\":253.04188850308643},\"boum\":{\"avant\":1.2723201513290405,\"pendant\":1.2613285779953003},\"hf\":13,\"cdn\":[],\"ms\":14304}"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 38844,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    },
+                    {
+                      "buffer": ""
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-11-04T02:54:50.456Z",
+                  "annotations": [
+                    {
+                      "type": "parcours",
+                      "description": "{\"duree\":9.002667,\"infos\":{\"duree\":9.002666666666666,\"l\":1080,\"h\":1920,\"audio\":true,\"codecA\":\"aac\"},\"plans\":[{\"de\":0,\"a\":5},{\"de\":5,\"a\":9,\"trans\":\"flash\"}],\"mise\":{\"type\":\"flou\",\"y\":0.5},\"textes\":[\"REGARDE ÇA\"],\"sons\":[\"impact.boom\",\"impact.meme\"],\"zooms\":2,\"motsSousTitres\":16,\"accroche\":{\"a0_5\":1425,\"a4\":0},\"sousTitres\":[{\"t\":0.8,\"citron\":true},{\"t\":1.6,\"citron\":true},{\"t\":2.4,\"citron\":false},{\"t\":3.2,\"citron\":true},{\"t\":4.4,\"citron\":true},{\"t\":5.6,\"citron\":true},{\"t\":6.4,\"citron\":true},{\"t\":7.2,\"citron\":true},{\"t\":8,\"citron\":true}],\"flash\":{\"a4_5\":28.875993441358023,\"a5_0\":253.04188850308643},\"boum\":{\"avant\":1.2723201513290405,\"pendant\":1.2613285779953003},\"hf\":13,\"cdn\":[],\"ms\":14304}"
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "73a0e5e3e064a349d12c-b30b28e68a3d52fe2f84",
+          "file": "p4-nonreg.qa.ts",
+          "line": 14,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T02:54:49.544Z",
+    "duration": 40275.351,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

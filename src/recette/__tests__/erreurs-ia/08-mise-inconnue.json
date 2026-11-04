@@ -1,0 +1,6 @@
+{
+  "description": "Mise en page inconnue et coordonnées hors de [0, 1], mise par plan",
+  "entree": { "format": "arko.recette/1", "mise": { "type": "split", "y": 1.4 }, "plans": [{ "de": 0, "a": 5, "mise": { "type": "recadre", "x": -0.3 } }] },
+  "attendu": { "mise": { "type": "flou", "y": 1 }, "plans": [{ "de": 0, "a": 5, "mise": { "type": "recadre", "x": 0 } }] },
+  "messages": ["La mise en page \"split\" n'existe pas : fond flou choisi."]
+}

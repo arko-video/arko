@@ -1,0 +1,5 @@
+{"recettes":[
+{"titre":"Fin de live épique","raison":"La dernière partie se termine sur un top 1.","score":92,"plans":[{"de":10842,"a":10820,"m":"m09"}],"textes":[{"txt":"Il a fait top 1 avec seulement un pistolet","role":"accroche","t":0,"y":0.9}],"sons":[{"id":"impact.boom","t":5,"ts":10830}],"sousTitres":{"mots":"auto"}},
+{"titre":"Moment vide","raison":"Rien à garder ici.","plans":[],"textes":[{"txt":"???","t":0}]},
+{"titre":"Deux fois de suite","raison":"Deux moments forts enchaînés.","plans":[{"de":5000,"a":5012,"m":"m06","trans":"flash"},{"de":5100,"a":5110,"m":"m07","trans":"fondu"}],"textes":[{"txt":"DEUX FOIS ??","role":"accroche","t":0}],"zooms":[{"ts":5005,"force":4}],"sousTitres":{"mots":"auto"}}
+]}

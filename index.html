@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <!--
+      Politique de sécurité (CSP) : la page ne charge que ses propres fichiers, rien d'Internet.
+      GitHub Pages ne permet pas d'envoyer cet en-tête, d'où la balise meta.
+      - default-src 'none' : tout est interdit, sauf ce qui est listé ensuite.
+      - script-src 'self' : seulement nos fichiers JS (pas de script en ligne, pas d'eval).
+      - style-src 'self' 'unsafe-inline' : ASSOUPLI. En dev, Vite injecte le CSS avec des balises style,
+        et en build il minifie le style ci-dessous : une empreinte (hash) ne marcherait pas dans les deux cas.
+        Risque faible : l'appli n'insère jamais de HTML venu de l'extérieur.
+      - font-src 'self' : polices Inter et Space Grotesk incluses dans l'appli.
+      - img-src blob: data: : vignettes (data:image/jpeg) et images créées dans la page.
+      - media-src blob: : la vidéo finale est lue depuis une URL blob.
+      - worker-src 'self' : Worker d'export et service worker (vite-plugin-pwa).
+        L'encodeur AAC en WASM (worker blob) tourne DANS le Worker d'export : ce Worker est chargé depuis
+        nos fichiers, cette CSP ne s'y applique pas, donc ni blob: ni 'wasm-unsafe-eval' ne sont utiles ici.
+        Si un jour le WASM ou un worker blob tourne dans la page, ajouter 'wasm-unsafe-eval' à script-src
+        et blob: à worker-src.
+      - connect-src 'self' : rechargement à chaud de Vite en dev, futurs sons de public/sons.
+      - base-uri et form-action 'none' : pas de balise base, aucun formulaire envoyé.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' blob: data:; media-src blob:; worker-src 'self'; connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com; manifest-src 'self'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0F1115" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Monte tes clips de jeu en TikTok, directement sur ton téléphone. Gratuit, open source, rien n'est envoyé en ligne." />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icones/icone-192.png" />
+    <link rel="apple-touch-icon" href="/icones/icone-192.png" />
+    <title>Arko</title>
+    <style>
+      html,
+      body {
+        background: #0f1115;
+        color: #f3f4f6;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <noscript>Arko a besoin de JavaScript pour fonctionner.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

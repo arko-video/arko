@@ -1,0 +1,10 @@
+node_modules
+dist
+test-results
+playwright-report
+*.local
+dist-*
+playwright.*.local.ts
+tests/qa/fixtures/
+public/ort/
+tests/fixtures/modeles/

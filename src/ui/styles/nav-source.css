@@ -1,0 +1,118 @@
+/* ------------------------------------------------------------ Navigation dans la vidéo d'origine */
+.nav-source {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--r);
+  background: var(--fond-creux);
+  border: 1px solid var(--bord);
+}
+.nav-source-titre {
+  margin: 0;
+  font-family: var(--police-titre);
+  font-size: 16px;
+  font-weight: 700;
+}
+.nav-source-barre {
+  position: relative;
+  height: 56px;
+  margin-top: 4px;
+  border-radius: var(--r-petit);
+  background: var(--surface-2);
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.nav-source-images {
+  position: absolute;
+  inset: 4px 0;
+  overflow: hidden;
+  border-radius: 8px;
+  opacity: 0.55;
+}
+.nav-source-images .tuile {
+  top: 0;
+}
+.nav-source-garde {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent-voile);
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.nav-source-garde[data-choisi='1'] {
+  background: rgba(200, 255, 77, 0.35);
+}
+.nav-source-point {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--texte);
+  box-shadow: 0 0 0 1px var(--fond);
+  pointer-events: none;
+}
+.bulle-source {
+  top: auto;
+  bottom: calc(100% + 8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+}
+.bulle-source canvas {
+  width: 96px;
+  height: 54px;
+  border-radius: 4px;
+  background: #2a2f3b;
+  display: block;
+}
+.nav-source-aide {
+  margin: 0;
+}
+.nav-source .btn {
+  font-size: 14px;
+  padding: 0 10px;
+  line-height: 1.2;
+}
+.nav-source-aller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-source-aller label {
+  white-space: nowrap;
+}
+.nav-source-aller input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--bord-fort);
+  background: var(--surface);
+  color: var(--texte);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.nav-source-aller input::placeholder {
+  color: #7d8494;
+}
+.nav-source-aller input[aria-invalid='true'] {
+  border-color: var(--orange);
+}
+.nav-source-aller .btn {
+  min-height: 48px;
+}
+.nav-source-erreur {
+  margin: -4px 0 0;
+  color: var(--orange);
+}
+
