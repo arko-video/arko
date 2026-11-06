@@ -2,9 +2,13 @@
 //  - karaoké : blanc avec contour, le mot en cours en citron et agrandi × 1,1
 //  - pop : un seul mot à la fois, en gros et en majuscules
 //  - boîte : texte blanc sur fond noir à 80 %
+//  - punchline (Montage auto) : la ligne en MAJUSCULES, contour noir épais + ombre, mot clé en jaune ou rouge,
+//    entrée « pop » 70 % → 108 % en 90 ms → 100 % à 160 ms ; jurons masqués (« P*TAIN »).
 // Les mots forts sont en citron et un peu plus gros. Mise en page en px de RÉFÉRENCE (1080 px de large),
 // puis ctx.scale(env.echelle) : même rendu dans l'aperçu et dans l'export.
 
+import { masquer } from '../../auto/habillage/jurons';
+import { indiceCle } from '../../auto/habillage/punchlines';
 import { TIKTOK, type Gabarit } from '../../recette/destination';
 import type { Ctx2D, Env } from '../canevas';
 import type { SousTitreActif } from '../etat-image';
@@ -22,6 +26,19 @@ const BASE = 0.36;
 const ESPACE_EN_PLUS = 0.08;
 /** Marge en haut et en bas de l'image (px de référence). */
 const MARGE_IMAGE = 20;
+/** Entrée « pop » d'une punchline : 70 % → 108 % en 90 ms → 100 % à 160 ms. */
+export const POP_PUNCHLINE = { depart: 0.7, sommet: 1.08, tSommet: 0.09, tFin: 0.16 };
+/** Mot clé d'une punchline quand aucune couleur n'est donnée. */
+const CLE_DEFAUT = '#FFE500';
+
+/** Agrandissement de la punchline `age` secondes après son apparition. */
+export function echellePop(age: number): number {
+  const p = POP_PUNCHLINE;
+  if (age >= p.tFin) return 1;
+  if (age <= 0) return p.depart;
+  if (age < p.tSommet) return p.depart + (p.sommet - p.depart) * sortieDouce(age / p.tSommet);
+  return p.sommet - (p.sommet - 1) * sortieDouce((age - p.tSommet) / (p.tFin - p.tSommet));
+}
 
 /** Un mot à dessiner : position de son centre (x) et de sa ligne de base (y), relatives au centre du bloc. */
 export interface MotDispose {
@@ -52,7 +69,7 @@ interface MotBrut {
 /** Dispose une ligne de mots (null si rien à dessiner). Rétrécit si elle dépasse 2 rangées de 900 px. */
 export function disposerLigne(mots: MotBrut[], st: StyleSousTitres, largeurLigne = LARGEUR_MAX_ST): LigneDisposee | null {
   const propres = mots
-    .map((m) => ({ ...m, txt: st.unMot ? retirerEmojis(m.txt).toUpperCase() : retirerEmojis(m.txt) }))
+    .map((m) => ({ ...m, txt: st.unMot || st.majuscules ? retirerEmojis(m.txt).toUpperCase() : retirerEmojis(m.txt) }))
     .filter((m) => m.txt.length > 0);
   if (propres.length === 0) return null;
   const [mx, my] = st.fond?.marge ?? [0, 0];
@@ -100,9 +117,17 @@ export function disposerLigne(mots: MotBrut[], st: StyleSousTitres, largeurLigne
   }
 }
 
-/** Mots de la ligne à afficher (pop : seulement le mot en cours). */
+/**
+ * Mots de la ligne à afficher (pop : seulement le mot en cours). Jurons masqués si demandé.
+ * Style à mot clé (punchline) : seul le mot clé de la ligne est mis en valeur.
+ */
 function motsAffiches(actif: SousTitreActif, st: StyleSousTitres): MotBrut[] {
-  const tous = actif.ligne.mots.map((m, j) => ({ txt: m.mot[0], j, fort: m.mot[3] === 1 }));
+  const cle = st.cle ? indiceCle(actif.ligne.mots.map((m) => m.mot)) : null;
+  const tous = actif.ligne.mots.map((m, j) => ({
+    txt: actif.masquer ? masquer(m.mot[0]) : m.mot[0],
+    j,
+    fort: st.cle ? j === cle : m.mot[3] === 1,
+  }));
   return st.unMot ? tous.slice(actif.actif, actif.actif + 1) : tous;
 }
 
@@ -132,6 +157,11 @@ export function dessinerSousTitres(ctx: Ctx2D, actif: SousTitreActif | null, env
     const e = 0.8 + 0.2 * sortieDouce(actif.ageMot / 0.1);
     ctx.scale(e, e);
   }
+  // Punchline : toute la ligne arrive en « pop ».
+  if (st.pop) {
+    const e = echellePop(actif.ageLigne ?? 1);
+    if (e !== 1) ctx.scale(e, e);
+  }
   if (st.fond) {
     ctx.fillStyle = st.fond.couleur;
     rectArrondi(ctx, -dl.l / 2, -dl.h / 2, dl.l, dl.h, st.fond.rayon);
@@ -151,7 +181,8 @@ export function dessinerSousTitres(ctx: Ctx2D, actif: SousTitreActif | null, env
     const enCours = m.j === actif.actif && st.actif !== undefined;
     ctx.save();
     ctx.font = m.police;
-    ctx.fillStyle = enCours ? st.actif!.couleur : m.fort ? MOT_FORT.couleur : st.couleur;
+    const couleurForte = st.cle ? (actif.couleurCle ?? CLE_DEFAUT) : MOT_FORT.couleur;
+    ctx.fillStyle = enCours ? st.actif!.couleur : m.fort ? couleurForte : st.couleur;
     // Agrandissement du mot en cours autour de son centre (sans déplacer les autres mots).
     const centreY = m.y - BASE * dl.taille;
     ctx.translate(m.x, centreY);
@@ -159,7 +190,18 @@ export function dessinerSousTitres(ctx: Ctx2D, actif: SousTitreActif | null, env
       const e = 1 + (st.actif!.echelle - 1) * Math.min(1, actif.ageMot / 0.06);
       ctx.scale(e, e);
     }
+    if (st.ombre) {
+      // L'ombre (sous le contour seulement) ne suit pas ctx.scale : mise à l'échelle à la main.
+      ctx.shadowColor = st.ombre.couleur;
+      ctx.shadowBlur = st.ombre.flou * env.echelle;
+      ctx.shadowOffsetY = st.ombre.dy * env.echelle;
+    }
     if (st.contour) ctx.strokeText(m.txt, 0, BASE * dl.taille);
+    if (st.ombre && st.contour) {
+      ctx.shadowColor = 'rgba(0, 0, 0, 0)';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+    }
     ctx.fillText(m.txt, 0, BASE * dl.taille);
     ctx.restore();
   }

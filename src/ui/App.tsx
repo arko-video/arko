@@ -15,6 +15,13 @@ import './styles/aide.css';
 import './styles/mes-sons.css';
 // YouTube (écran de départ, cadrage, chapitres, intro / outro, miniature).
 import './styles/youtube.css';
+// Montage express (Montage auto, H).
+import './auto/express/express.css';
+// Ma bibliothèque (fonds verts, mèmes).
+import './styles/bibliotheque.css';
+import './styles/pc.css'; // grand écran (PC) : à la fin, pour passer après les autres
+import { MaBibliotheque } from './composants/bibliotheque/MaBibliotheque';
+import { bibliothequeOuverte } from './bibliotheque';
 import { useEffect } from 'preact/hooks';
 import { T } from '../textes-fr';
 import { Couper } from './ecrans/Couper';
@@ -36,6 +43,10 @@ import { verifierPartage } from './mes-sons';
 import { ecran, historique, majDisponible, toast, toastAction } from './etat';
 import { outilOuvert } from './habillage';
 import { ecranMonteur } from './monteur/etat-monteur';
+import { ecranExpress } from './auto/express/navigation-express';
+import { EcranReglagesExpress } from './auto/express/EcranReglagesExpress';
+import { EcranAnalyseExpress } from './auto/express/EcranAnalyseExpress';
+import { EcranRevueExpress } from './auto/express/EcranRevueExpress';
 import { suivrePics } from './rythme';
 
 export function App() {
@@ -44,8 +55,9 @@ export function App() {
   useEffect(() => void verifierPartage(), []);
   // Monteur IA (phase 6) et Aide : leurs écrans passent devant Importer.
   const m = ecranMonteur.value;
-  const aide = !m && aideOuverte.value;
-  const e0 = m || aide ? 'sous-ecran' : historique.value ? ecran.value : 'importer';
+  const x = m ? null : ecranExpress.value;
+  const aide = !m && !x && aideOuverte.value;
+  const e0 = m || x || aide ? 'sous-ecran' : historique.value ? ecran.value : 'importer';
   // Écran de départ (TikTok ou YouTube) : au tout premier lancement, ou quand on touche « Changer » à l'accueil.
   const depart = e0 === 'importer' && (destinationChoisie.value === null || choixOuvert.value);
   // Miniature (YouTube) : par-dessus l'étape Exporter.
@@ -58,6 +70,9 @@ export function App() {
       {m === 'demande' && <Demande />}
       {m === 'analyse' && <Analyse />}
       {m === 'revue' && <Revue />}
+      {x === 'reglages' && <EcranReglagesExpress />}
+      {x === 'analyse' && <EcranAnalyseExpress />}
+      {x === 'revue' && <EcranRevueExpress />}
       {aide && <Aide />}
       {e === 'importer' && <Importer />}
       {e === 'couper' && <Couper />}
@@ -91,6 +106,7 @@ export function App() {
           )}
         </div>
       )}
+      {bibliothequeOuverte.value && <MaBibliotheque />}
       <BandeauMaj />
       <RecevoirSons />
     </>

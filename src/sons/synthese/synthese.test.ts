@@ -46,9 +46,9 @@ describe('briques', () => {
 });
 
 describe('catalogue', () => {
-  it('a 20 sons, tous au format famille.nom, avec une famille connue', () => {
+  it('a 22 sons (20 + 2 des bruitages auto), tous au format famille.nom, avec une famille connue', () => {
     const familles = new Set(FAMILLES.map((f) => f.id));
-    expect(CATALOGUE).toHaveLength(20);
+    expect(CATALOGUE).toHaveLength(22);
     for (const s of CATALOGUE) {
       expect(s.id).toMatch(/^[a-z]+\.[a-z0-9-]+$/);
       expect(s.id.split('.')[0]).toBe(s.famille);
@@ -57,7 +57,7 @@ describe('catalogue', () => {
       expect(s.version).toBe(2);
       expect(s.nom.length).toBeGreaterThan(0);
     }
-    expect(new Set(catalogueIds()).size).toBe(20);
+    expect(new Set(catalogueIds()).size).toBe(22);
   });
 
   it('chaque son du catalogue a sa fabrique, et inversement', () => {

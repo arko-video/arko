@@ -34,7 +34,7 @@ function son(id: string, nom: string, duree: number): SonCatalogue {
   return { id, nom, famille, duree, licence: 'CC0', version: 2 };
 }
 
-/** Les 20 sons d'Arko. La durée doit être celle du son fabriqué (vérifié par les tests). */
+/** Les 22 sons d'Arko (20 + 2 pour les bruitages auto). La durée doit être celle du son fabriqué (vérifié par les tests). */
 export const CATALOGUE: readonly SonCatalogue[] = [
   son('impact.boom', 'Boom', 1.5),
   son('impact.meme', 'Boom mème', 2.2),
@@ -51,8 +51,10 @@ export const CATALOGUE: readonly SonCatalogue[] = [
   son('comedie.ba-dum-tss', 'Ba-dum-tss', 1.8),
   son('interface.ding', 'Ding', 1.3),
   son('interface.erreur', 'Erreur', 0.48),
+  son('interface.extinction', 'Extinction', 2.2),
   son('tension.riser', 'Riser', 3),
   son('tension.coeur', 'Cœur', 2.4),
+  son('tension.dun-dun', 'Dun dun duuun', 2.4),
   son('jeu.piece', 'Pièce', 0.55),
   son('jeu.degat', 'Dégât', 0.4),
   son('jeu.bonus', 'Bonus', 0.75),

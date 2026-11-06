@@ -6,6 +6,9 @@ import { catalogueIds } from '../sons/catalogue';
 import { EXPORT_DEFAUT, ySousTitres } from './defauts';
 import { gabarit } from './destination';
 import { migrer, VERSION_ACTUELLE, versionDuFormat } from './migrations';
+import { ajouterChampsAuto, CLES_RECETTE_AUTO, sourcesAudioAuto } from './normaliser-auto';
+import { normaliserAmelioration } from '../moteur/amelioration/normaliser-amelioration'; // Améliorer l'image
+import { CLES_RECETTE_BIBLIOTHEQUE, normaliserIncrustations } from './normaliser-bibliotheque'; // Ma bibliothèque
 import {
   normaliserGuide,
   normaliserMarqueurs,
@@ -41,6 +44,9 @@ export interface OptionsNormalisation {
 const CLES_RECETTE = [
   'format', 'titre', 'sources', 'plans', 'mise', 'textes', 'sousTitres', 'sons', 'zooms', 'guide',
   'boucle', 'marqueurs', 'statut', 'export', 'destination', 'chapitres', 'intro', 'outro',
+  ...CLES_RECETTE_AUTO,
+  'amelioration', // Améliorer l'image
+  ...CLES_RECETTE_BIBLIOTHEQUE, // Ma bibliothèque
 ] as const;
 
 /**
@@ -86,6 +92,14 @@ export function normaliser(brut: unknown, infos?: InfosSources, options: Options
     boucle: obj.boucle === true,
     export: normaliserExport(obj.export, journal),
   };
+  // Montage auto (champs facultatifs) : avant le retrait des sources audio inutiles (la musique en utilise).
+  ajouterChampsAuto(recette, obj, sources, duree, journal);
+  // Améliorer l'image (facultatif : jamais ajouté s'il est absent).
+  const amelioration = normaliserAmelioration(obj.amelioration, journal);
+  if (amelioration) recette.amelioration = amelioration;
+  // Ma bibliothèque (facultatif) : fonds verts et mèmes posés par-dessus la vidéo.
+  const incrustations = normaliserIncrustations(obj.incrustations, videos, duree, journal);
+  if (incrustations) recette.incrustations = incrustations;
   if (options.retirerSourcesAudioInutiles) recette.sources = sourcesUtilisees(recette);
   if (typeof obj.titre === 'string' && obj.titre.trim()) recette.titre = obj.titre.trim().slice(0, 120);
   const marqueurs = normaliserMarqueurs(obj.marqueurs, journal);
@@ -118,8 +132,8 @@ export function normaliser(brut: unknown, infos?: InfosSources, options: Options
 }
 
 /** Sources de la recette sans les sources AUDIO que ni un son ni le son guide n'utilisent (pure). */
-export function sourcesUtilisees(r: Pick<Recette, 'sources' | 'sons' | 'guide' | 'plans'>): Source[] {
-  const utilisees = new Set<string>();
+export function sourcesUtilisees(r: Pick<Recette, 'sources' | 'sons' | 'guide' | 'plans' | 'musique'>): Source[] {
+  const utilisees = new Set<string>(sourcesAudioAuto(r));
   for (const son of r.sons) {
     utilisees.add(son.id);
     if (son.src) utilisees.add(son.src);
@@ -165,10 +179,12 @@ function normaliserSources(brut: unknown, infos: InfosSources | undefined, journ
       journal.corrige(`sources[${i}]`, `La source "${b.id}" apparaît deux fois : doublon ignoré.`);
       return;
     }
-    verifierCles(b, ['id', 'nom', 'taille', 'emp', 'duree', 'type', 'l', 'h'], `sources[${i}]`, journal);
+    verifierCles(b, ['id', 'nom', 'taille', 'emp', 'duree', 'type', 'l', 'h', 'bib'], `sources[${i}]`, journal);
+    // Clip de Ma bibliothèque : son identifiant là-bas (gardé même si la source ouverte ne le connaît pas).
+    const bib = typeof b.bib === 'string' && b.bib ? b.bib.slice(0, 80) : undefined;
     const vraie = ouvertes.find((s) => s.id === b.id);
     if (vraie) {
-      res.push({ ...vraie });
+      res.push(bib && !vraie.bib ? { ...vraie, bib } : { ...vraie });
       return;
     }
     const s: Source = {
@@ -181,6 +197,7 @@ function normaliserSources(brut: unknown, infos: InfosSources | undefined, journ
     };
     if (typeof b.l === 'number' && b.l > 0) s.l = Math.round(b.l);
     if (typeof b.h === 'number' && b.h > 0) s.h = Math.round(b.h);
+    if (bib) s.bib = bib;
     res.push(s);
   });
   // Sources ouvertes absentes de la recette (cas typique d'une recette écrite par une IA) : ajoutées.

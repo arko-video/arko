@@ -1,0 +1,164 @@
+/* Ma bibliothèque (écran par-dessus les autres), outils Fond vert et Mèmes, cadre du clip sur l'aperçu.
+   Mobile d'abord (360 px), cibles tactiles ≥ 44 px. */
+
+.bibliotheque-fond {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--fond);
+}
+.bibliotheque .ecran-corps {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  gap: 12px;
+}
+.bibliotheque p {
+  margin: 0;
+}
+.bibliotheque-import {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bibliotheque-import .btn {
+  min-height: 52px;
+  padding: 0 10px;
+  font-size: 15px;
+}
+.bibliotheque-bilan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--r);
+  border: 1px solid var(--orange-bord);
+  background: var(--orange-fond);
+  color: var(--orange-texte);
+}
+.bibliotheque-bilan ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  overflow-wrap: anywhere;
+}
+.liste-rayon {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.liste-rayon input[type='search'] {
+  min-height: 48px;
+}
+.demande-rayon-choix {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+.demande-rayon-choix .btn {
+  min-height: 52px;
+}
+
+/* ---------- clips (vignette, pastille « fond vert ») */
+.clip-vignette {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.clip-vignette img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.clip-vignette-vide {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.clip-fond {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 14px;
+  color: #0f1115;
+}
+.clip-fond-vert {
+  background: #5ee38a;
+}
+.clip-fond-bleu {
+  background: #7cc4ff;
+}
+.clip-ligne .son-ecouter {
+  gap: 10px;
+  cursor: default;
+}
+.clip-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.clip-action {
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 13px;
+  width: auto;
+}
+.clip-couleur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.clip-pastille {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid var(--bord-fort);
+  flex-shrink: 0;
+}
+
+/* ---------- accueil */
+.bouton-bibliotheque {
+  justify-content: flex-start;
+  gap: 12px;
+  min-height: 60px;
+  text-align: left;
+}
+.bouton-bibliotheque > span {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- cadre du clip choisi, sur l'aperçu */
+.calque-clip {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: move;
+  overflow: hidden;
+}
+.cadre-clip {
+  position: absolute;
+  z-index: 4;
+  border: 2px dashed var(--accent);
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(15, 17, 21, 0.7);
+  pointer-events: none;
+}
+
+/* ---------- mini-frise */
+.calque[data-genre='clip'] .calque-label {
+  background: #1f9d55;
+}
+.calque[data-genre='meme'] .calque-label {
+  background: #d9480f;
+}

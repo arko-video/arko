@@ -3,6 +3,15 @@
 // l'aperçu et l'export ne lisent que lui. Les champs des phases 2 à 6 existent déjà pour ne jamais
 // avoir à changer le format ; le moteur de la phase 1 les ignore simplement.
 
+import type { ModeSousTitres, PisteMusique, PlagePunchline, ReglagesBlancsRecette, ReglagesSections, RoleSon, Rognage, VolumeFinal, ZoomFixe } from './types-auto';
+
+export type * from './types-auto';
+// Ma bibliothèque (fonds verts, mèmes)
+import type { Incrustation } from './types-bibliotheque';
+export type * from './types-bibliotheque';
+// Améliorer l'image
+import type { ReglagesAmelioration } from '../moteur/amelioration/reglages';
+
 export const FORMAT_RECETTE = 'arko.recette/1';
 
 /** Secondes, arrondies au 1/100. */
@@ -36,6 +45,21 @@ export interface Recette {
   /** Intro et outro ajoutées au début et à la fin de la vidéo exportée (YouTube 16:9). */
   intro?: Generique;
   outro?: Generique;
+  // Montage auto (novembre 2026), tous facultatifs : voir types-auto.ts.
+  /** A. Les plans viennent de « Couper les blancs » (réglage et fondus du son aux coupes). */
+  blancs?: ReglagesBlancsRecette;
+  /** D. Bords d'écran enlevés, par source vidéo. */
+  rognages?: Rognage[];
+  /** F. Musique de fond (baisse automatique quand on parle). */
+  musique?: PisteMusique;
+  /** F. Volume final visé à l'export (−14 LUFS, −1,5 dBTP). */
+  volumeFinal?: VolumeFinal;
+  /** G. Titres de section à l'écran. */
+  sections?: ReglagesSections;
+  // Améliorer l'image (facultatif ; absent = « Non ») : voir moteur/amelioration/reglages.ts.
+  amelioration?: ReglagesAmelioration;
+  // Ma bibliothèque (facultatif) : fonds verts et mèmes posés par-dessus la vidéo, voir types-bibliotheque.ts.
+  incrustations?: Incrustation[];
 }
 
 export interface Chapitre {
@@ -68,6 +92,8 @@ export interface Source {
   /** Dimensions affichées (après rotation). */
   l?: number;
   h?: number;
+  /** Clip de Ma bibliothèque (fond vert, mème) : son identifiant là-bas (le fichier n'est pas copié dans le montage). */
+  bib?: string;
 }
 
 export interface Plan {
@@ -86,6 +112,8 @@ export interface Plan {
   m?: string;
   /** Arrêt sur image : la dernière image du plan est figée pendant `fige` secondes, sans son (0,3 à 5 s). Phase 4. */
   fige?: Sec;
+  /** C. Zoom fixe tenu sur tout le plan (« punch-in » des jump cuts). Montage auto. */
+  zoomFixe?: ZoomFixe;
 }
 
 export interface Transition {
@@ -116,8 +144,9 @@ export interface Texte {
   /**
    * "accroche" = le texte d'accroche du début (posé par l'outil Accroche).
    * "top3" = un numéro « #1 », « #2 », « #3 » posé par le modèle Top 3 (lui seul le retire).
+   * "section" = un titre de section (G, Montage auto), posé et retiré par l'outil Titres de section.
    */
-  role?: 'accroche' | 'top3';
+  role?: 'accroche' | 'top3' | 'section';
   style?: string;
   t: Sec;
   dur?: Sec;
@@ -135,6 +164,14 @@ export interface SousTitres {
   parLigne?: number;
   /** "auto" = à transcrire par Arko (c'est ce qu'écrit l'IA). */
   mots: Mot[] | 'auto';
+  /** B. 'punchlines' = seules les phrases fortes s'affichent (absent = 'tout'). */
+  mode?: ModeSousTitres;
+  /** B. Les punchlines gardées (temps source), en mode 'punchlines'. */
+  punchlines?: PlagePunchline[];
+  /** B. Couleur du mot clé d'une punchline (défaut 'jaune' #FFE500 ; 'rouge' #FF3030). */
+  couleurCle?: 'jaune' | 'rouge';
+  /** B. Jurons masqués à l'affichage (« P*TAIN ») : défaut oui. */
+  jurons?: 'masques' | 'visibles';
 }
 
 export interface Son {
@@ -144,6 +181,12 @@ export interface Son {
   ts?: Sec;
   src?: string;
   vol?: number;
+  /** E/G. Qui l'a posé (absent = à la main) : permet de retirer d'un coup les bruitages auto. */
+  role?: RoleSon;
+  /** E. Durée jouée au plus (le son est coupé après, avec `fondu`). */
+  dur?: Sec;
+  /** E. Fondu de sortie quand le son est coupé par `dur` (défaut 0,3 s). */
+  fondu?: Sec;
 }
 
 export interface Zoom {

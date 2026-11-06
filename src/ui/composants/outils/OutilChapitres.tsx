@@ -8,6 +8,7 @@ import { TY } from '../../../textes-youtube';
 import { afficherToast, modifier, recetteAffichee, teteLecture } from '../../etat';
 import { chercher, mettreEnPause } from '../../lecture';
 import { IconeAlerte, IconeCoche } from '../Icones';
+import { EntreeSections, suivreChapitres } from '../../auto/habillage/EntreeSections';
 
 const T = TY.chapitres;
 
@@ -36,7 +37,7 @@ export function OutilChapitres() {
 
   function ajouter() {
     mettreEnPause();
-    modifier((x) => ajouterChapitre(x, teteLecture.peek(), T.nomParDefaut((x.chapitres?.length ?? 0) + 1)).recette);
+    modifier((x) => suivreChapitres(ajouterChapitre(x, teteLecture.peek(), T.nomParDefaut((x.chapitres?.length ?? 0) + 1)).recette));
   }
 
   async function copier() {
@@ -67,10 +68,10 @@ export function OutilChapitres() {
                   maxLength={60}
                   value={c.nom}
                   aria-label={T.nom(formatHorodatage(tFinal))}
-                  onChange={(e) => modifier((x) => renommerChapitre(x, i, (e.currentTarget as HTMLInputElement).value))}
+                  onChange={(e) => modifier((x) => suivreChapitres(renommerChapitre(x, i, (e.currentTarget as HTMLInputElement).value)))}
                   data-testid={`chapitre-nom-${i}`}
                 />
-                <button type="button" class="btn btn-icone" aria-label={T.supprimer(c.nom)} onClick={() => modifier((x) => supprimerChapitre(x, i))} data-testid={`chapitre-suppr-${i}`}>
+                <button type="button" class="btn btn-icone" aria-label={T.supprimer(c.nom)} onClick={() => modifier((x) => suivreChapitres(supprimerChapitre(x, i)))} data-testid={`chapitre-suppr-${i}`}>
                   ×
                 </button>
               </li>
@@ -93,6 +94,7 @@ export function OutilChapitres() {
           <span>{T.ok}</span>
         </p>
       )}
+      <EntreeSections lieu="chapitres" />
       <p class="petit doux">{T.regles}</p>
       <label class="petit doux" for="texte-chapitres">
         {T.texte}

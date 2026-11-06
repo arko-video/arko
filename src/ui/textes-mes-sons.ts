@@ -13,7 +13,6 @@ export const TEXTES_MES_SONS = {
     intro: 'Tes sons, gardés sur ce téléphone pour tous tes montages.',
     vide: 'Aucun son gardé pour l\'instant.',
     importer: 'Importer des sons',
-    importerAide: 'Plusieurs fichiers d\'un coup, ou un .zip.',
     etiquette: 'Étiquette',
     etiquetteDefaut: 'Memes',
     chercher: 'Chercher dans Mes sons',
@@ -28,7 +27,6 @@ export const TEXTES_MES_SONS = {
       ]
         .filter(Boolean)
         .join(' '),
-    place: (mo: string) => `${mo}${NBSP}Mo utilisés sur 100${NBSP}Mo`,
     modifier: (nom: string) => `Modifier « ${nom} »`,
     nom: 'Nom',
     enregistrer: 'Enregistrer',

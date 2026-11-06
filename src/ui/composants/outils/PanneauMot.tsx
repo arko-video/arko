@@ -2,10 +2,12 @@
 // et dialogue d'accord pour télécharger le module (jamais de confirm() natif).
 
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { modifierMot, supprimerMot } from '../../../recette/operations';
+import { dansPunchline } from '../../../auto/habillage/punchlines';
+import { basculerPunchline, modifierMot, supprimerMot } from '../../../recette/operations';
+import { TA } from '../../../textes-auto';
 import type { Mot } from '../../../recette/types';
 import { T } from '../../../textes-fr';
-import { modifier } from '../../etat';
+import { modifier, recetteAffichee } from '../../etat';
 import {
   accepterModule,
   corrigerMot,
@@ -22,6 +24,9 @@ export function PanneauMot({ k, mot, mots, onFermer }: { k: number; mot: Mot; mo
   const [retenir, setRetenir] = useState(false);
   const fort = mot[3] === 1;
   const n = motsIdentiques(mots, mot[0]).length;
+  const st = recetteAffichee.value?.sousTitres;
+  const punch = st?.mode === 'punchlines';
+  const estPunchline = punch && dansPunchline(mot, st.punchlines ?? []);
 
   function valider() {
     corrigerMot(k, v, { identiques, retenir });
@@ -101,6 +106,18 @@ export function PanneauMot({ k, mot, mots, onFermer }: { k: number; mot: Mot; mo
           {T.sousTitres.mot.supprimer}
         </button>
       </div>
+      {punch && (
+        <button
+          type="button"
+          class="btn"
+          aria-pressed={estPunchline}
+          data-actif={estPunchline ? '1' : '0'}
+          onClick={() => modifier((r) => basculerPunchline(r, k))}
+          data-testid="mot-punchline"
+        >
+          {estPunchline ? `★ ${TA.habillage.punchlines.panneauRetirer}` : `☆ ${TA.habillage.punchlines.panneauAjouter}`}
+        </button>
+      )}
     </div>
   );
 }

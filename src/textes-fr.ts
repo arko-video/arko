@@ -63,7 +63,12 @@ export const T = {
     finPlan: 'Fin du plan (glisse pour couper)',
     outils: 'Outils de coupe',
     dureeFinale: (d: string) => `Durée finale : ${d}`,
-    tropLong: (d: string) => `${d} : un peu long, vise 15 à 30 s`,
+    tropLong: (d: string, destination: 'tiktok' | 'youtube' | 'short' = 'tiktok') =>
+      destination === 'youtube'
+        ? `${d} : plus long que 60 min, la limite d'Arko`
+        : destination === 'short'
+          ? `${d} : plus de 3 min, YouTube n'en fera pas un Short`
+          : `${d} : un peu long, vise 15 à 30 s`,
   },
 
   source: {

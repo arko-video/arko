@@ -105,8 +105,11 @@ async function exporter(d: DemandeExport) {
   try {
     for (const [id, fichier] of Object.entries(d.fichiers)) {
       const source = d.recette.sources.find((s) => s.id === id);
-      // Le son guide n'est jamais exporté : inutile d'ouvrir son fichier (sauf s'il sert aussi d'effet sonore).
-      if (id === d.recette.guide?.src && !d.recette.sons.some((s) => s.id === id)) continue;
+      // Un fichier ouvert mais que la recette n'utilise pas (son écouté dans la revue des bruitages, pas posé) : ignoré.
+      if (!source) continue;
+      // Le son guide n'est jamais exporté : inutile d'ouvrir son fichier (sauf s'il sert aussi d'effet sonore ou de musique).
+      const autreUsage = d.recette.sons.some((s) => s.id === id) || !!d.recette.musique?.morceaux.some((m) => m.src === id);
+      if (id === d.recette.guide?.src && !autreUsage) continue;
       medias.set(id, await ouvrirMedia(fichier, source?.type === 'audio' ? 'audio' : 'video'));
     }
     await Promise.all([preparerAac(), policesPretes()]); // polices prêtes avant la 1re image
@@ -135,6 +138,7 @@ async function exporter(d: DemandeExport) {
         });
         const fini: Extract<DepuisWorker, { type: 'fini' }> = { type: 'fini', fichier: r.fichier, largeur: r.largeur, hauteur: r.hauteur, qualite: essai.qualite, rang: essai.rang };
         if (sonIllisible(d, medias)) fini.avertissement = SON_ILLISIBLE;
+        if (r.sonie) fini.sonie = r.sonie;
         envoyer(fini);
         return;
       } catch (e) {

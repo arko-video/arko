@@ -17,8 +17,8 @@ import { modifier, recette, recetteTemporaire, teteLecture } from './etat';
 import { auCentieme } from './format';
 import { ajouterTexteLibre } from './placement';
 
-export type Outil = 'couper' | 'accroche' | 'texte' | 'sousTitres' | 'sons' | 'transitions' | 'zoom' | 'combos' | 'modeles' | 'chapitres' | 'generiques';
-export const OUTILS: Outil[] = ['couper', 'accroche', 'texte', 'sousTitres', 'sons', 'transitions', 'zoom', 'combos', 'modeles', 'chapitres', 'generiques'];
+export type Outil = 'couper' | 'accroche' | 'texte' | 'sousTitres' | 'sons' | 'transitions' | 'zoom' | 'combos' | 'modeles' | 'chapitres' | 'generiques' | 'fondVert' | 'memes';
+export const OUTILS: Outil[] = ['couper', 'accroche', 'texte', 'sousTitres', 'sons', 'transitions', 'zoom', 'combos', 'modeles', 'chapitres', 'generiques', 'fondVert', 'memes'];
 /** Outils réservés à YouTube 16:9. */
 export const OUTILS_YOUTUBE: readonly Outil[] = ['chapitres', 'generiques'];
 
@@ -188,6 +188,24 @@ export function lignesDe(r: Recette): LigneSousTitres[] {
       l = [];
     }
     cacheLignes.set(r, l);
+  }
+  return l;
+}
+
+const cacheListe = new WeakMap<Recette, LigneSousTitres[]>();
+
+/** Lignes de la LISTE de l'outil : en mode punchlines, toutes les phrases (marquées `punchline`) ; sinon lignesDe. */
+export function lignesListeDe(r: Recette): LigneSousTitres[] {
+  if (r.sousTitres?.mode !== 'punchlines') return lignesDe(r);
+  let l = cacheListe.get(r);
+  if (!l) {
+    try {
+      l = Array.isArray(r.sousTitres.mots) ? lignesSousTitres(r, { toutes: true }) : [];
+    } catch (e) {
+      console.error(e);
+      l = [];
+    }
+    cacheListe.set(r, l);
   }
   return l;
 }

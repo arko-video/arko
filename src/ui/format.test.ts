@@ -23,6 +23,15 @@ describe('formats', () => {
     expect(niveauDuree(24)).toBe('bien');
     expect(niveauDuree(40)).toBe('neutre');
     expect(niveauDuree(52)).toBe('long');
+    // Selon la destination : en YouTube 16:9, une vidéo de 20 min est « bien » ; en Short, 4 min est trop long.
+    const youtube = { id: 'youtube', dureeMax: 3600, dureeLimite: null } as const;
+    const short = { id: 'short', dureeMax: 600, dureeLimite: 180 } as const;
+    expect(niveauDuree(1200, youtube)).toBe('bien');
+    expect(niveauDuree(40, youtube)).toBe('neutre');
+    expect(niveauDuree(3700, youtube)).toBe('long');
+    expect(niveauDuree(45, short)).toBe('bien');
+    expect(niveauDuree(120, short)).toBe('neutre');
+    expect(niveauDuree(240, short)).toBe('long');
   });
 });
 

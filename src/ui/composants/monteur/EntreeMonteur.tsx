@@ -12,6 +12,7 @@ import { afficherToast } from '../../etat';
 import { entrerMonteur, oublierRevue, restaurerRevue, rouvrirPourRevue } from '../../monteur/revue-monteur';
 import { IconeAlerte, IconeCiseaux, IconeFleche } from '../Icones';
 import { Chargement } from '../MesMontages';
+import { EntreeExpress } from '../../auto/express/EntreeExpress';
 
 export function ChoixMonteur({ occupe }: { occupe: boolean }) {
   const s = sourceMonteur.value;
@@ -37,6 +38,7 @@ export function ChoixMonteur({ occupe }: { occupe: boolean }) {
         </span>
         <IconeFleche />
       </button>
+      <EntreeExpress />
       <button
         type="button"
         class="choix"

@@ -23,7 +23,7 @@ export interface Calque {
   label: string;
   choisi?: boolean;
   /** Couleur de la barre. */
-  genre: 'texte' | 'accroche' | 'ligne' | 'son' | 'zoom' | 'coupe' | 'plan' | 'chapitre';
+  genre: 'texte' | 'accroche' | 'ligne' | 'son' | 'zoom' | 'coupe' | 'plan' | 'chapitre' | 'clip' | 'meme';
   /** Pastille ronde centrée sur t0 (une coupe), au lieu d'une barre. */
   point?: boolean;
 }

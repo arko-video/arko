@@ -24,6 +24,8 @@ export interface StyleTexte {
   rotation?: number;
   /** Animation d'entrée (jamais pour un texte qui commence à 0 s). */
   entree: 'pop' | 'secousse' | 'fondu';
+  /** Texte écrit en MAJUSCULES au dessin (le texte de la recette ne change pas). */
+  majuscules?: boolean;
 }
 
 const CONTOUR_NOIR = { couleur: '#000000', epaisseur: 10 };
@@ -45,6 +47,11 @@ export const STYLES: Record<string, StyleTexte> = {
     contour: { couleur: 'rgba(0, 0, 0, 0.85)', epaisseur: 4 },
     ombre: { couleur: 'rgba(0, 0, 0, 0.75)', flou: 14, dy: 3 }, entree: 'fondu',
   },
+  // Montage auto (G) : titre de section, bandeau jaune penché, texte noir gras en majuscules, entrée « pop ».
+  bandeau: {
+    famille: INTER, poids: 800, taille: 84, interligne: 1.15, couleur: '#0F1115',
+    fond: { couleur: '#FFE500', rayon: 10, marge: [44, 20] }, rotation: -2, entree: 'pop', majuscules: true,
+  },
 };
 
 /** Style d'un texte (style inconnu → accroche). */
@@ -64,6 +71,11 @@ export interface StyleSousTitres {
   actif?: { couleur: string; echelle: number };
   /** Un seul mot à la fois, en majuscules (pop). */
   unMot?: boolean;
+  /** Montage auto (B, style « punchline ») : toute la ligne en MAJUSCULES, ombre, mot clé coloré, entrée « pop ». */
+  majuscules?: boolean;
+  ombre?: { couleur: string; flou: number; dy: number };
+  cle?: boolean;
+  pop?: boolean;
 }
 
 /** Mots forts : en citron, légèrement plus gros. */
@@ -78,6 +90,12 @@ export const STYLES_ST: Record<string, StyleSousTitres> = {
   boite: {
     famille: INTER, poids: 700, taille: 60, interligne: 1.22, couleur: '#FFFFFF',
     fond: { couleur: 'rgba(0, 0, 0, 0.8)', rayon: 18, marge: [28, 14] },
+  },
+  // Montage auto (B) : 70 px en 720p = 105 px de référence (petit côté 1080), contour noir 5 px en 720p = 7,5.
+  punchline: {
+    famille: INTER, poids: 800, taille: 105, interligne: 1.08, couleur: '#FFFFFF',
+    contour: { couleur: '#000000', epaisseur: 7.5 }, ombre: { couleur: 'rgba(0, 0, 0, 0.6)', flou: 16, dy: 6 },
+    majuscules: true, cle: true, pop: true,
   },
 };
 

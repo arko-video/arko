@@ -39,6 +39,13 @@ import { OutilChapitres } from '../composants/outils/OutilChapitres';
 import { OutilGeneriques } from '../composants/outils/OutilGeneriques';
 import { IconeChapitres, IconeGenerique } from '../composants/IconesYoutube';
 import { TY } from '../../textes-youtube';
+// Ma bibliothèque : fonds verts et mèmes.
+import { OutilFondVert, OutilMemes } from '../composants/outils/OutilClips';
+import { CalqueIncrustation } from '../composants/CalqueIncrustation';
+import { IconeFondVert, IconeMeme } from '../composants/IconesBibliotheque';
+import { calquesClips } from '../composants/calques-clips';
+import { TB } from '../textes-bibliotheque';
+import { incrustationChoisie, memeChoisi, reinitialiserClips } from '../clips-montage';
 import { gabaritProjet } from '../destination';
 import { coupeChoisie, coupes, sonChoisi, zoomChoisi } from '../effets';
 import { planVise } from '../coupe-tete';
@@ -69,6 +76,8 @@ const BOUTONS: { outil: Outil; label: string; Icone: ComponentType<{ taille?: nu
   { outil: 'sons', label: T.habiller.sons, Icone: IconeSon },
   { outil: 'transitions', label: T.habiller.transitions, Icone: IconeTransition },
   { outil: 'zoom', label: T.habiller.zoom, Icone: IconeZoom },
+  { outil: 'fondVert', label: TB.fondVert.outil, Icone: IconeFondVert },
+  { outil: 'memes', label: TB.memes.outil, Icone: IconeMeme },
   { outil: 'combos', label: T.combos.titre, Icone: IconeCombos },
   { outil: 'modeles', label: T.modeles.titre, Icone: IconeModeles },
   { outil: 'chapitres', label: TY.chapitres.outil, Icone: IconeChapitres },
@@ -87,6 +96,8 @@ const TITRES: Record<Outil, string> = {
   modeles: T.modeles.titre,
   chapitres: TY.chapitres.titre,
   generiques: TY.generiques.titre,
+  fondVert: TB.fondVert.titre,
+  memes: TB.memes.titre,
 };
 
 /** Élément choisi de l'outil d'effets ouvert (pour surligner son repère). */
@@ -94,6 +105,8 @@ function choixEffet(o: Outil | null): number | null {
   if (o === 'sons') return sonChoisi.value;
   if (o === 'transitions') return coupeChoisie.value;
   if (o === 'zoom') return zoomChoisi.value;
+  if (o === 'fondVert') return incrustationChoisie.value;
+  if (o === 'memes') return incrustationChoisie.value ?? (memeChoisi.value !== null ? -1 - memeChoisi.value : null);
   return null;
 }
 
@@ -101,6 +114,7 @@ function choixEffet(o: Outil | null): number | null {
 export function calquesPour(r: Recette, outil: Outil | null, choisi: number | null): Calque[] {
   if (outil === 'couper') return calquesPlans(r, choisi);
   if (outil === 'sons' || outil === 'transitions' || outil === 'zoom') return calquesEffets(r, outil, choisi);
+  if (outil === 'fondVert' || outil === 'memes') return calquesClips(r, outil, choisi);
   // Combos : on voit les zooms et les sons posés ; Modèles : tout.
   if (outil === 'combos') return [...calquesEffets(r, 'zoom', null), ...calquesEffets(r, 'sons', null)];
   if (outil === 'modeles') return calquesPour(r, null, null);
@@ -153,6 +167,13 @@ function toucherCalque(c: Calque) {
   else if (c.genre === 'texte') choisirTexte(c.id);
   else if (c.genre === 'accroche') ouvrirOutil('accroche');
   else if (c.genre === 'chapitre') return;
+  else if (c.genre === 'clip') {
+    memeChoisi.value = null;
+    incrustationChoisie.value = c.id;
+  } else if (c.genre === 'meme') {
+    incrustationChoisie.value = null;
+    memeChoisi.value = -1 - c.id;
+  }
   else {
     if (outilOuvert.peek() !== 'sousTitres') ouvrirOutil('sousTitres');
     requestAnimationFrame(() => document.querySelector(`[data-testid="ligne-${c.id}"]`)?.scrollIntoView({ block: 'nearest' }));
@@ -164,6 +185,7 @@ function ouvrir(o: Outil) {
   if (o === 'texte') texteChoisi.value = null;
   if (o === 'accroche') chercher(0);
   if (o === 'couper') selection.value = null;
+  if (o === 'fondVert' || o === 'memes') reinitialiserClips();
   ouvrirOutil(o);
   // Transitions : la coupe la plus proche de la tête de lecture est choisie d'office.
   const r = recetteAffichee.peek();
@@ -195,7 +217,10 @@ export function Habiller() {
       <Entete titre={T.habiller.nom} ecran="habiller" avecHistorique />
       <main class="habiller">
         <div class="habiller-apercu">
-          <Apercu enfants={outil === 'zoom' ? <CalqueZoom /> : <CalqueTextes />} zoneSureForcee={glisseTexte.value} />
+          <Apercu
+            enfants={outil === 'zoom' ? <CalqueZoom /> : outil === 'fondVert' || outil === 'memes' ? <CalqueIncrustation /> : <CalqueTextes />}
+            zoneSureForcee={glisseTexte.value}
+          />
         </div>
         {!clavier && avertissements.length > 0 && (
           <div class="bandeau-zone" role="status" data-testid="avertissements-zone">
@@ -238,6 +263,8 @@ export function Habiller() {
             {outil === 'modeles' && <OutilModeles />}
             {outil === 'chapitres' && <OutilChapitres />}
             {outil === 'generiques' && <OutilGeneriques />}
+            {outil === 'fondVert' && <OutilFondVert />}
+            {outil === 'memes' && <OutilMemes />}
           </div>
         </section>
       ) : (

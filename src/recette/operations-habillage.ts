@@ -5,6 +5,7 @@
 import { compiler } from './chronologie';
 import { TEXTE } from './defauts';
 import { normaliser } from './normaliser';
+import { placerSousTitres } from './sous-titres-places';
 import type { Mot, Recette, Sec, SousTitres, Texte } from './types';
 
 /** Normalise ; renvoie la recette d'origine si rien n'a changé. */
@@ -81,14 +82,26 @@ export interface LigneSousTitres {
   t0: Sec;
   t1: Sec;
   mots: Mot[];
+  /** Mode punchlines, liste complète (`toutes`) : la ligne est-elle une punchline gardée ? */
+  punchline?: boolean;
 }
 
 /**
  * Lignes de sous-titres visibles dans la vidéo finale (mots hors des plans gardés exclus) :
  * exactement les lignes dessinées par le moteur. Un passage réutilisé donne deux lignes (mêmes k0, k1).
+ * `toutes` (mode punchlines) : TOUTES les phrases, chacune marquée `punchline` ou non, pour en ajouter d'un toucher.
  */
-export function lignesSousTitres(recette: Recette): LigneSousTitres[] {
-  const st = compiler(recette).sousTitres;
-  if (!st) return [];
-  return st.lignes.map((l) => ({ k0: l.k0, k1: l.k1, t0: l.t0, t1: l.t1, mots: l.mots.map((m) => m.mot) }));
+export function lignesSousTitres(recette: Recette, o: { toutes?: boolean } = {}): LigneSousTitres[] {
+  const sc = compiler(recette);
+  const st = recette.sousTitres;
+  if (o.toutes && st?.mode === 'punchlines') {
+    const premiere = recette.sources.find((s) => s.type === 'video')?.id ?? '';
+    const toutes = placerSousTitres(st, sc.plans, recette.mise, premiere, { toutes: true });
+    const gardes = new Set((sc.sousTitres?.lignes ?? []).flatMap((l) => l.mots.map((m) => m.k)));
+    return (toutes?.lignes ?? []).map((l) => ({
+      k0: l.k0, k1: l.k1, t0: l.t0, t1: l.t1, mots: l.mots.map((m) => m.mot), punchline: l.mots.some((m) => gardes.has(m.k)),
+    }));
+  }
+  if (!sc.sousTitres) return [];
+  return sc.sousTitres.lignes.map((l) => ({ k0: l.k0, k1: l.k1, t0: l.t0, t1: l.t1, mots: l.mots.map((m) => m.mot) }));
 }

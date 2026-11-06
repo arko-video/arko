@@ -24,6 +24,11 @@ import { MesSons } from './MesSons';
 import { BoutonMicro } from './Micro';
 import { PanneauSon } from './PanneauSon';
 import { Onglets } from './Reglages';
+import { EntreeBruitages } from '../../auto/son/EntreeBruitages';
+import { EntreeMusique } from '../../auto/son/EntreeMusique';
+import { panneauSonAuto } from '../../auto/son/etat-son';
+import { PanneauBruitages } from '../../auto/son/PanneauBruitages';
+import { PanneauMusique } from '../../auto/son/PanneauMusique';
 
 interface Ligne {
   id: string;
@@ -38,6 +43,9 @@ export function OutilSons() {
   if (!r) return null;
   const i = sonChoisi.value;
   if (i !== null && r.sons[i]) return <PanneauSon i={i} son={r.sons[i]} />;
+  // Montage auto (E, F) : revue des bruitages ou musique de fond, à la place de la liste.
+  if (panneauSonAuto.value === 'bruitages') return <PanneauBruitages />;
+  if (panneauSonAuto.value === 'musique') return <PanneauMusique />;
 
   const onglet = ongletSons.value;
   const onglets = [
@@ -69,6 +77,10 @@ export function OutilSons() {
       />
       {onglet === 'messons' && <MesSons />}
       {onglet !== 'messons' && <ListeSons onglet={onglet} lignes={lignes} />}
+      <div class="grille-2 sons-auto">
+        <EntreeBruitages />
+        <EntreeMusique />
+      </div>
     </div>
   );
 }

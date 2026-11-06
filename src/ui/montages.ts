@@ -31,6 +31,7 @@ import { allerA, reprendreA } from './navigation';
 import { destinationChoisie } from './destination';
 import { rouvrirGeneriques } from './generiques';
 import { rouvrirSons } from './sons-gardes';
+import { rouvrirClips } from './clips-montage';
 
 /** Projets, du plus récent au plus ancien (null : pas encore lus). */
 export const montages = signal<ResumeProjet[] | null>(null);
@@ -103,7 +104,10 @@ export async function ouvrirMontage(
     // Intro / outro faites avec une vidéo de l'utilisateur : rouvertes depuis l'appareil.
     const gen = await rouvrirGeneriques(sons.recette);
     sons.messages.push(...gen.messages);
-    demarrerProjet(source, gen.recette, [...sons.audio, ...gen.ouvertes]);
+    // Fonds verts et mèmes : rouverts depuis Ma bibliothèque (retirés proprement s'ils n'y sont plus).
+    const clips = await rouvrirClips(gen.recette);
+    sons.messages.push(...clips.messages);
+    demarrerProjet(source, clips.recette, [...sons.audio, ...gen.ouvertes, ...clips.ouvertes]);
     idCourant.value = id;
     vignetteProjet.value = p.vignette;
     reprendreA(p.etape);

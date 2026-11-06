@@ -1,0 +1,96 @@
+/* Écran de PC (grand écran + souris). Le mobile ne change pas : tout est sous @media.
+   Idée : un aperçu bien plus grand, et dans Habiller les outils dans une colonne à droite. */
+
+@media (min-width: 1000px) {
+  .ecran {
+    max-width: 1100px;
+  }
+  .ecran-corps {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  /* aperçu plus grand partout */
+  .apercu {
+    height: min(60dvh, 680px);
+    max-width: 100%;
+  }
+  .couper .apercu {
+    height: min(52dvh, 600px);
+  }
+
+  /* survol à la souris */
+  .btn:hover,
+  .outil-bouton:hover {
+    filter: brightness(1.12);
+  }
+
+  /* ------------------------------------------------ Habiller : aperçu à gauche, outils à droite */
+  .habiller-ecran {
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .habiller-ecran > .entete {
+    grid-column: 1 / -1;
+  }
+  .habiller-ecran > .habiller {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 12px 24px 16px;
+    gap: 10px;
+  }
+  .habiller-ecran .etapes {
+    display: none;
+  }
+  .habiller-apercu .apercu {
+    height: 100%;
+    max-width: 100%;
+  }
+  .habiller-ecran > .panneau,
+  .habiller-ecran > .habiller-pied {
+    grid-column: 2;
+    grid-row: 2;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    border-top: 0;
+    border-left: 1px solid var(--bord-fort);
+    border-radius: 0;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+  }
+  .habiller-ecran > .habiller-pied {
+    overflow-y: auto;
+  }
+  .habiller-ecran .barre-outils {
+    flex-wrap: wrap;
+    overflow: visible;
+    padding: 16px;
+    gap: 10px;
+    align-content: flex-start;
+  }
+  .habiller-ecran .outil-bouton {
+    flex: 1 1 120px;
+    height: 72px;
+    font-size: 13px;
+  }
+  .habiller-ecran .habiller-suivant {
+    margin-top: auto;
+    padding: 12px 16px 20px;
+  }
+  .habiller-ecran .panneau-corps {
+    padding: 8px 20px 20px;
+  }
+}
+
+@media (min-width: 1500px) {
+  .ecran {
+    max-width: 1280px;
+  }
+  .habiller-ecran {
+    grid-template-columns: minmax(0, 1fr) 500px;
+  }
+}

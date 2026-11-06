@@ -48,6 +48,12 @@ export const SOUS_TITRES = { style: 'karaoke', y: 0.58, yMin: 0.15, yMax: 0.72, 
 export const STYLES_TEXTE = ['accroche', 'bulle', 'citron', 'alerte', 'discret'] as const;
 /** Styles de sous-titres (phase 2). */
 export const STYLES_SOUS_TITRES = ['karaoke', 'pop', 'boite'] as const;
+/**
+ * Styles du Montage auto (dev 2) : acceptés par le normaliseur mais PAS proposés dans les pastilles des outils
+ * (ils sont posés par « Titres de section » et « Punchlines seulement »). Le dessin les ajoute dans styles-texte.ts.
+ */
+export const STYLES_TEXTE_AUTO = ['bandeau'] as const;
+export const STYLES_SOUS_TITRES_AUTO = ['punchline'] as const;
 /** Accroche : texte du début, visible dès la 1re image. */
 export const ACCROCHE = { t: 0, dur: 2.5, style: 'accroche' as const, y: 0.2 };
 

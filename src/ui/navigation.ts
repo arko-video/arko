@@ -15,7 +15,9 @@ import { etapeCadrageSautee, gabaritProjet } from './destination';
 import { TY } from '../textes-youtube';
 import { panneauDepuisHistorique, reinitialiserHabillage } from './habillage';
 import { surNavigationAide } from './aide';
+import { surNavigationBibliotheque } from './bibliotheque';
 import { surNavigationMonteur } from './monteur/navigation-monteur';
+import { surNavigationExpress } from './auto/express/navigation-express';
 
 interface EtatHistorique {
   arko: true;
@@ -81,7 +83,11 @@ export function initialiserNavigation() {
     const etat = ev.state as Partial<EtatHistorique> | null;
     // Aide (phase 5) et monteur IA (phase 6) : leurs écrans vivent sous Importer.
     surNavigationAide(etat);
+    // Ma bibliothèque : un écran par-dessus les autres (son entrée d'historique porte « bib »).
+    surNavigationBibliotheque(etat);
     if (surNavigationMonteur(etat)) return;
+    // Montage express (Montage auto) : ses écrans vivent aussi sous Importer.
+    if (surNavigationExpress(etat)) return;
     let cible: Ecran = estEcran(etat?.ecran) ? etat.ecran : 'importer';
 
     // Pendant un export, on ne quitte pas l'écran sans le vouloir : on y reste.

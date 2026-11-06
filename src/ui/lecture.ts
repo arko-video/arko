@@ -53,3 +53,28 @@ export function lireGenerique(place: 'intro' | 'outro') {
 export function mettreEnPause() {
   if (lecteur?.enLecture) lecteur.pause();
 }
+
+let minuteurExtrait: ReturnType<typeof setTimeout> | undefined;
+
+/**
+ * Joue l'aperçu de `de` à `a` (temps de sortie) puis s'arrête et appelle `fini` : sert à écouter un bruitage proposé
+ * dans son contexte (la recette d'essai est chargée par l'aperçu à l'image suivante).
+ */
+export function lireExtrait(de: number, a: number, fini?: () => void) {
+  clearTimeout(minuteurExtrait);
+  const l = lecteur;
+  if (!l) return void fini?.();
+  if (l.enLecture) l.pause();
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      const debut = Math.max(0, de);
+      teteLecture.value = debut;
+      l.aller(debut);
+      l.lire();
+      minuteurExtrait = setTimeout(() => {
+        if (l.enLecture) l.pause();
+        fini?.();
+      }, Math.max(0.2, a - debut) * 1000);
+    }),
+  );
+}

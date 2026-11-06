@@ -7,7 +7,9 @@ import { compiler, type Scenario } from '../recette/chronologie';
 import { GUIDE } from '../recette/defauts';
 import type { Recette, Sec } from '../recette/types';
 import { effetsDuBloc, importesDuBloc, preparerEffets, type OptionsEffets } from './audio/effets';
+import { fondusDesCoupes } from './audio/fondus-coupes';
 import { mixerBloc, morceauxDuBloc, type SonPose } from './audio/mixeur';
+import { preparerMusique } from './audio/musique';
 import { FREQUENCE_SORTIE, type Pcm } from './audio/reechantillonner';
 import type { Ctx2D, Env, ImageSource } from './canevas';
 import { dessinerImage } from './compositeur';
@@ -19,7 +21,10 @@ import { etatImage } from './etat-image';
 import type { MediaOuvert } from './media';
 import { FondFlou } from './mises-en-page/flou';
 import { policesChargees, policesPretes } from './polices';
+import { imageRognee, rognagesParSource } from './rognage';
 import { assembler, segmentGenerique } from './rendre-generiques';
+import { preparerAmelioration } from './amelioration/image-amelioree'; // Améliorer l'image
+import { preparerIncrustations, type CalqueClip } from './incrustation/incruster'; // Ma bibliothèque
 
 /** Avance avec laquelle on prépare le plan suivant (pré-décodage avant une coupe). */
 const PRECHAUFFE_S: Sec = 0.5;
@@ -91,6 +96,13 @@ function rendreMontage(
   void policesPretes(); // on lance le chargement des polices tout de suite
   const cache = cachePartage ?? new CacheDecodage();
   cache.preparer(medias);
+  // Montage auto (crochets ; voir conception/contrat-montage-auto.md) : bords rognés (D), fondus aux coupes (A),
+  // musique de fond (F). Sans ces champs dans la recette, le rendu est exactement celui d'avant.
+  const rognages = rognagesParSource(recette);
+  const ameliorer = preparerAmelioration(recette); // Améliorer l'image (sans le champ : image telle quelle)
+  const fondus = fondusDesCoupes(recette);
+  const musique = preparerMusique(recette, scenario, lireImporte);
+  const incrustations = preparerIncrustations(recette); // fonds verts et mèmes (null s'il n'y en a pas)
   const cles = clesDesPlans(scenario.plans);
   const fileImages = creerFile();
   const fileAudio = creerFile();
@@ -113,11 +125,15 @@ function rendreMontage(
       if ((etat.textes.length > 0 || etat.sousTitres) && !policesChargees()) await policesPretes();
       if (ferme) return;
       const i = etat.plan.i;
-      // Ne garder ouverts que les curseurs du plan courant et du suivant.
-      cache.garderSeulement(new Set([cles[i]!, cles[i + 1] ?? cles[i]!]));
+      // Ne garder ouverts que les curseurs du plan courant et du suivant (et ceux des fonds verts / mèmes visibles).
+      cache.garderSeulement(new Set([cles[i]!, cles[i + 1] ?? cles[i]!, ...(incrustations?.cles(t) ?? [])]));
+      // Fonds verts et mèmes : décodés et détourés AVANT le dessin (chacun dans son canevas).
+      const calques: CalqueClip[] = incrustations && !ferme ? await incrustations.calques(t, env, cache, imageDeSample) : [];
+      if (ferme) return;
       const c = curseur(i);
       const dessin = (sample: VideoSample | null) => {
-        if (!ferme) dessinerImage(ctx, etat, sample ? imageDeSample(sample) : null, env, fond, tampon);
+        // Améliorer l'image : sur la source entière, avant rognage, mise en page et zooms.
+        if (!ferme) dessinerImage(ctx, etat, sample ? imageRognee(ameliorer(imageDeSample(sample)), rognages.get(etat.src)) : null, env, fond, tampon, calques);
       };
       // Le dessin se fait SOUS le verrou du curseur : l'image ne peut pas être fermée entre-temps.
       if (c) await c.avecImage(etat.ts, dessin);
@@ -138,9 +154,11 @@ function rendreMontage(
       const t1 = t0 + n / FREQUENCE_SORTIE;
       const sons = effetsDuBloc(await effets, t0, t1);
       if (!ferme) sons.push(...(await importesDuBloc(scenario, recette, t0, t1, lireImporte)));
+      if (incrustations && !ferme) sons.push(...(await incrustations.sons(t0, t1, cache)));
       // Son guide : seulement si demandé (aperçu). L'export passe guide: false, il n'est donc jamais exporté.
       const guide = options.guide === true && !ferme ? await morceauGuide(t0, t1) : null;
-      return mixerBloc({ scenario, t0, n, pcmMorceaux, sons, guide, avecGuide: guide !== null, frequence: FREQUENCE_SORTIE });
+      const blocMusique = musique && !ferme ? await musique.bloc(t0, n) : null;
+      return mixerBloc({ scenario, t0, n, pcmMorceaux, sons, guide, avecGuide: guide !== null, frequence: FREQUENCE_SORTIE, fondus, musique: blocMusique });
     });
   }
 

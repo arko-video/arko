@@ -1,0 +1,1283 @@
+{
+ "tiktokComplet": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [
+    {
+     "id": "s1",
+     "nom": "partie.mp4",
+     "taille": 123456789,
+     "emp": "abc",
+     "duree": 7200,
+     "type": "video",
+     "l": 1280,
+     "h": 720
+    },
+    {
+     "id": "a1",
+     "nom": "vine boom.mp3",
+     "taille": 20000,
+     "emp": "def",
+     "duree": 1.2,
+     "type": "audio"
+    }
+   ],
+   "plans": [
+    {
+     "de": 842.3,
+     "a": 851,
+     "vit": 1.5
+    },
+    {
+     "de": 855.2,
+     "a": 859.8,
+     "fige": 1,
+     "trans": {
+      "type": "glitch",
+      "dur": 0.4,
+      "son": false
+     },
+     "m": "m01"
+    },
+    {
+     "de": 900,
+     "a": 910,
+     "trans": "zoom",
+     "mise": {
+      "type": "recadre",
+      "x": 0.3
+     }
+    }
+   ],
+   "mise": {
+    "type": "jeuCam",
+    "cam": {
+     "x": 0.02,
+     "y": 0.62,
+     "l": 0.26,
+     "h": 0.34
+    },
+    "x": 0.5,
+    "camEnHaut": false,
+    "partCam": 0.4
+   },
+   "textes": [
+    {
+     "txt": "ATTENDS LA FIN…",
+     "style": "accroche",
+     "t": 0,
+     "dur": 2.5,
+     "x": 0.5,
+     "y": 0.2,
+     "role": "accroche"
+    },
+    {
+     "txt": "#1",
+     "style": "alerte",
+     "t": 5,
+     "dur": 1,
+     "x": 0.4,
+     "y": 0.3,
+     "role": "top3"
+    }
+   ],
+   "sousTitres": {
+    "style": "pop",
+    "y": 0.6,
+    "parLigne": 2,
+    "mots": [
+     [
+      "non",
+      843,
+      843.4,
+      1
+     ],
+     [
+      "attends",
+      843.5,
+      844
+     ],
+     [
+      "quoi",
+      856,
+      856.3
+     ]
+    ]
+   },
+   "sons": [
+    {
+     "id": "impact.boom",
+     "ts": 857.1,
+     "vol": 1.2
+    },
+    {
+     "id": "a1",
+     "t": 3,
+     "vol": 0.8
+    }
+   ],
+   "zooms": [
+    {
+     "ts": 857,
+     "dur": 0.8,
+     "x": 0.4,
+     "y": 0.6,
+     "force": 1.6,
+     "style": "doux",
+     "zone": "jeu"
+    }
+   ],
+   "guide": {
+    "src": "a1",
+    "t": 0,
+    "debut": 12,
+    "vol": 0.5
+   },
+   "boucle": true,
+   "export": {
+    "h": 1280,
+    "ips": 30,
+    "qualite": "normale"
+   },
+   "titre": "Le clutch",
+   "marqueurs": [
+    {
+     "ts": 857,
+     "type": "cri",
+     "label": "Gros cri"
+    }
+   ],
+   "statut": "garde"
+  },
+  "problemes": [],
+  "bloquant": false
+ },
+ "youtubeComplet": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [
+    {
+     "id": "s1",
+     "nom": "partie.mp4",
+     "taille": 123456789,
+     "emp": "abc",
+     "duree": 7200,
+     "type": "video",
+     "l": 1280,
+     "h": 720
+    },
+    {
+     "id": "g1",
+     "nom": "intro.mp4",
+     "taille": 5000,
+     "emp": "ghi",
+     "duree": 4,
+     "type": "video",
+     "l": 1920,
+     "h": 1080
+    }
+   ],
+   "plans": [
+    {
+     "de": 10,
+     "a": 70
+    },
+    {
+     "de": 100,
+     "a": 160
+    },
+    {
+     "de": 300,
+     "a": 400
+    }
+   ],
+   "mise": {
+    "type": "recadre",
+    "x": 0.5
+   },
+   "textes": [
+    {
+     "txt": "Salut",
+     "style": "accroche",
+     "t": 1,
+     "dur": 3,
+     "x": 0.5,
+     "y": 0.2
+    }
+   ],
+   "sousTitres": {
+    "style": "karaoke",
+    "y": 0.82,
+    "parLigne": 3,
+    "mots": "auto"
+   },
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "haute"
+   },
+   "destination": "youtube",
+   "chapitres": [
+    {
+     "t": 0,
+     "nom": "Début"
+    },
+    {
+     "t": 60,
+     "nom": "Le château"
+    },
+    {
+     "t": 120,
+     "nom": "La fin"
+    }
+   ],
+   "intro": {
+    "src": "g1",
+    "dur": 3
+   },
+   "outro": {
+    "modele": "abonne",
+    "dur": 5,
+    "chaine": "Romain",
+    "texte": "Abonne-toi !"
+   }
+  },
+  "problemes": [],
+  "bloquant": false
+ },
+ "short": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [
+    {
+     "id": "s1",
+     "nom": "partie.mp4",
+     "taille": 123456789,
+     "emp": "abc",
+     "duree": 7200,
+     "type": "video",
+     "l": 1280,
+     "h": 720
+    }
+   ],
+   "plans": [
+    {
+     "de": 0,
+     "a": 20
+    }
+   ],
+   "mise": {
+    "type": "flou",
+    "y": 0.45
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   },
+   "destination": "short"
+  },
+  "problemes": [],
+  "bloquant": false
+ },
+ "minimal": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [
+    {
+     "de": 1,
+     "a": 4
+    }
+   ],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   }
+  ],
+  "bloquant": false
+ },
+ "exemples/gaming-25s.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [
+    {
+     "id": "s1",
+     "nom": "valorant-session.mp4",
+     "taille": 1843200000,
+     "emp": "3f9a0c1d2b4e5f60718293a4b5c6d7e8",
+     "duree": 3612.4,
+     "type": "video",
+     "l": 1920,
+     "h": 1080
+    }
+   ],
+   "plans": [
+    {
+     "de": 1204.5,
+     "a": 1207.5,
+     "mise": {
+      "type": "recadre",
+      "x": 0.62
+     }
+    },
+    {
+     "de": 1180,
+     "a": 1188
+    },
+    {
+     "de": 1195.2,
+     "a": 1203.2,
+     "trans": "glisse"
+    },
+    {
+     "de": 1204.5,
+     "a": 1207.5,
+     "vit": 0.5,
+     "trans": {
+      "type": "flash",
+      "dur": 0.2
+     }
+    }
+   ],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [
+    {
+     "txt": "1v3 avec 12 PV",
+     "style": "accroche",
+     "t": 0,
+     "dur": 3,
+     "x": 0.5,
+     "y": 0.2
+    }
+   ],
+   "sousTitres": {
+    "style": "karaoke",
+    "y": 0.66,
+    "parLigne": 3,
+    "mots": "auto"
+   },
+   "sons": [],
+   "zooms": [
+    {
+     "ts": 1205.1,
+     "dur": 0.6,
+     "x": 0.5,
+     "y": 0.5,
+     "force": 1.4,
+     "style": "punch",
+     "zone": "tout"
+    }
+   ],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   },
+   "titre": "Clutch 1v3 sur la B",
+   "marqueurs": [
+    {
+     "ts": 1205.1,
+     "type": "kill",
+     "label": "dernier kill"
+    }
+   ]
+  },
+  "problemes": [],
+  "bloquant": false
+ },
+ "exemples/ia-minimale.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [
+    {
+     "de": 842.3,
+     "a": 851
+    },
+    {
+     "de": 855.2,
+     "a": 859.8,
+     "trans": "glisse"
+    }
+   ],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [
+    {
+     "txt": "Le one-shot le plus sale",
+     "style": "accroche",
+     "t": 0,
+     "dur": 3,
+     "x": 0.5,
+     "y": 0.2
+    }
+   ],
+   "sousTitres": {
+    "style": "karaoke",
+    "y": 0.66,
+    "parLigne": 3,
+    "mots": "auto"
+   },
+   "sons": [
+    {
+     "id": "impact.boom",
+     "ts": 857.1,
+     "vol": 0.8
+    }
+   ],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "plans[1].trans",
+    "niveau": "corrige",
+    "message": "La transition \"whoosh\" s'appelle maintenant \"glisse\" : corrigée."
+   }
+  ],
+  "bloquant": false
+ },
+ "erreurs-ia/01-fin-avant-debut.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/02-temps-en-texte.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/03-cles-anglaises.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/04-son-inconnu.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "sonsConnus",
+    "niveau": "ignore",
+    "message": "La clé \"sonsConnus\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/05-texte-hors-zone.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/06-vitesse-transition.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/07-hors-source.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [
+    {
+     "id": "s1",
+     "nom": "clip.mp4",
+     "taille": 1000,
+     "emp": "abc",
+     "duree": 30,
+     "type": "video",
+     "l": 1920,
+     "h": 1080
+    }
+   ],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/08-mise-inconnue.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/09-json-markdown-sans-format.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "texte",
+    "niveau": "ignore",
+    "message": "La clé \"texte\" est inconnue : ignorée. Voulais-tu dire \"textes\" ?"
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/10-trop-long-et-v2.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "bloquant",
+    "niveau": "ignore",
+    "message": "La clé \"bloquant\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/11-jeu-cam-zooms-mots.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/12-aucun-plan.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "bloquant",
+    "niveau": "ignore",
+    "message": "La clé \"bloquant\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/13-effets-phase3.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "sonsConnus",
+    "niveau": "ignore",
+    "message": "La clé \"sonsConnus\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ },
+ "erreurs-ia/14-arret-sur-image.json": {
+  "recette": {
+   "format": "arko.recette/1",
+   "sources": [],
+   "plans": [],
+   "mise": {
+    "type": "flou",
+    "y": 0.5
+   },
+   "textes": [],
+   "sousTitres": null,
+   "sons": [],
+   "zooms": [],
+   "guide": null,
+   "boucle": false,
+   "export": {
+    "h": 1920,
+    "ips": 30,
+    "qualite": "normale"
+   }
+  },
+  "problemes": [
+   {
+    "chemin": "format",
+    "niveau": "conseil",
+    "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+   },
+   {
+    "chemin": "description",
+    "niveau": "ignore",
+    "message": "La clé \"description\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "entree",
+    "niveau": "ignore",
+    "message": "La clé \"entree\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "attendu",
+    "niveau": "ignore",
+    "message": "La clé \"attendu\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "messages",
+    "niveau": "ignore",
+    "message": "La clé \"messages\" est inconnue : ignorée."
+   },
+   {
+    "chemin": "plans",
+    "niveau": "bloquant",
+    "message": "La recette ne garde aucun plan : il n'y a rien à exporter."
+   }
+  ],
+  "bloquant": true
+ }
+}

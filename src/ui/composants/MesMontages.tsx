@@ -1,11 +1,14 @@
 // « Mes montages » sur Importer : le dernier montage en haut, mis en avant, puis les autres.
-// Chaque carte : vignette, titre, durée, date relative ; un toucher l'ouvre ; ⋮ = Renommer, Dupliquer, Supprimer.
+// Chaque carte : vignette, titre, durée, date relative ; un toucher l'ouvre ; ⋮ = Renommer, Dupliquer, Montage express,
+// Supprimer.
 
 import { useState } from 'preact/hooks';
 import type { ResumeProjet } from '../../moteur/api';
 import { T } from '../../textes-fr';
 import { TY } from '../../textes-youtube';
+import { ouvrirExpress } from '../auto/express/etat-express';
 import { destinationChoisie, ouvrirChoix } from '../destination';
+import { sources } from '../etat';
 import { formatDepuis, formatDuree } from '../format';
 import { continuerMontage, dupliquerMontage, estOuvert, montages, renommerMontage, supprimerMontage } from '../montages';
 import { Dialogue } from './Dialogue';
@@ -34,8 +37,8 @@ interface Props {
   occupe: boolean;
   /** Montage en cours d'ouverture (id) et son étape de chargement. */
   chargement: { id: string; nom: string; etape: string } | null;
-  /** Ouvrir un montage fermé : l'écran Importer fait re-choisir la vidéo. */
-  onRechoisir(m: ResumeProjet): void;
+  /** Ouvrir un montage fermé : l'écran Importer fait re-choisir la vidéo (puis le Montage express si `express`). */
+  onRechoisir(m: ResumeProjet, express?: boolean): void;
 }
 
 export function MesMontages({ occupe, chargement, onRechoisir }: Props) {
@@ -49,7 +52,12 @@ export function MesMontages({ occupe, chargement, onRechoisir }: Props) {
     setMenu(null);
     if (!m) return;
     if (a === 'dupliquer') void dupliquerMontage(m);
-    else setDialogue({ type: a, m });
+    else if (a === 'express') {
+      // Montage express sur la vidéo de ce montage (un NOUVEAU montage est créé, celui-ci reste tel quel).
+      const video = sources.peek()[0];
+      if (estOuvert(m.id) && video) void ouvrirExpress(video);
+      else onRechoisir(m, true);
+    } else setDialogue({ type: a, m });
   }
 
   return (

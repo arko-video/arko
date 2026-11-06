@@ -20,8 +20,11 @@ import {
 import { NavigationSource, SEUIL_LONGUE_SOURCE } from '../composants/NavigationSource';
 import { PanneauPlan } from '../composants/PanneauPlan';
 import { SonGuide } from '../composants/SonGuide';
+import { EntreeBlancs } from '../auto/coupes/EntreeBlancs';
+import { EntreeRognage } from '../auto/coupes/EntreeRognage';
 import { agirCoupe, scinderIci, supprimerPlan } from '../coupes';
 import { recette, recetteAffichee, selection, sources, teteLecture } from '../etat';
+import { gabaritProjet } from '../destination';
 import { formatDuree, niveauDuree, pasImage } from '../format';
 import { chercher, mettreEnPause } from '../lecture';
 import { suivant } from '../navigation';
@@ -51,7 +54,9 @@ export function Couper() {
   if (!r) return null;
   const source = sources.value[0];
   const duree = dureeFinale(r);
-  const niveau = niveauDuree(duree);
+  // Le conseil de durée dépend de la destination (TikTok 15 à 30 s ; YouTube 16:9 : aucun avant 60 min).
+  const g = gabaritProjet.value;
+  const niveau = niveauDuree(duree, g);
   const sel = selection.value;
   const unSeulPlan = r.plans.length <= 1;
   // Plan réglé (vitesse, arrêt sur image) : le plan choisi, ou le seul plan.
@@ -78,12 +83,12 @@ export function Couper() {
           </span>
           {niveau === 'long' && (
             <span class="duree-conseil" aria-hidden="true">
-              {T.couper.tropLong(formatDuree(duree))}
+              {T.couper.tropLong(formatDuree(duree), g.id)}
             </span>
           )}
           <span class="sr-only" role="status" aria-live="polite">
             {T.couper.dureeFinale(formatDuree(dureeValidee))}
-            {niveauDuree(dureeValidee) === 'long' ? `. ${T.couper.tropLong(formatDuree(dureeValidee))}` : ''}
+            {niveauDuree(dureeValidee, g) === 'long' ? `. ${T.couper.tropLong(formatDuree(dureeValidee), g.id)}` : ''}
           </span>
         </div>
 
@@ -164,6 +169,10 @@ export function Couper() {
             {T.couper.supprimer}
           </button>
         </div>
+
+        {/* Montage auto (dev 1) : cachés tant que pas prêts (ui/auto/drapeaux.ts). */}
+        <EntreeBlancs lieu="couper" />
+        <EntreeRognage lieu="couper" />
 
         {iPlan !== null && planChoisi && <PanneauPlan i={iPlan} plan={planChoisi} />}
 

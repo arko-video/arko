@@ -6,6 +6,7 @@ import { T } from '../../textes-fr';
 import { DEPOT_CODE } from '../aide';
 import { IconeCiseaux, IconeFleche, IconeRetour, IconeSon, IconeTelecharger } from '../composants/Icones';
 import { retour } from '../navigation';
+import { ConseilsObs } from '../auto/image/ConseilsObs'; // Améliorer l'image
 
 const ICONES = [
   <IconeCiseaux key="c" taille={22} />,
@@ -51,6 +52,8 @@ export function Aide() {
             </li>
           ))}
         </ol>
+        {/* Améliorer l'image : conseils OBS */}
+        <ConseilsObs />
         <a
           class="btn aide-code"
           href={DEPOT_CODE}

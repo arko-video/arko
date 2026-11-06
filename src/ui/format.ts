@@ -33,8 +33,22 @@ export function formatTaille(octets: number): string {
   return `${(mo / 1000).toFixed(1).replace('.', ',')}${NBSP}Go`;
 }
 
-/** Couleur du compteur de durée : vert de 7 à 30 s, neutre jusqu'à 45 s, orange au-delà. */
-export function niveauDuree(d: number): 'bien' | 'neutre' | 'long' {
+/** Ce que le compteur de durée doit savoir de la destination (gabarit de recette/destination.ts). */
+export interface DestinationDuree {
+  id: 'tiktok' | 'youtube' | 'short';
+  dureeMax: number;
+  dureeLimite: number | null;
+}
+
+/**
+ * Couleur du compteur de durée selon la destination (TikTok si absente) :
+ *  - TikTok : vert de 7 à 30 s, neutre jusqu'à 45 s, orange au-delà ;
+ *  - Short : vert de 15 à 60 s, orange au-delà de 3 min (ce n'est plus un Short) ;
+ *  - YouTube 16:9 : vert dès 1 min, orange au-delà de la limite d'Arko (60 min).
+ */
+export function niveauDuree(d: number, g?: DestinationDuree): 'bien' | 'neutre' | 'long' {
+  if (g?.id === 'youtube') return d > g.dureeMax ? 'long' : d >= 60 ? 'bien' : 'neutre';
+  if (g?.id === 'short') return d > (g.dureeLimite ?? 180) ? 'long' : d >= 15 && d <= 60 ? 'bien' : 'neutre';
   if (d > 45) return 'long';
   if (d >= 7 && d <= 30) return 'bien';
   return 'neutre';

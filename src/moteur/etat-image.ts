@@ -27,6 +27,11 @@ export interface SousTitreActif {
   actif: number;
   /** Secondes depuis le début du mot en cours. */
   ageMot: Sec;
+  /** Secondes depuis le début de la ligne (animation « pop » du style punchline). */
+  ageLigne?: Sec;
+  /** B. Couleur du mot clé et jurons masqués (style punchline). */
+  couleurCle?: string;
+  masquer?: boolean;
 }
 
 export interface ZoomActif {
@@ -104,7 +109,14 @@ function sousTitreActif(s: Scenario, t: Sec): SousTitreActif | null {
   ligne.mots.forEach((m, j) => {
     if (m.t0 <= t) actif = j;
   });
-  return { ligne, style: st.style, y: st.y, actif, ageMot: t - ligne.mots[actif]!.t0 };
+  return avecAuto({ ligne, style: st.style, y: st.y, actif, ageMot: t - ligne.mots[actif]!.t0, ageLigne: t - ligne.t0 }, st);
+}
+
+/** Ajoute les réglages du Montage auto (couleur du mot clé, jurons) quand ils existent. */
+function avecAuto(a: SousTitreActif, st: NonNullable<Scenario['sousTitres']>): SousTitreActif {
+  if (st.couleurCle) a.couleurCle = st.couleurCle;
+  if (st.masquer) a.masquer = true;
+  return a;
 }
 
 /** Sous-titre pendant l'arrêt sur image : la ligne visible juste avant l'arrêt (ou finie depuis moins de 0,3 s). */
@@ -118,7 +130,7 @@ function sousTitreFige(s: Scenario, plan: PlanPlace): SousTitreActif | null {
   ligne.mots.forEach((m, j) => {
     if (m.t0 <= t) actif = j;
   });
-  return { ligne, style: st.style, y: st.y, actif, ageMot: Math.max(0, t - ligne.mots[actif]!.t0) };
+  return avecAuto({ ligne, style: st.style, y: st.y, actif, ageMot: Math.max(0, t - ligne.mots[actif]!.t0), ageLigne: Math.max(0, t - ligne.t0) }, st);
 }
 
 function zoomActif(s: Scenario, t: Sec): ZoomActif | null {

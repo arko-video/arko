@@ -1,4 +1,4 @@
-// « Mes sons » : garder (sans doublon), plafond de 100 Mo, renommer, étiquette, supprimer (IndexedDB simulée en mémoire).
+// « Mes sons » : garder (sans doublon), plafond de 600 Mo, renommer, étiquette, supprimer (IndexedDB simulée en mémoire).
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const memoire = new Map<string, unknown>();
@@ -34,9 +34,10 @@ describe('Mes sons', () => {
     expect(await lireMonSon(a.son.id)).toBeNull();
   });
 
-  it('refuse un son qui ferait dépasser 100 Mo', async () => {
-    await garderMonSon(son(1, LIMITE_MES_SONS - 50), { nom: 'gros', duree: 600 });
-    await expect(garderMonSon(son(2, 100), { nom: 'de trop', duree: 1 })).rejects.toMatchObject({ code: 'place' });
+  it('refuse un son qui ferait dépasser 600 Mo', async () => {
+    await garderMonSon(son(1, 1000), { nom: 'gros', duree: 600 });
+    await expect(garderMonSon(son(2, 100), { nom: 'de trop', duree: 1 }, { placeUtilisee: LIMITE_MES_SONS - 50 })).rejects.toMatchObject({ code: 'place' });
+    expect(LIMITE_MES_SONS).toBe(600 * 1024 * 1024);
   });
 
   it('noms propres, venus d\'un fichier ou tapés', () => {

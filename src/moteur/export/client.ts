@@ -107,8 +107,12 @@ export function lancerExport(recette: Recette, sources: SourceOuverte[]): Export
   const manquante = recette.plans.find((p) => !fichiers[p.src ?? sources[0]?.infos.id ?? '']);
   // Intro / outro importées : leur vidéo doit être rouverte (elle est gardée sur l'appareil).
   const generiqueAbsent = [recette.intro?.src, recette.outro?.src].some((id) => id && !fichiers[id]);
+  // Fonds verts et mèmes (Ma bibliothèque) : leur clip doit être ouvert.
+  const clipAbsent = (recette.incrustations ?? []).some((x) => !fichiers[x.src]);
   if (sources.length === 0 || manquante) {
     rejeter(new ErreurArko('La vidéo d\'origine n\'est plus ouverte. Choisis-la à nouveau.', 'source'));
+  } else if (clipAbsent) {
+    rejeter(new ErreurArko('Un fond vert ou un mème n\'est plus dans Ma bibliothèque. Retire-le dans Habiller, puis réessaie.', 'source'));
   } else if (generiqueAbsent) {
     rejeter(new ErreurArko('La vidéo de ton intro ou de ton outro n\'est plus sur l\'appareil. Choisis-la à nouveau dans Habiller → Intro / outro.', 'source'));
   } else {
@@ -143,6 +147,7 @@ export function lancerExport(recette: Recette, sources: SourceOuverte[]): Export
         arreter(false);
         const r: ResultatExport = { fichier: m.fichier, qualite: m.qualite, largeur: m.largeur, hauteur: m.hauteur };
         if (m.avertissement) r.avertissement = m.avertissement;
+        if (m.sonie) r.sonie = m.sonie;
         resoudre(r);
       }
     };

@@ -9,8 +9,8 @@ import type { Plan, Recette, Sec, Son, Texte } from './types';
 
 /** Durée des textes « #3 », « #2 », « #1 » et de l'accroche « TOP 3 ». */
 export const TOP3 = { dureeNumero: 1.2, dureeAccroche: 1.5, yNumero: 0.32, son: 'impact.boom', transition: 'zoom' };
-/** « Le meilleur d'abord » : longueur du passage copié (dans la vidéo finale). */
-export const MEILLEUR = { duree: 1.5, texte: 'ATTENDS…', transition: 'glitch' };
+/** « Le meilleur d'abord » : longueur du passage copié (dans la vidéo finale). Montage express : 6 s. */
+export const MEILLEUR = { duree: 1.5, dureeExpress: 6, texte: 'ATTENDS…', transition: 'glitch' };
 
 function finir(r: Recette): Recette {
   return normaliser(r, { sources: r.sources }).recette;
@@ -52,19 +52,20 @@ function dureeSource(r: Recette, p: Plan): Sec {
 }
 
 /**
- * Modèle « Le meilleur d'abord » : copie 1,5 s autour de `t` (temps de sortie, même source, même vitesse)
+ * Modèle « Le meilleur d'abord » : copie `duree` s (1,5 s par défaut, 6 s pour le Montage express) autour de `t`
+ * (temps de sortie, même source, même vitesse)
  * au tout début, avec le texte « ATTENDS… » et une transition glitch vers la suite.
  * Les textes, sons, zooms et le son guide posés en TEMPS DE SORTIE sont décalés de la durée ajoutée ;
  * ceux posés en temps source (ts) et les sous-titres suivent tout seuls.
  */
-export function modeleMeilleurDAbord(recette: Recette, t: Sec): Recette {
+export function modeleMeilleurDAbord(recette: Recette, t: Sec, duree: Sec = MEILLEUR.duree): Recette {
   if (recette.plans.length === 0 || !Number.isFinite(t)) return recette;
   const sc = compiler(recette);
   const pos = sourceA(sc, Math.min(Math.max(t, 0), sc.duree));
   if (!pos) return recette;
   const original = recette.plans[pos.plan.i]!;
   const vit = original.vit ?? 1;
-  const longueur = MEILLEUR.duree * vit; // en secondes de source
+  const longueur = Math.max(0.5, duree) * vit; // en secondes de source
   const fin = dureeSource(recette, original);
   let de = Math.max(0, pos.ts - longueur / 2);
   if (Number.isFinite(fin)) de = Math.max(0, Math.min(de, fin - longueur));

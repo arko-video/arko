@@ -2,10 +2,13 @@
 // 1. preparerEffets() charge UNE fois le PCM de chaque son utilisé (avant la lecture ou l'export) et le place
 //    en temps de sortie ;
 // 2. pour chaque bloc mixé, effetsDuBloc() ne garde que les sons qui y tombent.
+// Un son coupé (Montage auto E : `dur` + `fondu`) est joué au plus `dur` secondes, avec un fondu de sortie : sur une
+// COPIE du PCM (jamais le cache partagé du catalogue).
 // Le son guide n'est PAS ici : il est lu à la demande, et seulement dans l'aperçu (voir rendre.ts).
 
 import type { Scenario } from '../../recette/chronologie';
 import { SON, TRANSITIONS } from '../../recette/defauts';
+import { SON_AUTO } from '../../recette/normaliser-auto-son';
 import type { Recette } from '../../recette/types';
 import { chargerSon, type SonDecode } from '../../sons/chargeur';
 import type { SonPose } from './mixeur';
@@ -43,6 +46,27 @@ function pcmCatalogue(id: string, charger: ChargeurCatalogue): Promise<Pcm> {
     parId.set(id, p);
   }
   return p;
+}
+
+/**
+ * Son coupé à `dur` secondes (temps dans le fichier) avec un fondu de sortie de `fondu` secondes. Pure : renvoie une
+ * COPIE si quelque chose change, sinon le PCM tel quel (le cache partagé n'est jamais modifié).
+ */
+export function bornerPcm(pcm: Pcm, dur: number | undefined, fondu: number = SON_AUTO.fondu): Pcm {
+  if (dur === undefined) return pcm;
+  const n = pcm.canaux[0]?.length ?? 0;
+  const debutFondu = dur - fondu;
+  if (pcm.debut + n / pcm.frequence <= debutFondu) return pcm;
+  const canaux = pcm.canaux.map((c) => {
+    const res = new Float32Array(c.length);
+    for (let k = 0; k < c.length; k++) {
+      const t = pcm.debut + k / pcm.frequence;
+      if (t >= dur) break;
+      res[k] = t < debutFondu ? c[k]! : c[k]! * ((dur - t) / fondu);
+    }
+    return res;
+  });
+  return { frequence: pcm.frequence, debut: pcm.debut, canaux };
 }
 
 /** Instant (s) du moment fort d'un son : là où son enveloppe (fenêtres de 5 ms) est la plus haute. */
@@ -95,7 +119,8 @@ export async function preparerEffets(scenario: Scenario, recette: Recette, optio
   for (const pose of scenario.sons) {
     if (audios.has(pose.element.id)) continue;
     const vol = pose.element.vol ?? SON.vol;
-    attentes.push(pcmDe(pose.element.id).then((pcm) => (pcm ? { t: pose.t, vol, pcm } : null)));
+    const { dur, fondu } = pose.element;
+    attentes.push(pcmDe(pose.element.id).then((pcm) => (pcm ? { t: pose.t, vol, pcm: bornerPcm(pcm, dur, fondu) } : null)));
   }
   // Sons des transitions : le moment fort du son tombe sur la coupe (un whoosh démarre donc un peu avant).
   for (const plan of scenario.plans) {
@@ -112,10 +137,12 @@ export async function importesDuBloc(scenario: Scenario, recette: Recette, t0: n
   const res: SonPose[] = [];
   for (const pose of scenario.sons) {
     const source = recette.sources.find((s) => s.id === pose.element.id && s.type === 'audio');
-    if (!source || pose.t >= t1 || pose.t + source.duree <= t0) continue;
-    const pcm = await lire(source.id, Math.max(0, t0 - pose.t), t1 - pose.t).catch(() => null);
+    // Un son coupé (Montage auto E) ne se lit que jusqu'à `dur`.
+    const longueur = Math.min(source?.duree ?? 0, pose.element.dur ?? Infinity);
+    if (!source || pose.t >= t1 || pose.t + longueur <= t0) continue;
+    const pcm = await lire(source.id, Math.max(0, t0 - pose.t), Math.min(longueur, t1 - pose.t)).catch(() => null);
     // Le temps 0 du fichier se joue à pose.t : le premier échantillon (temps pcm.debut) à pose.t + pcm.debut.
-    if (pcm) res.push({ t: pose.t + pcm.debut, vol: pose.element.vol ?? SON.vol, pcm });
+    if (pcm) res.push({ t: pose.t + pcm.debut, vol: pose.element.vol ?? SON.vol, pcm: bornerPcm(pcm, pose.element.dur, pose.element.fondu) });
   }
   return res;
 }

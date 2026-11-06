@@ -17,6 +17,10 @@ export * from './operations-rythme';
 export { avertissementsZone } from './zone-sure';
 export { dureePlan } from './temps';
 export * from './operations-youtube';
+// Montage auto (novembre 2026) : un fichier par dev (contrat : conception/contrat-montage-auto.md).
+export * from './operations-coupes-auto';
+export * from './operations-habillage-auto';
+export * from './operations-son-auto';
 
 const EPS = 1e-6;
 const FIGE_MIN = FIGE.min;

@@ -2,7 +2,7 @@
 // plafonds (200 fichiers, 20 Mo par son), « bombe zip » arrêtée. Les archives sont fabriquées ici.
 import { deflateRawSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { extension, lireZip, nomSur, ZIP_MAX_FICHIERS } from './zip';
+import { annoncesZip, extension, lireZip, nomSur, parcourirZip, ZIP_MAX_FICHIERS } from './zip';
 
 interface Entree {
   nom: string;
@@ -98,11 +98,69 @@ describe('lireZip', () => {
     expect(r.ignores).toBe(1);
   });
 
-  it('ignore un son annoncé à plus de 20 Mo, refuse plus de 200 sons', async () => {
-    const gros = await lireZip(fabriquerZip([{ nom: 'gros.wav', donnees: octets(10), tailleAnnoncee: 21 * 1024 * 1024 }]));
+  it('ignore un son annoncé à plus de 40 Mo, refuse plus de 2 000 sons', async () => {
+    const gros = await lireZip(fabriquerZip([{ nom: 'gros.wav', donnees: octets(10), tailleAnnoncee: 41 * 1024 * 1024 }]));
     expect(gros.fichiers).toHaveLength(0);
     const trop = fabriquerZip(Array.from({ length: ZIP_MAX_FICHIERS + 1 }, (_, k) => ({ nom: `s${k}.mp3`, donnees: octets(4) })));
     await expect(lireZip(trop)).rejects.toMatchObject({ code: 'zip' });
+  });
+});
+
+/** Blob qui refuse d'être lu en entier et note chaque morceau lu. */
+class ZipEspion extends Blob {
+  morceaux: number[] = [];
+  override arrayBuffer(): Promise<ArrayBuffer> {
+    throw new Error('lu en entier');
+  }
+  override slice(de?: number, a?: number, type?: string): Blob {
+    this.morceaux.push((a ?? this.size) - (de ?? 0));
+    return super.slice(de, a, type);
+  }
+}
+
+describe('pack de sons (dossiers, vidéos, gros .zip)', () => {
+  it('garde le chemin de chaque son (étiquette du dossier) et accepte les vidéos courtes', async () => {
+    const r = await lireZip(
+      fabriquerZip([
+        { nom: 'Pack/Laughs/rire.mp3', donnees: octets(10) },
+        { nom: 'Pack/MLG Sound Effects/wow.mp4', donnees: octets(20) },
+        { nom: 'x.wav', donnees: octets(5) },
+      ]),
+    );
+    expect(r.fichiers.map((f) => [f.name, f.type])).toEqual([['rire.mp3', 'audio/mpeg'], ['wow.mp4', 'video/mp4'], ['x.wav', 'audio/wav']]);
+    expect(r.chemins).toEqual(['Pack/Laughs/rire.mp3', 'Pack/MLG Sound Effects/wow.mp4', 'x.wav']);
+  });
+
+  it('lit le .zip PAR MORCEAUX (jamais en entier), entrée par entrée', async () => {
+    const entrees = Array.from({ length: 30 }, (_, k) => ({ nom: `Dossier ${k % 3}/s${k}.mp3`, donnees: octets(100_000, k), compresser: k % 3 === 0 }));
+    const brut = fabriquerZip(entrees);
+    const espion = new ZipEspion([brut]);
+    const vus: string[] = [];
+    for await (const e of parcourirZip(espion)) vus.push(e.chemin);
+    expect(vus).toHaveLength(30);
+    expect(Math.max(...espion.morceaux)).toBeLessThan(espion.size / 10);
+  });
+
+  it('compte la taille annoncée avant de lire : plus de 600 Mo → « dossier par dossier »', async () => {
+    const z = fabriquerZip(Array.from({ length: 16 }, (_, k) => ({ nom: `s${k}.wav`, donnees: octets(10), tailleAnnoncee: 39 * 1024 * 1024 })));
+    await expect(annoncesZip(z)).rejects.toThrow(/dossier par dossier/);
+    const petit = await annoncesZip(fabriquerZip([{ nom: 'a.mp3', donnees: octets(10) }, { nom: 'b.txt', donnees: octets(3) }]));
+    expect([petit.annonces.length, petit.ignores, petit.total]).toEqual([1, 1, 10]);
+  });
+
+  it('zip piégé : entrée qui pointe hors du fichier, taille qui ment, répertoire hors du fichier', async () => {
+    const z = fabriquerZip([{ nom: 'menteur.mp3', donnees: octets(100), tailleAnnoncee: 50 }, { nom: 'ok.mp3', donnees: octets(10) }]);
+    const r = await lireZip(z);
+    expect(r.fichiers.map((f) => f.name)).toEqual(['ok.mp3']);
+    expect(r.ignores).toBe(1);
+    // Décalage local hors du fichier : on modifie le répertoire central.
+    const octetsZip = new Uint8Array(await fabriquerZip([{ nom: 'loin.mp3', donnees: octets(10) }]).arrayBuffer());
+    const vue = new DataView(octetsZip.buffer);
+    const rep = vue.getUint32(octetsZip.length - 22 + 16, true);
+    vue.setUint32(rep + 42, 0x7fff0000, true);
+    expect((await lireZip(new Blob([octetsZip]))).ignores).toBe(1);
+    vue.setUint32(octetsZip.length - 22 + 16, 0x7fff0000, true);
+    await expect(lireZip(new Blob([octetsZip]))).rejects.toMatchObject({ code: 'zip' });
   });
 });
 

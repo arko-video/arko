@@ -3,6 +3,7 @@
 
 import { rouvrirSourcesAudio, sauverFichierAudio, type SourceOuverte } from '../moteur/api';
 import { definirGuide, supprimerSon } from '../recette/operations';
+import { definirMusique } from '../recette/operations-son-auto';
 import type { Recette } from '../recette/types';
 import { T } from '../textes-fr';
 
@@ -19,6 +20,11 @@ export function retirerSonsManquants(r: Recette, ids: readonly string[]): Recett
     if (s && ids.includes(s.id)) res = supprimerSon(res, i);
   }
   if (res.guide && ids.includes(res.guide.src)) res = definirGuide(res, null);
+  // Musique de fond (Montage auto F) : on retire les morceaux introuvables (toute la musique s'il n'en reste aucun).
+  if (res.musique?.morceaux.some((m) => ids.includes(m.src))) {
+    const morceaux = res.musique.morceaux.filter((m) => !ids.includes(m.src));
+    res = definirMusique(res, morceaux.length > 0 ? { ...res.musique, morceaux } : null, []);
+  }
   return res;
 }
 
@@ -39,7 +45,7 @@ export async function rouvrirSons(r: Recette): Promise<{ recette: Recette; audio
     manquants = r.sources.filter((s) => s.type === 'audio').map((s) => s.id);
   }
   // Seuls les sons encore utilisés sont signalés (une source déjà retirée de tout son reste muette).
-  const utilises = manquants.filter((id) => r.guide?.src === id || r.sons.some((s) => s.id === id));
+  const utilises = manquants.filter((id) => r.guide?.src === id || r.sons.some((s) => s.id === id) || !!r.musique?.morceaux.some((m) => m.src === id));
   const messages = utilises.map((id) => T.sons.introuvable(r.sources.find((s) => s.id === id)?.nom ?? id));
   return { recette: retirerSonsManquants(r, manquants), audio: ouvertes, messages };
 }

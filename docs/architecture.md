@@ -115,6 +115,12 @@ Par bloc : lecture de la plage source (`AudioSampleSink`, `copyTo` f32-planar) �
 | 4 | 720×1280 | avc1.4d401f | no-preference | 6 Mb/s |
 `canEncodeVideo(...)` puis essai réel de 15 images vers `NullTarget` (< 2 s). Résultat mémorisé (`localStorage arko.encodage` + version de Chrome). Échec d'un vrai export → une fois l'essai suivant. 1072 au lieu de 1080 accepté (`onEncoderConfig`).
 
+### 4.8 Ma bibliothèque (novembre 2026)
+Clips vidéo (Fonds verts, Mèmes) gardés en entier dans l'OPFS (`stockage/clips.ts`), sons et musiques dans la base de
+Mes sons. La recette ne garde que `source.bib`. Fond vert / mème incrusté = `recette.incrustations`, rendus par
+`moteur/incrustation/incruster.ts` dans `rendre()` (décodage par le cache, détourage WebGL2 `gpu-chroma.ts` ou
+processeur `chroma.ts`, même calcul) ; mème « Coupure » = un plan ordinaire. Détails : `docs/passation.md`.
+
 ## 5. Risques et parades
 | Risque | Parade |
 |---|---|

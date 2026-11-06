@@ -46,7 +46,7 @@ export function mettreEnPageTexte(txt: string, styleId?: string, gab: Gabarit = 
 }
 
 function calculer(txt: string, st: StyleTexte, largeurTexte: number): TexteMisEnPage | null {
-  const propre = retirerEmojis(txt);
+  const propre = st.majuscules ? retirerEmojis(txt).toUpperCase() : retirerEmojis(txt);
   if (!propre) return null;
   const [mx, my] = st.fond?.marge ?? [0, 0];
   const bord = st.contour?.epaisseur ?? 0;

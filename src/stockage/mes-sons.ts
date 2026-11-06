@@ -1,13 +1,18 @@
 // « Mes sons » : les sons que l'utilisateur garde pour TOUS ses projets (importés, reçus par Partager, ou gardés
 // depuis un montage). Rangés sur l'appareil dans une base IndexedDB à part : le nettoyage automatique des sons
-// des montages (stockage/sons.ts) n'y touche jamais. Plafond : 100 Mo en tout.
+// des montages (stockage/sons.ts) n'y touche jamais. Plafond : 600 Mo en tout (un vrai pack ≈ 1 500 sons, 500 Mo),
+// si le navigateur laisse la place (placeLibreAppareil).
 
 import { createStore, del, get, getMany, keys, set } from 'idb-keyval';
 import { ErreurArko } from '../moteur/erreurs';
 import { calculerEmpreinte } from './fichiers';
 
-/** Place maximale de tous les sons gardés. */
-export const LIMITE_MES_SONS = 100 * 1024 * 1024;
+/** Place maximale de tous les sons gardés (rayon Bruitages). */
+export const LIMITE_MES_SONS = 600 * 1024 * 1024;
+/** Place maximale du rayon Musiques de Ma bibliothèque (si le navigateur laisse la place). */
+export const LIMITE_MUSIQUES = 2 * 1024 * 1024 * 1024;
+/** Rayon d'un son : Bruitages (absent, comme tous les anciens sons) ou Musiques (Ma bibliothèque). */
+export type RayonSon = 'bruitages' | 'musiques';
 /** Longueur maximale d'un nom ou d'une étiquette. */
 export const NOM_MAX = 60;
 
@@ -22,7 +27,12 @@ export interface MonSon {
   taille: number;
   duree: number;
   ajouteLe: number;
+  /** Ma bibliothèque : 'musiques' pour une musique de fond ; absent = Bruitages. */
+  rayon?: 'musiques';
 }
+
+/** Rayon d'un son gardé. */
+export const rayonDuSon = (s: Pick<MonSon, 'rayon'>): RayonSon => (s.rayon === 'musiques' ? 'musiques' : 'bruitages');
 
 let base: ReturnType<typeof createStore> | null = null;
 const magasin = () => (base ??= createStore('arko-mes-sons', 'sons'));
@@ -47,21 +57,42 @@ export async function listerMesSons(): Promise<MonSon[]> {
   return fiches.sort((a, b) => b.ajouteLe - a.ajouteLe);
 }
 
-/** Place utilisée par Mes sons (en octets). */
-export async function placeUtilisee(): Promise<number> {
-  return (await listerMesSons()).reduce((t, s) => t + s.taille, 0);
+/** Place utilisée par un rayon de sons (défaut : Bruitages = Mes sons), en octets. */
+export async function placeUtilisee(rayon: RayonSon = 'bruitages'): Promise<number> {
+  return (await listerMesSons()).filter((s) => rayonDuSon(s) === rayon).reduce((t, s) => t + s.taille, 0);
+}
+
+/** Place libre que le navigateur accorde encore à Arko (octets), ou null si on ne sait pas. */
+export async function placeLibreAppareil(): Promise<number | null> {
+  try {
+    const e = await navigator.storage?.estimate?.();
+    return e && typeof e.quota === 'number' ? Math.max(0, e.quota - (e.usage ?? 0)) : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
  * Garde un son. Renvoie sa fiche (celle qui existait déjà si le même fichier est déjà gardé).
- * Lève ErreurArko "place" si les 100 Mo seraient dépassés.
+ * Lève ErreurArko "place" si les 600 Mo seraient dépassés. `placeUtilisee` : place déjà prise, si l'appelant la
+ * connaît (import d'un gros pack : on ne relit pas toute la liste à chaque son).
  */
-export async function garderMonSon(fichier: Blob, infos: { nom: string; etiquette?: string; duree: number }): Promise<{ son: MonSon; nouveau: boolean }> {
+export async function garderMonSon(
+  fichier: Blob,
+  infos: { nom: string; etiquette?: string; duree: number; rayon?: RayonSon },
+  o: { placeUtilisee?: number } = {},
+): Promise<{ son: MonSon; nouveau: boolean }> {
   const id = `m${await calculerEmpreinte(fichier)}`;
   const deja = await get<MonSon>(cleFiche(id), magasin());
   if (deja) return { son: deja, nouveau: false };
-  if ((await placeUtilisee()) + fichier.size > LIMITE_MES_SONS) {
-    throw new ErreurArko('Mes sons est plein (100 Mo). Supprime des sons pour en garder d\'autres.', 'place');
+  const rayon = infos.rayon ?? 'bruitages';
+  if ((o.placeUtilisee ?? (await placeUtilisee(rayon))) + fichier.size > (rayon === 'musiques' ? LIMITE_MUSIQUES : LIMITE_MES_SONS)) {
+    throw new ErreurArko(
+      rayon === 'musiques'
+        ? 'Le rayon Musiques est plein (2 Go). Supprime des musiques pour en garder d\'autres.'
+        : 'Mes sons est plein (600 Mo). Supprime des sons pour en garder d\'autres.',
+      'place',
+    );
   }
   const son: MonSon = {
     id,
@@ -72,6 +103,7 @@ export async function garderMonSon(fichier: Blob, infos: { nom: string; etiquett
     duree: infos.duree,
     ajouteLe: Date.now(),
   };
+  if (rayon === 'musiques') son.rayon = 'musiques';
   await set(cleFichier(id), fichier, magasin());
   await set(cleFiche(id), son, magasin());
   return { son, nouveau: true };
@@ -84,13 +116,15 @@ export async function lireMonSon(id: string): Promise<File | null> {
   return new File([blob], `${fiche.nom}`, { type: fiche.type });
 }
 
-/** Renomme un son gardé et/ou change son étiquette. */
-export async function modifierMonSon(id: string, partiel: { nom?: string; etiquette?: string }): Promise<MonSon | null> {
+/** Renomme un son gardé, change son étiquette, ou le change de rayon (Bruitages ↔ Musiques). */
+export async function modifierMonSon(id: string, partiel: { nom?: string; etiquette?: string; rayon?: RayonSon }): Promise<MonSon | null> {
   const fiche = await get<MonSon>(cleFiche(id), magasin());
   if (!fiche) return null;
   const nouveau: MonSon = { ...fiche };
   if (partiel.nom !== undefined) nouveau.nom = nettoyerNom(partiel.nom) || fiche.nom;
   if (partiel.etiquette !== undefined) nouveau.etiquette = nettoyerNom(partiel.etiquette);
+  if (partiel.rayon === 'musiques') nouveau.rayon = 'musiques';
+  else if (partiel.rayon === 'bruitages') delete nouveau.rayon;
   await set(cleFiche(id), nouveau, magasin());
   return nouveau;
 }

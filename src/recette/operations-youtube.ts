@@ -43,7 +43,8 @@ export function idGenerique(r: Recette, autres: readonly string[] = []): string 
 
 /** Sources vidéo d'intro / outro que plus rien n'utilise : retirées (le montage ne garde que les siennes). */
 function sansSourcesOrphelines(r: Recette): Recette {
-  const utilisees = new Set([r.intro?.src, r.outro?.src, ...r.plans.map((p) => p.src)]);
+  // Les clips de Ma bibliothèque posés par-dessus la vidéo (fonds verts, mèmes) sont aussi « utilisés ».
+  const utilisees = new Set([r.intro?.src, r.outro?.src, ...r.plans.map((p) => p.src), ...(r.incrustations ?? []).map((i) => i.src)]);
   const premiere = r.sources.find((s) => s.type === 'video')?.id;
   return { ...r, sources: r.sources.filter((s) => s.type !== 'video' || s.id === premiere || utilisees.has(s.id)) };
 }

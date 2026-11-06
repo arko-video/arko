@@ -17,6 +17,7 @@ import { auCentieme } from '../format';
 import { suivant } from '../navigation';
 import { mettreEnPause } from '../lecture';
 import { lireCamMemorisee, memoriserCam, miseJeuCamDepart } from '../webcam';
+import { EntreeRognage } from '../auto/coupes/EntreeRognage';
 
 type TypeMise = MiseEnPage['type'];
 
@@ -147,6 +148,7 @@ export function Vertical() {
             {T.vertical.regler}
           </button>
         )}
+        <EntreeRognage lieu="vertical" />
 
         <InterrupteurZoneSure />
       </main>

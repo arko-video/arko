@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { T } from '../../textes-fr';
+import { TA } from '../../textes-auto';
 import { IconeCopie, IconeCrayon } from './IconesRythme';
 import { IconePoubelle } from './Icones';
 
@@ -16,7 +17,7 @@ function useModal() {
   return ref;
 }
 
-export type ActionMontage = 'renommer' | 'dupliquer' | 'supprimer';
+export type ActionMontage = 'renommer' | 'dupliquer' | 'supprimer' | 'express';
 
 export function FeuilleActions({ titre, onAction, onFermer }: { titre: string; onAction(a: ActionMontage): void; onFermer(): void }) {
   const ref = useModal();
@@ -43,6 +44,10 @@ export function FeuilleActions({ titre, onAction, onFermer }: { titre: string; o
         <button type="button" class="btn feuille-action" onClick={() => onAction('dupliquer')} data-testid="action-dupliquer">
           <IconeCopie taille={18} />
           {T.montages.dupliquer}
+        </button>
+        <button type="button" class="btn feuille-action" onClick={() => onAction('express')} data-testid="action-express">
+          <span class="monteur-etoile" aria-hidden="true" />
+          {TA.express.bouton}
         </button>
         <button type="button" class="btn feuille-action feuille-danger" onClick={() => onAction('supprimer')} data-testid="action-supprimer">
           <IconePoubelle taille={18} />

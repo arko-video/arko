@@ -111,7 +111,9 @@ test('Mes sons : import de plusieurs sons et d\'un .zip, recherche, renommer, su
   const lignes = page.locator('[data-testid^="mon-son-ecouter-"]');
   await expect(lignes).toHaveCount(3);
   await expect(page.getByTestId('liste-mes-sons')).toContainText('bip aigu');
-  await expect(page.locator('.son-etiquette').first()).toHaveText('Memes');
+  // Étiquette choisie pour les sons sans dossier ; un son rangé dans un dossier du .zip prend le nom du dossier.
+  await expect(page.locator('[data-testid^="mon-son-"]', { hasText: 'bip aigu' }).first().locator('.son-etiquette')).toHaveText('Memes');
+  await expect(page.locator('[data-testid^="mon-son-"]', { hasText: 'klaxon' }).first().locator('.son-etiquette')).toHaveText('dossier');
 
   // Recherche, écoute.
   await page.getByTestId('mes-sons-recherche').fill('klax');

@@ -8,3 +8,8 @@ playwright.*.local.ts
 tests/qa/fixtures/
 public/ort/
 tests/fixtures/modeles/
+# Ma bibliothèque : les dossiers de sons et vidéos téléchargés ne vont JAMAIS dans le dépôt
+/sound effect/
+/son de fond/
+/effet de fond vert/
+/meme/

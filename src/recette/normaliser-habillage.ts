@@ -1,7 +1,9 @@
 // Normalisation de l'habillage : textes, sous-titres, sons, zooms, son guide, repères.
 // Textes et sous-titres sont rendus depuis la phase 2 ; sons, zooms et son guide à partir de la phase 3.
 
-import { GUIDE, SON, SOUS_TITRES, STYLES_SOUS_TITRES, STYLES_TEXTE, TEXTE, ZOOM } from './defauts';
+import { GUIDE, SON, SOUS_TITRES, STYLES_SOUS_TITRES, STYLES_SOUS_TITRES_AUTO, STYLES_TEXTE, STYLES_TEXTE_AUTO, TEXTE, ZOOM } from './defauts';
+import { CLES_SOUS_TITRES_AUTO, normaliserSousTitresAuto } from './normaliser-auto-habillage';
+import { CLES_SON_AUTO, normaliserSonAuto } from './normaliser-auto-son';
 import { borner, estObjet, Journal, lireNombre, proches, verifierCles, type Objet } from './normaliser-outils';
 import { arrondir, formaterNombre, formaterSecondes, lireTemps } from './temps';
 import type { Marqueur, Mot, Sec, Son, SonGuide, Source, SousTitres, Texte, Zoom } from './types';
@@ -72,9 +74,9 @@ export function normaliserTextes(brut: unknown, dureeFinale: Sec, journal: Journ
       journal.corrige(`${ch}.y`, `Le texte sortait de la zone visible sur ${bornes.plateforme} (y = ${formaterNombre(y)}) : ${sens} à ${formaterNombre(yb)}.`);
       y = yb;
     }
-    const style = lireStyle(o.style, STYLES_TEXTE, `${ch}.style`, 'de texte', journal);
+    const style = lireStyle(o.style, [...STYLES_TEXTE, ...STYLES_TEXTE_AUTO], `${ch}.style`, 'de texte', journal);
     const texte: Texte = { txt, style, t, dur, x, y: arrondir(y) };
-    if (o.role === 'accroche' || o.role === 'top3') texte.role = o.role;
+    if (o.role === 'accroche' || o.role === 'top3' || o.role === 'section') texte.role = o.role;
     else if (o.role !== undefined) journal.ignore(`${ch}.role`, `Le rôle "${String(o.role)}" est inconnu : ignoré.`);
     res.push(texte);
   });
@@ -111,14 +113,15 @@ export function normaliserSousTitres(brut: unknown, journal: Journal, yDefaut: n
     journal.corrige('sousTitres', 'Sous-titres illisibles : retirés.');
     return null;
   }
-  verifierCles(brut, ['style', 'y', 'src', 'parLigne', 'mots'], 'sousTitres', journal);
+  verifierCles(brut, ['style', 'y', 'src', 'parLigne', 'mots', ...CLES_SOUS_TITRES_AUTO], 'sousTitres', journal);
   const st: SousTitres = {
-    style: lireStyle(brut.style, STYLES_SOUS_TITRES, 'sousTitres.style', 'de sous-titres', journal),
+    style: lireStyle(brut.style, [...STYLES_SOUS_TITRES, ...STYLES_SOUS_TITRES_AUTO], 'sousTitres.style', 'de sous-titres', journal),
     y: lireYSousTitres(brut.y, yDefaut, journal, bornes),
     parLigne: Math.round(lireNombre(brut.parLigne, 'sousTitres.parLigne', journal, { defaut: SOUS_TITRES.parLigne, min: 1, max: 8, nom: 'le nombre de mots par ligne' })),
     mots: 'auto',
   };
   if (typeof brut.src === 'string') st.src = brut.src;
+  Object.assign(st, normaliserSousTitresAuto(brut, journal)); // Montage auto (B) : punchlines
   if (brut.mots === 'auto' || brut.mots === undefined) return st;
   const mots: Mot[] = [];
   lireListe(brut.mots, 'sousTitres.mots', journal).forEach((m, i) => {
@@ -170,7 +173,7 @@ export function normaliserSons(brut: unknown, sonsConnus: readonly string[], jou
       journal.corrige(ch, 'Son illisible : supprimé.');
       return;
     }
-    verifierCles(brutSon, ['id', 't', 'ts', 'src', 'vol'], ch, journal);
+    verifierCles(brutSon, ['id', 't', 'ts', 'src', 'vol', ...CLES_SON_AUTO], ch, journal);
     const b: Objet = { ...brutSon };
     if (typeof b.src === 'string' && sourcesAudio.includes(b.src)) {
       b.id = b.src;
@@ -186,6 +189,7 @@ export function normaliserSons(brut: unknown, sonsConnus: readonly string[], jou
     const pose = lirePose(b, ch, journal, 'Ce son');
     if (!pose) return;
     const son: Son = { id, ...pose, vol: lireNombre(b.vol, `${ch}.vol`, journal, { defaut: SON.vol, min: SON.volMin, max: SON.volMax, nom: 'le volume' }) };
+    Object.assign(son, normaliserSonAuto(b, ch, journal)); // Montage auto (E) : rôle, durée, fondu
     res.push(son);
   });
   return res;

@@ -2,6 +2,9 @@
 // le montage ouvert reste dans « Mes montages »). Toucher un montage l'ouvre : on re-choisit sa vidéo (contrôlée
 // par empreinte), sauf s'il est déjà ouvert dans cette session.
 
+import { ouvrirBibliotheque } from '../bibliotheque';
+import { IconeBibliotheque } from '../composants/IconesBibliotheque';
+import { TB } from '../textes-bibliotheque';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { capacites, ErreurArko, ouvrirSource, type ResumeProjet } from '../../moteur/api';
 import { T } from '../../textes-fr';
@@ -16,6 +19,8 @@ import { demarrerMontage, montages, ouvrirMontage, rafraichirMontages } from '..
 import { fermerChoix, proposerMonteur } from '../monteur/entree-monteur';
 import { choixVisible, SEUIL_LONGUE } from '../monteur/etat-monteur';
 import { chargerRevue } from '../monteur/revue-monteur';
+import { ouvrirExpress } from '../auto/express/etat-express';
+import { sources } from '../etat';
 
 function messageErreur(e: unknown): string {
   if (e instanceof ErreurArko) return e.message;
@@ -30,8 +35,9 @@ export function Importer() {
     null,
   );
   const [erreur, setErreur] = useState<string | null>(null);
-  /** Montage à ouvrir avec le prochain fichier choisi (null : nouveau montage). */
+  /** Montage à ouvrir avec le prochain fichier choisi (null : nouveau montage), et le Montage express ensuite. */
   const cible = useRef<ResumeProjet | null>(null);
+  const pourExpress = useRef(false);
   const [survol, setSurvol] = useState(false);
 
   useEffect(() => {
@@ -46,8 +52,9 @@ export function Importer() {
     };
   }, []);
 
-  function ouvrirSelecteur(m: ResumeProjet | null) {
+  function ouvrirSelecteur(m: ResumeProjet | null, express = false) {
     cible.current = m;
+    pourExpress.current = express;
     setErreur(null);
     if (input.current) {
       input.current.value = '';
@@ -64,6 +71,7 @@ export function Importer() {
       if (m) {
         const refus = await ouvrirMontage(m.id, fichier, progression);
         if (refus) setErreur(refus);
+        else if (pourExpress.current && sources.peek()[0]) await ouvrirExpress(sources.peek()[0]!);
       } else {
         fermerChoix();
         const source = await ouvrirSource(fichier, progression);
@@ -88,6 +96,7 @@ export function Importer() {
     const f = e.dataTransfer?.files?.[0];
     if (f) {
       cible.current = null;
+      pourExpress.current = false;
       void fichierChoisi(f);
     }
   }
@@ -173,6 +182,15 @@ export function Importer() {
             <span>{erreur}</span>
           </div>
         )}
+
+        {/* Ma bibliothèque : sons, musiques, fonds verts et mèmes gardés sur l'appareil. */}
+        <button type="button" class="btn bouton-bibliotheque" onClick={() => ouvrirBibliotheque()} data-testid="ouvrir-bibliotheque">
+          <IconeBibliotheque taille={20} />
+          <span>
+            <strong>{TB.accueil}</strong>
+            <span class="petit doux">{TB.accueilAide}</span>
+          </span>
+        </button>
 
         <MesMontages
           occupe={occupe}

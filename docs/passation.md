@@ -1,6 +1,6 @@
 # Passation — Arko (éditeur vidéo TikTok et YouTube open source)
 
-Mise à jour : 4 novembre 2026, au petit matin. Toutes les phases (1 à 6) sont construites et testées automatiquement.
+Mise à jour : 6 novembre 2026, la nuit (Ma bibliothèque, Fond vert, Mèmes). Toutes les phases (1 à 6), le Montage auto, « Améliorer l'image » et Ma bibliothèque sont construits et testés automatiquement.
 
 ## En une phrase
 Arko est une appli web gratuite et open source (licence MIT), qui s'installe comme une appli (PWA). Elle sert à transformer une vidéo de jeu en TikTok vertical, directement sur le téléphone. Il n'y a pas de compte, et la vidéo n'est jamais envoyée sur un serveur.
@@ -161,11 +161,175 @@ Arko est une appli web gratuite et open source (licence MIT), qui s'installe com
 - **À regarder sur le Xiaomi** : l'export 1080p et 1440p en 16:9, la taille des textes en 16:9, les émojis de la miniature,
   le collage des chapitres dans l'appli YouTube, et la zone sûre des Shorts sur un vrai Short.
 
+## Montage auto (6/11/2026)
+Demande de Romain : « ajoute lui ça » — qu'un débutant monte une longue session de jeu (OBS, deux potes en vocal)
+façon Laink / Terracid, sur téléphone comme sur PC. Conception : `conception/brief-montage-auto.md` et
+`conception/contrat-montage-auto.md` (corrigé §9). Tout reste sur l'appareil, aucune dépendance npm ajoutée, la recette
+reste `arko.recette/1` (champs facultatifs : les anciens montages s'ouvrent pareil, vérifié sur 20 recettes figées).
+
+### Ce que fait chaque partie, et où la trouver
+- **A. Couper les blancs** (Couper, et Habiller → Couper) : garde la parole (mots de Whisper, 0,25 s avant / 0,35 s
+  après chaque mot, morceaux fusionnés sous 0,5 s, morceau ≥ 0,35 s) et les sons forts hors parole (> −16 dBFS sur
+  100 ms, −0,4 / +0,6 s) ; sans transcription : voix détectée au son (bande 300–3400 Hz, 8 dB au-dessus du jeu).
+  Serré / Normal / Large, « Seulement une partie », aperçu « 2 h 03 → 41 min de parole · 312 coupes », un seul
+  Annuler, fondus du son 20 ms / 40 ms à chaque coupe. Transcription par tranches de 5 min, **reprise** si on ferme.
+  **Les sous-titres réutilisent ensuite ces mots** (pas de 2ᵉ passage de Whisper).
+- **D. Enlever les bords de l'écran** (Couper, Cadrage) : bandes fixes trouvées sur 20 images (barre de titre,
+  barre des tâches), poignées pour ajuster ; exemple vérifié 1280 × 720 → 1173 × 660 à (53, 20).
+- **B. Punchlines** (Habiller → Sous-titres) : seules les phrases fortes (≤ 7 mots + mot fort, « ! », juron, rire ou
+  pic de son), MAJUSCULES, mot clé jaune `#FFE500` (ou rouge), jurons masqués (« P*TAIN »), un toucher ajoute / retire.
+  **Calées sur les mots** (retour de Romain) : apparaissent au début du 1er mot, jamais avant, disparaissent 0,2 s
+  après le dernier, 2,5 s au plus (une phrase plus longue est coupée en deux lignes).
+- **C. Zooms automatiques** (Habiller → Zoom) : ×1,32 sur chaque plan à moment fort, ×1,12 un plan sur trois ;
+  Doux / Normal / Fort ; centre à 45 % de la hauteur.
+- **G. Titres de section** (Habiller → Chapitres, Texte) : titre du chapitre en bandeau 2,2 s + whoosh.
+- **E. Bruitages auto** (Habiller → Sons) : **mode prudent** après le retour de Romain (« atroces » sur le vrai
+  montage) : posés sur la **réaction** (0,15 s après la fin de la phrase, ou au début du rire / cri qui suit),
+  jamais par-dessus la parole (coupés 0,05 s avant que quelqu'un reparle ; rien si moins de 0,8 s de place) ;
+  seulement les déclencheurs très sûrs (expression de plusieurs mots, ou mot crié « ! » / sur un pic) ; **1 toutes
+  les 2 minutes** au plus. Revue : « Écouter dans la vidéo » (l'aperçu joue de 2 s avant le son à 2 s après sa fin),
+  case **Garder décochée d'office**, « Poser les n bruitages cochés » : rien n'est posé sans validation. Le son vient
+  de Mes sons (étiquette + nom) sinon d'Arko. L'ancien réglage existe encore dans le code (`MODE_LARGE`).
+- **Mes sons par dossiers** : un .zip ou un dossier garde le nom du dossier comme étiquette ; les .mp4 du pack ne
+  gardent que leur son ; 2 000 sons / 600 Mo si le téléphone a la place.
+- **F. Musique** (Habiller → Sons → Musique) : 1 à 6 morceaux qui se suivent, en boucle, fondus 1,2 / 1,5 s, −17 dB,
+  **baisse quand on parle** (seuil 0,03, ratio 6, 20 / 400 ms) ; crédit Kevin MacLeod, alerte musiques de jeux.
+  **Volume final** (Exporter) : −14 LUFS, crête ≤ −1,5 dBTP, en 2 passes ; mesure affichée à la fin.
+- **H. Montage express** : à l'import d'une vidéo de plus de 5 min (« Montage express », entre « Monteur IA » et
+  « Je monte moi-même »), ou depuis **Mes montages → ⋮ → Montage express**. Code : `src/auto/express/` (pur :
+  `scenes.ts`, `express.ts`, `ia-express.ts` ; navigateur : `analyse-express.ts`) et `src/ui/auto/express/`.
+  1. **Réglages** : pour YouTube 16:9 / TikTok / Short, durée visée (16:9 : 8–12, **15–20**, 25–30 min ; TikTok :
+     45 s–1 min, **1–2**, 2–3 min), Parole + moments forts / Parole seulement, Serré / Normal / Large, Transcrire les
+     voix (coché si le module Whisper est déjà là), Punchlines, Bruitages auto (**décoché**), Zooms, Titres de section
+     (16:9), Accroche de 6 s, Enlever les bords, Musique (1 à 6 morceaux de Mes sons ≥ 8 s, crédit affiché),
+     Sans IA (défaut) / Avec l'IA (ta clé, celle du Monteur IA ; seul du texte est envoyé).
+  2. **Analyse** sur l'appareil : son (réutilise l'analyse du monteur IA), transcription longue avec reprise (ou voix
+     au son), bords de l'écran, scènes. Avec l'IA : résumé texte des scènes + phrases fortes → l'IA coche les scènes,
+     donne des titres et corrige les mots mal compris (« Voir ce qui est envoyé » sur la revue).
+  3. **Revue** : séquences (titre = la meilleure phrase forte, de → à, durée après coupe, raison « 3 rires · 2 pics de
+     son »), cocher / décocher, ↑ ↓, durée totale (accroche comprise) mise à jour, alerte si plus long que la limite.
+     Les longs passages sans son (fin AFK, ≥ 2 min sous −60 dBFS) ne sont jamais proposés, et c'est écrit.
+  - **Choix des séquences** : parole regroupée en scènes (pause > 20 s ; une scène > 4 min est recoupée à son plus
+    grand blanc) ; note = rires × 8 + cris × 6 + pics × 4 + jurons × 3 + mots forts × 3, par minute gardée ; les
+    meilleures jusqu'à la durée visée, remises dans l'ordre chronologique.
+  - **« Monter la vidéo »** crée un **nouveau montage « Montage express — <nom> »** (dans Mes montages, supprimable)
+    et applique tout en **une seule opération** : A → D → B → (E) → C → accroche de 6 s (meilleur pic, « ATTENDS… »)
+    → chapitres (un par séquence, règles YouTube) → G → F (morceaux de musique au début des chapitres) + volume final.
+    **Un seul Annuler** revient à la vidéo brute. Si les bruitages sont cochés, la revue des bruitages s'ouvre ensuite.
+- **Autres corrections** : le conseil de durée de Couper tient compte de la destination (16:9 : vert dès 1 min,
+  orange au-delà de 60 min ; Short : orange au-delà de 3 min ; TikTok inchangé) ; « Volume : … » avec espaces
+  insécables (règle des textes).
+
+### Mesures (VM, Chrome headless)
+- `tsc` : 0 erreur. Vitest : 723 tests verts (76 fichiers, dont ceux de l'outil « Améliorer l'image » en cours).
+  E2e : 35 verts + 8 du banc sous-titres (vrai Whisper, `--config playwright.sous-titres.config.ts`) verts.
+- E2e « Montage express » (`tests/e2e/montage-express.spec.ts` : capture OBS 40 s, voix + jeu + barres, pack .zip à
+  dossiers, musique Kevin MacLeod) : analyse 2,4 à 3 s (transcription déjà gardée), montage 24 s (accroche 6 s + 18 s
+  de parole et d'explosion, 4 plans), 1 bruitage proposé après la phrase et posé seulement une fois coché, export
+  1920 × 1080 de 24,3 s, **−14,0 LUFS** (Arko) / **−14 LUFS** (ffmpeg), crête −1,8 dBFS, 0 % de lignes de barre en
+  haut et en bas. Un seul Annuler revient à la vidéo brute (40 s).
+- Corrigé au passage : l'export plantait (« Ce fichier ne contient pas de vidéo ») si un son ouvert n'était pas dans la
+  recette (son écouté dans la revue mais pas posé) : le Worker d'export l'ignore maintenant.
+
+### Reporté (et pourquoi)
+- `share_target` pour les .mp4 partagés vers Arko : partager une vidéo de jeu à Arko la mettrait dans Mes sons
+  (seulement son son), ce qui surprendrait. À décider avec Romain.
+- Revue des bruitages DANS le Montage express : elle s'ouvre juste après, dans Habiller → Sons (même écran que partout).
+
+### À valider par Romain (sur une vraie vidéo, idéalement sur le Xiaomi)
+- **Coupes** : Serré / Large ; mode « au son de la voix » (voix ≥ 8 dB au-dessus du jeu) ; marge de 2 px des bords ;
+  temps de Whisper sur 2 h sur le Xiaomi ; webcam + rognage (pas d'e2e).
+- **Punchlines** : hauteur en vertical (y ≤ 0,63) ; la nouvelle tenue (fin du mot + 0,2 s, 2,5 s au plus) ; liste des
+  jurons et leur masque ; garder aussi les sous-titres complets en petit ?
+- **Habillage** : bandeau jaune 84 px −2° à y = 0,2 ; zooms Doux / Fort ; zoom sur fond flou.
+- **Sons** : les 2 nouveaux sons (Dun dun duuun, Extinction) et les secours bruh / wasted / rire / oh non ; le mode
+  prudent des bruitages (assez ? trop peu ?) ; « gagné » seulement ; volume final coché d'office avec la musique ;
+  l'aperçu sans le −14 LUFS ; import d'un pack de 600 Mo sur le Xiaomi.
+- **Montage express** : les séquences choisies sont-elles les bonnes sur une vraie session de 3 h ? durées visées
+  proposées ; accroche de 6 s (« ATTENDS… » pendant 6 s) ; titres des séquences (= la meilleure phrase forte) ;
+  le mode avec IA avec une vraie clé ; le temps total sur le Xiaomi.
+
+## Ma bibliothèque, Fond vert, Mèmes (6/11/2026, la nuit)
+Demande de Romain : utiliser ses 4 dossiers (« sound effect » 405 sons, « son de fond » 95 musiques, « effet de fond
+vert » 110 vidéos, « meme » 44 vidéos) dans Arko. Ce sont des fichiers sous droits : **jamais dans le dépôt ni sur le
+site** ; Arko les importe et les garde **sur l'appareil de l'utilisateur** (rien n'est envoyé). Aucun fichier de Romain
+n'a été utilisé : tous les tests fabriquent leurs images, sons et vidéos (code ou ffmpeg).
+
+### Ce que ça fait, et où le trouver
+- **Ma bibliothèque** (accueil → « Ma bibliothèque », ou depuis Sons, Musique, Fond vert, Mèmes ; Retour la ferme) :
+  4 rayons **Bruitages** (= Mes sons, base `arko-mes-sons`), **Musiques** (même base, champ `rayon: 'musiques'`, 2 Go au
+  plus), **Fonds verts** et **Mèmes** (vidéos ENTIÈRES : fiches dans la base IndexedDB `arko-bibliotheque`, fichiers dans
+  l'OPFS `bibliotheque/`, sinon dans IndexedDB ; lus par morceaux ; plafond = place accordée par le navigateur moins
+  200 Mo, sinon « Pas assez de place sur l'appareil : il faut … Mo, il reste … Mo »).
+  - « Importer un dossier » (`webkitdirectory`) / « Importer des fichiers ou un .zip » : rangement d'après le nom du
+    dossier le plus proche (`src/bibliotheque/rayons.ts` : sound effect, SFX, sons, bruitages… / son de fond, musique,
+    music, BGM… / effet de fond vert, fond vert, green screen, chroma… / meme, memes, mèmes…) ; les autres fichiers
+    → dialogue « Où ranger N fichiers ? » (4 rayons ou « Les laisser de côté »). Un son rangé dans un rayon de vidéos va
+    dans Bruitages ; une vidéo rangée dans Bruitages ou Musiques ne garde que son son (comme avant).
+  - Ignorés proprement : `.sfk` (fichiers de crêtes de Sound Forge), images, textes, fichiers cachés ; `.wmv`, `.avi`,
+    `.flv`… : « Format non lu par le navigateur, convertis-le en .mp4 : … » ; HEVC : « convertis-la en .mp4 H.264 ».
+  - À l'import d'une vidéo : durée, taille, petite image, et **couleur du fond** cherchée sur les bords d'une image
+    (pastille « fond vert » / « fond bleu »).
+  - Recherche (nom, dossier), renommer, changer un son de rayon (Bruitages ↔ Musiques), supprimer, place utilisée.
+  - Le .zip est lu par morceaux ; une entrée « stockée » n'est jamais copiée en mémoire (morceau du .zip).
+- **Musique de fond** (Habiller → Sons → Musique) : onglets **Musiques** (d'office s'il y en a) / Bruitages, bouton Ma
+  bibliothèque. Montage express : les musiques du rayon d'abord. Les bruitages auto ne piochent plus dans les musiques.
+- **Fond vert** (Habiller, après Zoom) : liste du rayon, « + » pose le clip à la tête de lecture, détouré d'office.
+  Réglages : Plein écran (recouvre l'image) ou Taille, **position et taille au doigt** sur l'aperçu (glisser, pincer à
+  deux doigts, molette sur PC), Son du clip + volume, Début / Fin du clip, Enlever le fond vert + Tolérance, Douceur des
+  bords, Anti-débordement, Retirer. Plusieurs fonds verts par montage (barres vertes sur la mini-frise).
+- **Mèmes** (Habiller) : « **Coupure** » = le passage du mème est INSÉRÉ à la tête de lecture (le plan est coupé en deux,
+  tout près d'une coupe on se cale dessus) : plan ordinaire, plein écran en fond flou (bandes floues si le format
+  diffère), son du mème, le jeu reprend après ; réglages Début / Fin, Retirer (barres orange sur la mini-frise ; il
+  se supprime aussi comme un plan dans Couper). « **Incrustation** » = en petit en haut à droite (42 %), au doigt, avec
+  son ; un mème dont le bord est vert est **détouré d'office** (« Bord vert trouvé… »).
+- **Reprise** : la recette garde l'identifiant de bibliothèque (`source.bib`), jamais le fichier. À la réouverture, les
+  clips sont rouverts depuis Ma bibliothèque ; un clip supprimé → « Le clip « X » n'est plus dans Ma bibliothèque : il
+  est retiré du montage. » et retrait propre (incrustations, plans de mème, source). L'export refuse aussi proprement.
+
+### Recette (rétrocompatible)
+- `source.bib` (facultatif) ; `recette.incrustations` (facultatif) = `{ src, t (temps de SORTIE), de, a (dans le clip),
+  x?, y?, taille?, plein?, cle?: { couleur, tolerance, douceur, debordement }, son?, vol?, genre? }`, 30 au plus.
+  Normaliseur : `src/recette/normaliser-bibliotheque.ts` (branché dans `normaliser.ts`, jamais ajouté s'il est absent) ;
+  opérations : `src/recette/operations-bibliotheque.ts` (un geste = un Annuler) ; `schema.json` complété.
+- Le mème « Coupure » n'ajoute AUCUN champ : c'est un plan dont la source a `bib`. Test figé des 20 anciennes recettes : vert.
+
+### Le détourage (une seule voie de rendu)
+- `src/moteur/incrustation/chroma.ts` (référence processeur, aussi le repli sans WebGL2), `shader-chroma.ts` +
+  `gpu-chroma.ts` (WebGL2, même calcul), `incruster.ts` (branché dans `rendre.ts` et `compositeur.ts` : clips décodés
+  par le cache de décodage, détourés à leur taille d'affichage, posés sous les textes et sous-titres ; leur son mixé
+  comme les sons importés). Aperçu = export.
+- Calcul : « ressemblance au fond » = (P − max(Q1, Q2)) / max(P, 0,25) divisée par celle de la couleur du fond
+  (P = vert ou bleu) : presque indépendante de la lumière (les ombres partent, les noirs restent) ; moyenne 3 × 3 ;
+  alpha par douce montée (Tolérance 0,42, Douceur 0,25) ; **anti-poussière** 5 × 5 (points de bruit isolés) ;
+  **anti-débordement** 0,7 + 2 × ressemblance du voisinage (les bords n'ont plus de reflet vert).
+
+### Mesures (VM, Chrome headless)
+- Images fabriquées (personnage sur vert dégradé + ombre + bruit + blocs 8 × 8 + couleurs 4:2:0) : fond restant
+  **0 %**, personnage effacé **0 %**, excès de vert sur les bords ≤ **3 / 255**, écart d'alpha au bord 0,05 ; vert terne
+  très bruité et fond bleu : idem. Carte graphique = processeur à **1 / 255** près (écart moyen 0,001).
+- Temps par image (ici la « carte graphique » est SwiftShader, émulée par le processeur, donc lente) : 1080 × 608 →
+  ~130 ms (WebGL émulé) / ~52 ms (processeur JS) ; 1920 × 1080 → ~415 ms / ~170 ms. Sur un vrai GPU, le shader (25
+  lectures par pixel) devrait prendre quelques ms : **à mesurer sur le Xiaomi**.
+- E2e (`tests/e2e/bibliotheque.spec.ts`, 2 tests) : dossier « Pack » fabriqué par ffmpeg (sound effect + .sfk, son de
+  fond, effet de fond vert + .wmv, meme dont un sur fond vert, un clip sans dossier) → rangement + « Où ranger ? » +
+  « convertis-le en .mp4 » ; fond vert + mème coupure + mème incrusté → export de 8,00 s sans erreur, **0 % de vert**
+  dans les images, visage et « chat » présents, sons (3 kHz, 1 kHz, 2 kHz) à leur place et le jeu muet pendant la
+  coupure ; reprise avec clips rouverts, puis clip supprimé → message et retrait. Banc carte graphique / processeur :
+  `ARKO_PORT_BANC=4297 npx playwright test --config playwright.chroma.config.ts`.
+
+### À valider par Romain (sur ses vrais dossiers, idéalement sur le Xiaomi)
+- Importer ses 4 dossiers d'un coup (le dossier parent) : temps, place prise, fichiers ignorés / à convertir.
+- Fonds verts YouTube réels : valeurs par défaut (Tolérance 42 %, Douceur 25 %, Anti-débordement 70 %) ; cheveux, fumée,
+  objets transparents ; les clips sur fond bleu ; temps par image et fluidité de l'aperçu sur le Xiaomi.
+- Mèmes : position par défaut en incrustation (haut à droite, 42 %) ; « Coupure » qui coupe le son du jeu.
+- La place accordée par Chrome sur le Xiaomi pour 154 vidéos (fonds verts + mèmes).
+
 ## Décisions prises cette nuit (à valider par Romain)
 - **Sous-titres sur fond flou** : placés juste sous la vidéo (y = 0,66). Un avertissement apparaît s'ils descendent dans la zone cachée par la description TikTok. À juger sur une vraie vidéo.
 - **Cadre webcam par défaut** : en bas à gauche, à ajuster une fois puis mémorisé.
 - **Effets sonores** (phase 3) : ils sont **fabriqués par le code d'Arko** (synthèse), sans aucun fichier copié. Ils sont donc 100 % libres de droits (CC0). On peut aussi importer son propre son, ou enregistrer au micro.
-- **Couper les blancs** : repoussé. Le son du jeu n'est jamais vraiment muet, il faudra une méthode « temps morts ».
+- **Couper les blancs** : fait le 6/11 (Montage auto, A) : on garde la parole (mots), pas le volume.
 - **Monteur IA** (phase 6) :
   - le mode **sans IA** est le mode par défaut
   - la clé API de l'utilisateur reste dans Arko, sur son appareil
@@ -257,6 +421,7 @@ Pour chaque nouvelle phase reçue en zip :
    ```
 
 ## Règles à garder
+- **Ma bibliothèque** : les sons, musiques, fonds verts et mèmes téléchargés par Romain restent sur SON appareil ; ils ne vont jamais dans le dépôt, ni sur le site, ni dans les tests (les tests fabriquent les leurs).
 - **Effets sonores** : uniquement ceux fabriqués par Arko (CC0), ou des sons importés par l'utilisateur, sous sa propre responsabilité. Les sons tendance de TikTok s'ajoutent dans TikTok au moment de publier.
 - **La recette** `arko.recette/1` est la seule source de vérité. L'interface la modifie uniquement par les fonctions de `src/recette/operations*.ts`.
 - **Versions figées**, à ne mettre à jour qu'après un test sur le Xiaomi :

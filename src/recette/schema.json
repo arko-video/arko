@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://arko.app/schema/arko.recette-1.json",
   "title": "Recette de montage Arko (arko.recette/1)",
-  "description": "Recette JSON d'un clip vertical TikTok. Temps en secondes (1/100). Dans les plans, de/a sont des temps de la vidéo SOURCE. Durée finale = somme de (a - de) / vit. Le normaliseur d'Arko corrige la plupart des erreurs au lieu de rejeter.",
+  "description": "Recette JSON d'un clip vertical TikTok. Temps en secondes (1/100). Dans les plans, de/a sont des temps de la vidéo SOURCE. Durée finale = somme de (a - de) / vit. Le normaliseur d'Arko corrige la plupart des erreurs au lieu de rejeter. Champs du Montage auto (blancs, rognages, musique, volumeFinal, sections, plan.zoomFixe, sousTitres.mode/punchlines, son.role/dur/fondu) : tous facultatifs.",
   "type": "object",
   "required": [
     "format",
@@ -90,6 +90,249 @@
     },
     "export": {
       "$ref": "#/$defs/export"
+    },
+    "destination": {
+      "enum": [
+        "tiktok",
+        "youtube",
+        "short"
+      ],
+      "description": "Où sera publiée la vidéo. Absent = tiktok."
+    },
+    "chapitres": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "t",
+          "nom"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "t": {
+            "$ref": "#/$defs/temps"
+          },
+          "nom": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Chapitres YouTube, en temps de sortie sans l'intro."
+    },
+    "intro": {
+      "$ref": "#/$defs/generique"
+    },
+    "outro": {
+      "$ref": "#/$defs/generique"
+    },
+    "blancs": {
+      "type": "object",
+      "required": [
+        "niveau"
+      ],
+      "additionalProperties": false,
+      "description": "A. Les plans viennent de « Couper les blancs ».",
+      "properties": {
+        "niveau": {
+          "enum": [
+            "serre",
+            "normal",
+            "large"
+          ]
+        },
+        "fonduEntree": {
+          "type": "number",
+          "minimum": 0.005,
+          "maximum": 0.2,
+          "default": 0.02
+        },
+        "fonduSortie": {
+          "type": "number",
+          "minimum": 0.005,
+          "maximum": 0.2,
+          "default": 0.04
+        }
+      }
+    },
+    "rognages": {
+      "type": "array",
+      "description": "D. Partie gardée de chaque source vidéo (0 à 1), sans les bords fixes.",
+      "items": {
+        "type": "object",
+        "required": [
+          "src",
+          "x",
+          "y",
+          "l",
+          "h"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "src": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "l": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 1
+          },
+          "h": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    "musique": {
+      "type": "object",
+      "required": [
+        "morceaux"
+      ],
+      "additionalProperties": false,
+      "description": "F. Musique de fond, en temps de sortie, baissée quand on parle.",
+      "properties": {
+        "morceaux": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "required": [
+              "src",
+              "t"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "src": {
+                "type": "string",
+                "description": "Source audio."
+              },
+              "t": {
+                "$ref": "#/$defs/temps"
+              },
+              "fin": {
+                "$ref": "#/$defs/temps"
+              },
+              "debut": {
+                "$ref": "#/$defs/temps"
+              },
+              "boucle": {
+                "type": "boolean",
+                "default": true
+              }
+            }
+          }
+        },
+        "vol": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.14
+        },
+        "baisse": {
+          "type": "boolean",
+          "default": true
+        },
+        "fonduEntree": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 1.2
+        },
+        "fonduSortie": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 1.5
+        }
+      }
+    },
+    "volumeFinal": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "F. Volume final visé à l'export.",
+      "properties": {
+        "lufs": {
+          "type": "number",
+          "minimum": -30,
+          "maximum": -6,
+          "default": -14
+        },
+        "crete": {
+          "type": "number",
+          "minimum": -6,
+          "maximum": -0.1,
+          "default": -1.5
+        }
+      }
+    },
+    "sections": {
+      "type": "object",
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false,
+      "description": "G. Titres de section à l'écran.",
+      "properties": {
+        "source": {
+          "enum": [
+            "chapitres",
+            "main"
+          ]
+        },
+        "son": {
+          "type": "boolean",
+          "default": true
+        },
+        "dur": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 6,
+          "default": 2.2
+        }
+      }
+    },
+    "amelioration": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Améliorer l'image (facultatif ; absent = Non). Nettoie la compression et agrandit x2 sur l'appareil (réseaux CNN d'Anime4K, licence MIT ; repli sans IA si la carte graphique ne suit pas). Le normaliseur accepte aussi true (= leger) ou le niveau seul en texte.",
+      "properties": {
+        "niveau": {
+          "enum": [
+            "leger",
+            "fort"
+          ],
+          "default": "leger"
+        },
+        "nettoyer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Nettoyer la compression."
+        },
+        "agrandir": {
+          "type": "boolean",
+          "default": true,
+          "description": "Agrandir avec l'IA (x2, seulement si l'image est agrandie à l'écran)."
+        }
+      }
+    },
+    "incrustations": {
+      "type": "array",
+      "maxItems": 30,
+      "description": "Ma bibliothèque (facultatif) : fonds verts et mèmes posés PAR-DESSUS la vidéo, en temps de sortie. Un mème « Coupure » est un plan ordinaire dont la source a « bib ».",
+      "items": {
+        "$ref": "#/$defs/incrustation"
+      }
     }
   },
   "$defs": {
@@ -146,6 +389,10 @@
         "h": {
           "type": "integer",
           "minimum": 1
+        },
+        "bib": {
+          "type": "string",
+          "description": "Clip de Ma bibliothèque (fond vert, mème) : son identifiant sur l'appareil. Le fichier n'est jamais copié dans le montage."
         }
       }
     },
@@ -198,6 +445,32 @@
           "minimum": 0.3,
           "maximum": 5,
           "description": "Arrêt sur image : la dernière image du plan reste figée pendant ces secondes, sans son. Durée du plan = (a − de) / vit + fige."
+        },
+        "zoomFixe": {
+          "type": "object",
+          "required": [
+            "force"
+          ],
+          "additionalProperties": false,
+          "description": "C. Zoom tenu sur tout le plan.",
+          "properties": {
+            "force": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 2.5
+            },
+            "x": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "y": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.45
+            }
+          }
         }
       }
     },
@@ -339,7 +612,7 @@
               "type": "number",
               "minimum": 0.25,
               "maximum": 0.6,
-              "default": 0.35
+              "default": 0.42
             }
           }
         }
@@ -360,8 +633,12 @@
           "description": "Les émojis ne sont pas dessinés (retirés au rendu). Retour à la ligne automatique, 3 lignes au plus."
         },
         "role": {
-          "enum": ["accroche", "top3"],
-          "description": "accroche = texte d'accroche du début (posé par l'outil Accroche) ; top3 = numéro posé par le modèle Top 3."
+          "enum": [
+            "accroche",
+            "top3",
+            "section"
+          ],
+          "description": "accroche = texte d'accroche du début (posé par l'outil Accroche) ; top3 = numéro posé par le modèle Top 3. ; section = titre de section (Montage auto)."
         },
         "style": {
           "enum": [
@@ -369,7 +646,8 @@
             "bulle",
             "citron",
             "alerte",
-            "discret"
+            "discret",
+            "bandeau"
           ],
           "default": "accroche",
           "description": "accroche = gros titre blanc à contour noir ; bulle = noir sur fond blanc ; citron = sur fond vert citron ; alerte = jaune penché ; discret = petit, blanc avec ombre. Inconnu → accroche."
@@ -431,7 +709,8 @@
           "enum": [
             "karaoke",
             "pop",
-            "boite"
+            "boite",
+            "punchline"
           ],
           "default": "karaoke",
           "description": "karaoke = mot en cours en citron ; pop = un mot à la fois, en gros ; boite = fond noir. Inconnu → karaoke."
@@ -464,6 +743,47 @@
               }
             }
           ]
+        },
+        "mode": {
+          "enum": [
+            "tout",
+            "punchlines"
+          ],
+          "default": "tout",
+          "description": "B. punchlines = seules les phrases fortes s'affichent."
+        },
+        "punchlines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "ts",
+              "fin"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ts": {
+                "$ref": "#/$defs/temps"
+              },
+              "fin": {
+                "$ref": "#/$defs/temps"
+              }
+            }
+          }
+        },
+        "couleurCle": {
+          "enum": [
+            "jaune",
+            "rouge"
+          ],
+          "default": "jaune"
+        },
+        "jurons": {
+          "enum": [
+            "masques",
+            "visibles"
+          ],
+          "default": "masques"
         }
       }
     },
@@ -506,6 +826,24 @@
           "minimum": 0,
           "maximum": 1.5,
           "default": 0.8
+        },
+        "role": {
+          "enum": [
+            "bruitage",
+            "section"
+          ]
+        },
+        "dur": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 10,
+          "description": "E. Durée jouée au plus."
+        },
+        "fondu": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "default": 0.3
         }
       }
     },
@@ -637,6 +975,145 @@
             "haute"
           ],
           "default": "normale"
+        }
+      }
+    },
+    "generique": {
+      "type": "object",
+      "required": [
+        "dur"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "modele": {
+          "enum": [
+            "abonne",
+            "neon",
+            "ecranFin"
+          ]
+        },
+        "chaine": {
+          "type": "string"
+        },
+        "texte": {
+          "type": "string"
+        },
+        "src": {
+          "type": "string"
+        },
+        "dur": {
+          "type": "number"
+        }
+      }
+    },
+    "incrustation": {
+      "type": "object",
+      "required": [
+        "src",
+        "t",
+        "de",
+        "a"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "src": {
+          "type": "string",
+          "description": "Source vidéo de la recette (un clip de Ma bibliothèque)."
+        },
+        "t": {
+          "$ref": "#/$defs/temps",
+          "description": "Temps de SORTIE du début (ne suit pas les coupes, comme un texte)."
+        },
+        "de": {
+          "$ref": "#/$defs/temps",
+          "description": "Début gardé dans le clip."
+        },
+        "a": {
+          "$ref": "#/$defs/temps",
+          "description": "Fin gardée dans le clip (au moins 0,1 s après de)."
+        },
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.5,
+          "description": "Centre horizontal, en part de l'image finale."
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.5
+        },
+        "taille": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1.5,
+          "default": 1,
+          "description": "Largeur en part de la largeur de l'image finale."
+        },
+        "plein": {
+          "type": "boolean",
+          "description": "Plein écran : recouvre toute l'image (centré, recadré)."
+        },
+        "cle": {
+          "type": "object",
+          "required": [
+            "couleur"
+          ],
+          "additionalProperties": false,
+          "description": "Détourage du fond vert (ou bleu). Absent = clip posé tel quel.",
+          "properties": {
+            "couleur": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "description": "Couleur du fond (R, V, B), trouvée sur les bords du clip."
+            },
+            "tolerance": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.9,
+              "default": 0.42
+            },
+            "douceur": {
+              "type": "number",
+              "minimum": 0.02,
+              "maximum": 0.6,
+              "default": 0.25,
+              "description": "Douceur des bords."
+            },
+            "debordement": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0.7,
+              "description": "Anti-débordement : part du reflet vert retirée."
+            }
+          }
+        },
+        "son": {
+          "type": "boolean",
+          "default": true,
+          "description": "Son du clip."
+        },
+        "vol": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.5,
+          "default": 1
+        },
+        "genre": {
+          "enum": [
+            "fondVert",
+            "meme"
+          ],
+          "description": "Outil qui l'a posé."
         }
       }
     }

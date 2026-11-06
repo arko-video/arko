@@ -11,6 +11,7 @@ import { afficherToast, annulerAction, recetteAffichee, selection, teteLecture }
 import { formatDuree } from '../../format';
 import { IconeCiseaux, IconeDebutIci, IconeFinIci, IconePoubelle } from '../Icones';
 import type { Calque } from '../MiniFrise';
+import { EntreeBlancs } from '../../auto/coupes/EntreeBlancs';
 
 /** Calques de la mini-frise : un par plan, en temps de sortie. `vise` = plan surligné. */
 export function calquesPlans(r: Recette, vise: number | null): Calque[] {
@@ -83,6 +84,7 @@ export function OutilCouper() {
           {T.coupe.fin}
         </button>
       </div>
+      <EntreeBlancs lieu="habiller" />
       <p class="petit doux outil-aide" data-testid="coupe-aide">
         {aide}
       </p>

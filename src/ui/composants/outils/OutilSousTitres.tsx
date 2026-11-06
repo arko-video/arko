@@ -1,18 +1,22 @@
 // Outil Sous-titres : accord pour le module, progression annulable, puis la liste des lignes.
 // Toucher un mot ouvre un petit panneau (corriger, partout, mettre en valeur, supprimer).
+// Mode « Punchlines seulement » (Montage auto) : la liste montre TOUTES les phrases, une étoile devant chacune
+// pour l'afficher ou la retirer d'un toucher.
 
 import { useEffect, useState } from 'preact/hooks';
-import { definirSousTitres } from '../../../recette/operations';
+import { basculerPunchline, definirSousTitres } from '../../../recette/operations';
 import { STYLES_SOUS_TITRES, SOUS_TITRES } from '../../../recette/defauts';
 import { T } from '../../../textes-fr';
 import { afficherToast, modifier, recetteAffichee, teteLecture } from '../../etat';
 import { formatTemps } from '../../format';
-import { lignesDe } from '../../habillage';
+import { lignesDe, lignesListeDe } from '../../habillage';
+import { TA } from '../../../textes-auto';
 import { chercher } from '../../lecture';
 import { annulerSousTitres, lancerSousTitres, rafraichirCorrections, travailSousTitres } from '../../sous-titres-ui';
 import { IconeAlerte, IconePoubelle, IconeSousTitres } from '../Icones';
 import { Pastilles } from './Commun';
 import { DialogueModule, MotsRetenus, PanneauMot } from './PanneauMot';
+import { EntreePunchlines } from '../../auto/habillage/EntreePunchlines';
 
 export function OutilSousTitres() {
   const [mot, setMot] = useState<number | null>(null);
@@ -22,7 +26,8 @@ export function OutilSousTitres() {
   if (!r) return null;
   const st = r.sousTitres;
   const aDesMots = !!st && Array.isArray(st.mots) && st.mots.length > 0;
-  const lignes = lignesDe(r);
+  const punch = st?.mode === 'punchlines';
+  const lignes = punch ? lignesListeDe(r) : lignesDe(r);
 
   if (travail.phase === 'encours') {
     return (
@@ -81,7 +86,7 @@ export function OutilSousTitres() {
       {erreur}
       <Pastilles
         label={T.sousTitres.style}
-        choix={STYLES_SOUS_TITRES}
+        choix={st.style === 'punchline' ? [...STYLES_SOUS_TITRES, 'punchline'] : STYLES_SOUS_TITRES}
         actif={st.style ?? SOUS_TITRES.style}
         onChoisir={(style) => modifier((x) => (x.sousTitres ? definirSousTitres(x, { ...x.sousTitres, style }) : x))}
         prefixe="style-sous-titres"
@@ -90,14 +95,35 @@ export function OutilSousTitres() {
             <span class="echantillon" data-style={`st-${k}`} aria-hidden="true">
               Aa
             </span>
-            <span>{T.sousTitres.styles[k] ?? k}</span>
+            <span>{k === 'punchline' ? TA.habillage.punchlines.style : (T.sousTitres.styles[k] ?? k)}</span>
           </>
         )}
       />
+      <EntreePunchlines />
       <p class="petit doux outil-aide">{T.sousTitres.aideMots}</p>
       <ol class="lignes" data-testid="lignes-sous-titres">
         {lignes.map((l, n) => (
-          <li key={l.k0} class="ligne" data-actuelle={tete >= l.t0 && tete < l.t1 ? '1' : '0'} data-testid={`ligne-${n}`}>
+          <li
+            key={`${l.k0}:${l.t0}`}
+            class="ligne"
+            data-actuelle={tete >= l.t0 && tete < l.t1 ? '1' : '0'}
+            data-punchline={punch ? (l.punchline ? '1' : '0') : undefined}
+            style={punch && !l.punchline ? { opacity: 0.6 } : undefined}
+            data-testid={`ligne-${n}`}
+          >
+            {punch && (
+              <button
+                type="button"
+                class="btn btn-icone"
+                aria-pressed={!!l.punchline}
+                aria-label={TA.habillage.punchlines.basculer(!!l.punchline, formatTemps(l.t0))}
+                style={{ color: l.punchline ? '#FFE500' : undefined }}
+                onClick={() => modifier((x) => basculerPunchline(x, l.k0))}
+                data-testid={`punchline-${n}`}
+              >
+                {l.punchline ? '★' : '☆'}
+              </button>
+            )}
             <button type="button" class="ligne-temps chiffres" aria-label={T.sousTitres.ligne(formatTemps(l.t0))} onClick={() => chercher(l.t0)}>
               {formatTemps(l.t0)}
             </button>

@@ -5,7 +5,7 @@ import { TRANSITION } from './defauts';
 import { gabaritDe, type Gabarit } from './destination';
 import { placerSousTitres, type SousTitresPlaces } from './sous-titres-places';
 import { arrondir, dureePlan } from './temps';
-import type { MiseEnPage, Recette, Sec, Son, SonGuide, Texte, Transition, Zoom } from './types';
+import type { MiseEnPage, Recette, Sec, Son, SonGuide, Texte, Transition, Zoom, ZoomFixe } from './types';
 
 /** Un plan placé sur la frise de sortie. */
 export interface PlanPlace {
@@ -24,6 +24,8 @@ export interface PlanPlace {
   mise: MiseEnPage;
   /** Transition d'entrée (null = coupe franche). */
   trans: Required<Pick<Transition, 'type' | 'dur'>> & Pick<Transition, 'son'> | null;
+  /** Zoom fixe tenu sur tout le plan (Montage auto, C). Absent = aucun. */
+  zoomFixe?: ZoomFixe;
 }
 
 /** Un élément posé à un temps de sortie précis (sons, zooms). */
@@ -81,6 +83,7 @@ export function compiler(recette: Recette): Scenario {
       tFige: t + dur - (p.fige ?? 0),
       mise: miseDuPlan(recette.mise, p.mise),
       trans: i === 0 ? null : lireTrans(p.trans),
+      ...(p.zoomFixe ? { zoomFixe: p.zoomFixe } : {}),
     });
     t += dur;
   });

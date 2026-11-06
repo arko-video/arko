@@ -14,6 +14,8 @@ import { demarrerExport, lireBatterie, retourAvantExport } from '../exportation'
 import { formatDuree, formatTaille } from '../format';
 import { formatDebutTikTok } from '../guide';
 import { recommencer } from '../navigation';
+import { BilanVolume, OptionVolumeFinal } from '../auto/son/BilanVolume';
+import { ConseilImage, EntreeImage } from '../auto/image/EntreeImage'; // Améliorer l'image
 
 /** Temps de création estimé : environ la durée du clip sur un téléphone récent (estimation grossière). */
 const FACTEUR_TEMPS = 1.2;
@@ -75,6 +77,10 @@ function Avant() {
         </div>
       )}
 
+      {/* Améliorer l'image : réglage du montage + conseil 1440p */}
+      <EntreeImage />
+      <ConseilImage />
+      <OptionVolumeFinal />
       <div class="pousse" />
       <BoutonMiniature />
       <button type="button" class="btn btn-principal" onClick={demarrerExport} data-testid="creer-video">
@@ -228,6 +234,7 @@ function Apres({ url, resultat }: { url: string; resultat: ResultatExport }) {
         </a>
       </div>
       <p class="petit doux">{T.exporter.ouVaLeFichier}</p>
+      <BilanVolume />
       <BoutonMiniature />
       <AstuceExport />
       <button

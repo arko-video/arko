@@ -1,9 +1,13 @@
 // Éditeur « Jeu + webcam » : sur une image fixe de la vidéo d'origine, on place le cadre « Ta webcam »
 // (déplacer, 4 poignées de 48 px), on fait glisser la zone de jeu (x), on choisit en haut / en bas et la taille.
 // L'aperçu suit chaque réglage ; le dernier cadre est mémorisé pour le montage suivant.
+// Bords d'écran enlevés (Montage auto D) : l'image montrée est l'image ROGNÉE, comme celle que le moteur dessine,
+// donc le cadre de la webcam est placé dans la même image que celle du rendu.
 
 import { useEffect, useRef } from 'preact/hooks';
 import { vignette } from '../../moteur/api';
+import type { ImageSource } from '../../moteur/canevas';
+import { imageRognee } from '../../moteur/rognage';
 import { choisirMise, planA } from '../../recette/operations';
 import { JEU_CAM } from '../../recette/defauts';
 import { T } from '../../textes-fr';
@@ -65,7 +69,11 @@ export function EditeurWebcam() {
   const source = sources.value[0];
   const r = recetteAffichee.value;
   const mise = r?.mise.type === 'jeuCam' ? r.mise : null;
-  const aspect = source?.infos.l && source.infos.h ? source.infos.l / source.infos.h : 16 / 9;
+  const rognage = r?.rognages?.find((x) => x.src === source?.infos.id);
+  const aspectSource = source?.infos.l && source.infos.h ? source.infos.l / source.infos.h : 16 / 9;
+  // Proportions de la partie gardée (toute l'image sans rognage).
+  const aspect = rognage ? (aspectSource * rognage.l) / rognage.h : aspectSource;
+  const cleRognage = rognage ? `${rognage.x},${rognage.y},${rognage.l},${rognage.h}` : '';
 
   // Image fixe de la source, au moment de la tête de lecture.
   useEffect(() => {
@@ -74,16 +82,27 @@ export function EditeurWebcam() {
     if (!c || !source || !rv) return;
     let vivant = true;
     const ts = planA(rv, teteLecture.peek())?.ts ?? rv.plans[0]?.de ?? 0;
-    vignette(source, ts, c.width, c.height)
+    const r0 = rv.rognages?.find((x) => x.src === source.infos.id);
+    // Image entière de la source (proportions d'origine), puis seulement sa partie gardée sur tout le canevas.
+    const ls = 960;
+    const hs = Math.round(ls / aspectSource);
+    vignette(source, ts, ls, hs)
       .then((img) => {
-        if (!vivant || !img) return;
-        c.getContext('2d')?.drawImage(img, 0, 0, c.width, c.height);
+        const ctx = c.getContext('2d');
+        if (!vivant || !img || !ctx) return;
+        const entiere: ImageSource = {
+          largeur: img.width,
+          hauteur: img.height,
+          dessiner: (cx, sx, sy, sl, sh, dx, dy, dl, dh) => cx.drawImage(img, sx, sy, sl, sh, dx, dy, dl, dh),
+        };
+        const vue = imageRognee(entiere, r0);
+        vue.dessiner(ctx, 0, 0, vue.largeur, vue.hauteur, 0, 0, c.width, c.height);
       })
       .catch((e) => console.error(e));
     return () => {
       vivant = false;
     };
-  }, [source]);
+  }, [source, cleRognage]);
 
   if (!mise || !source) return null;
   const part = partJeuVisible(aspect, mise.partCam ?? JEU_CAM.partCam);

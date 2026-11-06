@@ -118,3 +118,14 @@
 - **Corrections des sous-titres** :
   - deux choix séparés : « tous les mots identiques de cette vidéo » et « retenir pour mes prochaines vidéos »
   - une liste « Mots retenus » permet d'en oublier
+
+## Montage auto (6/11/2026, intégrateur, après le premier retour de Romain)
+- **Bruitages auto** : décochés d'office (Montage express) ; mode prudent par défaut : posés sur la réaction (après la
+  phrase ou au rire / cri qui suit), jamais sur la parole, seulement les déclencheurs très sûrs, 1 toutes les 2 min ;
+  écoute dans la vidéo (2 s avant, 2 s après) et case « Garder » décochée : rien n'est posé sans validation.
+- **Punchlines** : calées sur les mots (début du 1er mot, fin du dernier + 0,2 s), 2,5 s au plus (sinon 2 lignes).
+- **Montage express** : un NOUVEAU montage « Montage express — <nom> », construit en une seule opération (un Annuler).
+  Ordre : A → D → B → (E) → C → accroche 6 s → chapitres → G → F ; l'accroche passe avant les chapitres, les titres et
+  la musique (en temps de sortie), qui n'ont donc rien à recaler.
+- **Sous-titres** : réutilisent la transcription déjà gardée (Couper les blancs, Montage express).
+- **Textes** : espace insécable avant « : » partout, y compris « Volume : … » (le test figé suit la règle).

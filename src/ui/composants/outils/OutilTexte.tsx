@@ -19,6 +19,8 @@ import {
 import { chercher } from '../../lecture';
 import { IconePlus, IconePoubelle } from '../Icones';
 import { AlerteEmoji, ChampSaisie, Pastilles } from './Commun';
+import { EntreeSections } from '../../auto/habillage/EntreeSections';
+import { TA } from '../../../textes-auto';
 
 const DUREE_MIN = 1;
 const DUREE_MAX = 10;
@@ -50,12 +52,13 @@ export function OutilTexte() {
       />
       {x && contientEmoji(x.txt) && <AlerteEmoji />}
       {!clavierOuvert.value && !x && <p class="petit doux outil-aide">{T.texte.aideAjout(formatTemps(teteLecture.value))}</p>}
+      {!clavierOuvert.value && !x && <EntreeSections lieu="texte" />}
       {!clavierOuvert.value && x && (
         <>
           <h3 class="outil-sous-titre">{T.texte.style}</h3>
           <Pastilles
             label={T.texte.style}
-            choix={STYLES_TEXTE}
+            choix={x.style === 'bandeau' ? [...STYLES_TEXTE, 'bandeau'] : STYLES_TEXTE}
             actif={x.style ?? TEXTE.style}
             onChoisir={(style) => reglerTexte({ style })}
             prefixe="style-texte"
@@ -64,7 +67,7 @@ export function OutilTexte() {
                 <span class="echantillon" data-style={k} aria-hidden="true">
                   Aa
                 </span>
-                <span>{T.texte.styles[k] ?? k}</span>
+                <span>{k === 'bandeau' ? TA.habillage.sections.style : (T.texte.styles[k] ?? k)}</span>
               </>
             )}
           />

@@ -1,11 +1,12 @@
 // Normalisation des plans, des transitions et des mises en page (globale et par plan).
 
 import { ALIAS_TRANSITION, FIGE, JEU_CAM, MISE_DEFAUT, TRANSITION, TYPES_MISE, TYPES_TRANSITION, VITESSE } from './defauts';
+import { normaliserZoomFixe } from './normaliser-auto-habillage';
 import { borner, estObjet, Journal, lireNombre, verifierCles, type Objet } from './normaliser-outils';
 import { arrondir, DUREE_MIN_PLAN, formaterSecondes, lireTemps } from './temps';
 import type { Cadre, MiseEnPage, Plan, Source, Transition } from './types';
 
-const CLES_PLAN = ['src', 'de', 'a', 'vit', 'trans', 'mise', 'm', 'fige'] as const;
+const CLES_PLAN = ['src', 'de', 'a', 'vit', 'trans', 'mise', 'm', 'fige', 'zoomFixe'] as const;
 /** Noms que les IA utilisent souvent à la place des nôtres. */
 const ALIAS_PLAN: Record<string, (typeof CLES_PLAN)[number]> = {
   debut: 'de', start: 'de', from: 'de', in: 'de',
@@ -120,6 +121,8 @@ function normaliserPlan(brut: unknown, chemin: string, videos: Source[], journal
     if (mise) plan.mise = mise;
   }
   if (p.m !== undefined) plan.m = String(p.m);
+  const zoomFixe = normaliserZoomFixe(p.zoomFixe, `${chemin}.zoomFixe`, journal); // Montage auto (C)
+  if (zoomFixe) plan.zoomFixe = zoomFixe;
   return plan;
 }
 

@@ -1,23 +1,27 @@
 // Onglet « Mes sons » du panneau Sons : les sons gardés sur l'appareil pour TOUS les montages.
-// - « Importer des sons » : plusieurs fichiers d'un coup, ou un .zip, avec une étiquette (« Memes »…) ;
+// - « Importer des sons » : plusieurs fichiers d'un coup, un .zip ou un dossier (Montage auto E : le nom du dossier
+//   devient l'étiquette ; les vidéos courtes ne gardent que leur son), avec une étiquette pour les sons sans dossier ;
 // - le lien « Trouver des sons sur MyInstants ↗ » (nouvel onglet : c'est l'utilisateur qui télécharge) et 3 lignes d'aide ;
 // - le rappel sur la responsabilité ; une recherche par mot (nom et étiquette) ;
 // - chaque son : écouter, modifier (nom, étiquette, supprimer), « + » pour le poser à la tête de lecture.
 
 import { signal } from '@preact/signals';
 import { useEffect, useState } from 'preact/hooks';
-import { chercher, LIMITE_MES_SONS, type MonSon } from '../../../moteur/api';
+import { chercher, estBruitage, LIMITE_MES_SONS, type MonSon } from '../../../moteur/api';
+import { TA } from '../../../textes-auto';
 import { T } from '../../../textes-fr';
 import { arreterLecture, enChargement } from '../../ecoute-sons';
 import { formatDuree } from '../../format';
 import { chargerMesSons, ecouterMonSon, etiquetteImport, importerMesSons, mesSons, oublierMonSon, poserMonSon, progresImport, renommerMonSon } from '../../mes-sons';
 import { Dialogue } from '../Dialogue';
+import { ouvrirBibliotheque } from '../../bibliotheque';
+import { TB } from '../../textes-bibliotheque';
 import { IconeAlerte, IconeCrayon, IconeImporter, IconeLecture, IconePlus } from '../Icones';
 
 /** Seul lien externe de Mes sons (ouvert dans un nouvel onglet, aucun téléchargement par Arko). */
 export const LIEN_MYINSTANTS = 'https://www.myinstants.com/fr/index/fr/';
-/** Types acceptés par « Importer des sons » : sons et .zip. */
-export const ACCEPTE_SONS = 'audio/*,.mp3,.wav,.ogg,.oga,.opus,.m4a,.aac,.flac,.zip,application/zip';
+/** Types acceptés par « Importer des sons » : sons, vidéos courtes (seul le son est gardé) et .zip. */
+export const ACCEPTE_SONS = 'audio/*,video/*,.mp3,.wav,.ogg,.oga,.opus,.m4a,.aac,.flac,.mp4,.m4v,.webm,.mov,.zip,application/zip';
 
 /** Son en cours de modification (id), ou null. */
 const sonEdite = signal<string | null>(null);
@@ -28,7 +32,8 @@ export function MesSons() {
     void chargerMesSons();
   }, []);
   const q = requete.value.trim();
-  const tous = mesSons.value;
+  // Ma bibliothèque : ici, le rayon Bruitages seulement (les musiques ont leur rayon).
+  const tous = mesSons.value.filter(estBruitage);
   const liste = q ? chercher(tous, q, (s) => ({ nom: s.nom, autres: [s.etiquette] })) : tous;
   const place = tous.reduce((t, s) => t + s.taille, 0);
   return (
@@ -59,12 +64,15 @@ export function MesSons() {
         {liste.map((s) => (sonEdite.value === s.id ? <Editeur key={s.id} son={s} /> : <Ligne key={s.id} son={s} />))}
       </ul>
       <p class={place > LIMITE_MES_SONS * 0.9 ? 'petit' : 'petit doux'} data-testid="mes-sons-place">
-        {T.messons.place((place / (1024 * 1024)).toFixed(1).replace('.', ','))}
+        {TA.son.import.place((place / (1024 * 1024)).toFixed(1).replace('.', ','))}
       </p>
       <p class="petit droits-sons" data-testid="mes-sons-rappel">
         <IconeAlerte taille={14} />
         {T.messons.rappel}
       </p>
+      <button type="button" class="btn" onClick={() => ouvrirBibliotheque('bruitages')} data-testid="mes-sons-bibliotheque">
+        {TB.ouvrir}
+      </button>
       <a class="btn mes-sons-lien" href={LIEN_MYINSTANTS} target="_blank" rel="noopener noreferrer" data-testid="mes-sons-myinstants">
         {T.messons.trouver} ↗<span class="sr-only"> {T.messons.nouvelOnglet}</span>
       </a>
@@ -112,7 +120,25 @@ function Importer() {
           />
         </label>
       </div>
-      <p class="petit doux">{T.messons.importerAide}</p>
+      <label class="btn" data-occupe={enCours ? '1' : '0'} data-testid="mes-sons-dossier">
+        <IconeImporter taille={18} />
+        {TA.son.import.dossier}
+        <input
+          type="file"
+          class="sr-only"
+          multiple
+          ref={(el) => el?.setAttribute('webkitdirectory', '')}
+          disabled={!!enCours}
+          onChange={(e) => {
+            const input = e.currentTarget as HTMLInputElement;
+            const fichiers = [...(input.files ?? [])];
+            input.value = '';
+            void importerMesSons(fichiers);
+          }}
+          data-testid="mes-sons-dossier-input"
+        />
+      </label>
+      <p class="petit doux">{TA.son.import.aide}</p>
     </>
   );
 }

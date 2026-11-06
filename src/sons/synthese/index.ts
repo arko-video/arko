@@ -7,6 +7,7 @@ import { whooshRapide, whooshMontant, riser, coeur } from './sons-mouvement';
 import { klaxon, disqueRaye, tapeStop, photo } from './sons-meme';
 import { tromboneTriste, criquets, baDumTss } from './sons-comedie';
 import { piece, degat, bonus, ding, erreur } from './sons-jeu';
+import { dunDun, extinction } from './sons-auto';
 import { finir } from './finition';
 
 export { FREQ } from './briques';
@@ -33,6 +34,9 @@ const FABRIQUES: Record<string, () => Float32Array> = {
   'jeu.piece': piece,
   'jeu.degat': degat,
   'jeu.bonus': bonus,
+  // Bruitages auto (Montage auto E)
+  'tension.dun-dun': dunDun,
+  'interface.extinction': extinction,
 };
 
 /** Ids de tous les sons que la synthèse sait fabriquer. */

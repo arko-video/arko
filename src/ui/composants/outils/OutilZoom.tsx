@@ -10,6 +10,7 @@ import { formatDuree, formatTemps } from '../../format';
 import { IconePlus, IconePoubelle } from '../Icones';
 import { Pastilles } from './Commun';
 import { CurseurValeur } from './Reglages';
+import { EntreeZoomsAuto } from '../../auto/habillage/EntreeZoomsAuto';
 
 const STYLES = ['punch', 'doux'] as const;
 const BANDES = ['cam', 'jeu'] as const;
@@ -32,6 +33,7 @@ export function OutilZoom() {
             {T.zoom.ajouter}
           </button>
           <p class="petit doux outil-aide">{T.zoom.aide(formatTemps(teteLecture.value))}</p>
+          <EntreeZoomsAuto />
         </>
       )}
       {z && (

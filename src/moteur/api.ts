@@ -5,8 +5,11 @@
 // dont le message est déjà en français, prêt à afficher.
 
 import type { Recette, Sec, Source } from '../recette/types';
+import type { BilanSonie } from './audio/sonie';
 
 export { ErreurArko } from './erreurs';
+/** Montage auto (F) : volume final mesuré à l'export. */
+export type { BilanSonie, MesureSonie } from './audio/sonie';
 
 /* ------------------------------------------------------------------ capacités */
 
@@ -90,6 +93,8 @@ export interface ResultatExport {
   hauteur: number;
   /** Message à afficher à l'utilisateur si l'export a réussi avec un défaut (ex. son illisible : vidéo muette). */
   avertissement?: string;
+  /** Montage auto (F, dev 3) : volume mesuré et corrigé à l'export, si `recette.volumeFinal` est réglé. */
+  sonie?: BilanSonie;
 }
 
 export interface ExportEnCours {
@@ -209,6 +214,10 @@ export {
   supprimerMonSon,
   type MonSon,
 } from '../stockage/mes-sons';
+/** Ma bibliothèque : rayon d'un son (Bruitages ou Musiques). */
+export { rayonDuSon, type RayonSon } from '../stockage/mes-sons';
+/** Un son du rayon Bruitages (« Mes sons ») ? */
+export const estBruitage = (s: { rayon?: string }) => s.rayon !== 'musiques';
 /** Import de plusieurs sons (fichiers ou .zip) dans Mes sons ; vérifier qu'un fichier est un son lisible. */
 export { importerDansMesSons, verifierSon, type BilanImport } from '../sons/mes-sons-import';
 /** Recherche par mot (sans accents) : chercher(éléments, requête, (e) => ({ nom, autres })). */
@@ -290,3 +299,8 @@ export { dessinerGenerique } from './couches/generique';
 export { envPour } from './canevas';
 /** « Mes génériques » : intros et outros gardées sur l'appareil. */
 export { fichierGenerique, garderGenerique, listerGeneriques, supprimerGenerique, type MonGenerique } from '../stockage/generiques';
+
+/* ------------------------------------------------------------------ Ma bibliothèque (fonds verts, mèmes) */
+
+/** Clips vidéo gardés sur l'appareil (rayons Fonds verts et Mèmes). */
+export { ficheClip, listerClips, lireClip, modifierClip, placeLibre, supprimerClip, type MonClip } from '../stockage/clips';

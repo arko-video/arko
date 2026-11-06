@@ -10,10 +10,13 @@ import {
   moduleSousTitres,
   transcrireRecette,
 } from '../moteur/api';
-import { definirSousTitres, modifierMot } from '../recette/operations';
+import { trouverPunchlines } from '../auto/habillage/punchlines';
+import { choisirModeSousTitres, definirPunchlines, definirSousTitres, modifierMot } from '../recette/operations';
 import { SOUS_TITRES, ySousTitres } from '../recette/defauts';
 import { gabaritDe } from '../recette/destination';
 import type { Mot, Recette } from '../recette/types';
+import { plagesAEcouter, sourceDesSousTitres } from '../sous-titres/fenetres';
+import { motsDejaTranscrits } from '../sous-titres/transcription-longue';
 import { T } from '../textes-fr';
 import { afficherToast, modifier, projetActuel, quandProjetQuitte, recette, sources } from './etat';
 
@@ -94,8 +97,12 @@ async function executer() {
   try {
     const r = recette.peek();
     if (!r) throw new ErreurArko(T.erreurInconnue, 'lecture');
-    // transcrireRecette télécharge le module s'il manque : une seule barre de 0 à 100 %, un seul chargement du modèle.
-    const mots = await transcrireRecette(r, sources.peek(), { langue: 'fr', surProgression, signal: ctrl.signal });
+    // Déjà transcrit par « Couper les blancs » (ou le Montage express) : on réutilise ces mots, sans 2ᵉ passage de Whisper.
+    const src = sourceDesSousTitres(r);
+    const source = sources.peek().find((s) => s.infos.id === src);
+    const deja = source ? await motsDejaTranscrits(source, plagesAEcouter(r, src)) : null;
+    // Sinon transcrireRecette télécharge le module s'il manque : une seule barre de 0 à 100 %, un seul chargement du modèle.
+    const mots = deja ?? (await transcrireRecette(r, sources.peek(), { langue: 'fr', surProgression, signal: ctrl.signal }));
     if (!toujoursLa()) return;
     if (ctrl.signal.aborted) throw new ErreurArko(T.sousTitres.annule, 'annule');
     if (mots.length === 0) throw new ErreurArko(T.sousTitres.aucun, 'pas_de_son');
@@ -112,15 +119,22 @@ async function executer() {
   }
 }
 
-/** Remplace les mots en gardant le style choisi ; hauteur par défaut selon la mise en page. */
+/**
+ * Remplace les mots en gardant le style choisi ; hauteur par défaut selon la mise en page.
+ * Mode « Punchlines seulement » (Montage auto) gardé : les punchlines sont rechoisies sur les nouveaux mots.
+ */
 function poserSousTitres(r: Recette, mots: Mot[]): Recette {
   const st = r.sousTitres;
-  return definirSousTitres(r, {
+  const res = definirSousTitres(r, {
     style: st?.style ?? SOUS_TITRES.style,
     y: ySousTitres(r.mise, gabaritDe(r)),
     parLigne: st?.parLigne ?? SOUS_TITRES.parLigne,
     mots,
+    ...(st?.couleurCle ? { couleurCle: st.couleurCle } : {}),
+    ...(st?.jurons ? { jurons: st.jurons } : {}),
   });
+  if (st?.mode !== 'punchlines') return res;
+  return choisirModeSousTitres(definirPunchlines(res, trouverPunchlines(res.sousTitres?.mots === 'auto' ? [] : (res.sousTitres?.mots ?? []), null)), 'punchlines');
 }
 
 /* ------------------------------------------------------------ corrections de mots */
