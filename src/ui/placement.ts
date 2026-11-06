@@ -4,11 +4,19 @@
 import { boitesTextes, type Boite } from '../moteur/api';
 import { ajouterTexte } from '../recette/operations';
 import { TEXTE, ZONE_SURE } from '../recette/defauts';
+import { gabaritDe } from '../recette/destination';
 import type { Recette, Texte } from '../recette/types';
 import { auCentieme } from './format';
 
-/** Zone sûre en fractions de l'image (même source que le moteur) : haut, bas, côtés. */
+/** Zone sûre en fractions de l'image (même source que le moteur) : haut, bas, côtés. TikTok par défaut. */
 export const ZONE = { haut: ZONE_SURE.haut, bas: 1 - ZONE_SURE.bas, cote: ZONE_SURE.cote };
+export type ZoneUI = typeof ZONE;
+
+/** Zone sûre d'une recette, selon sa destination (YouTube 16:9, Short ou TikTok). */
+export function zoneDe(r: Pick<Recette, 'destination'> | null | undefined): ZoneUI {
+  const z = gabaritDe(r).zone;
+  return { haut: z.haut, bas: 1 - z.bas, cote: z.cote };
+}
 
 /** Borne v dans [a, b] puis arrondit au 1/100 VERS L'INTÉRIEUR (l'arrondi ne doit pas faire sortir la boîte). */
 function bornerArrondi(v: number, a: number, b: number): number {
@@ -19,10 +27,10 @@ function bornerArrondi(v: number, a: number, b: number): number {
 }
 
 /** Centre (x, y) d'un texte de taille (l, h) borné pour que sa boîte reste dans la zone sûre. */
-export function bornerCentre(x: number, y: number, l: number, h: number): { x: number; y: number } {
+export function bornerCentre(x: number, y: number, l: number, h: number, zone: ZoneUI = ZONE): { x: number; y: number } {
   return {
-    x: bornerArrondi(x, ZONE.cote + l / 2, 1 - ZONE.cote - l / 2),
-    y: bornerArrondi(y, ZONE.haut + h / 2, ZONE.bas - h / 2),
+    x: bornerArrondi(x, zone.cote + l / 2, 1 - zone.cote - l / 2),
+    y: bornerArrondi(y, zone.haut + h / 2, zone.bas - h / 2),
   };
 }
 

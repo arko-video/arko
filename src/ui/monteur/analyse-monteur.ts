@@ -14,7 +14,9 @@ import {
   type PropositionAgent,
   type ResultatAnalyse,
 } from '../../moteur/api';
+import { normaliser } from '../../recette/normaliser';
 import type { Mot, Recette } from '../../recette/types';
+import { destinationChoisie } from '../destination';
 import { T } from '../../textes-fr';
 import {
   demande,
@@ -183,10 +185,18 @@ export function remplirSousTitres(r: Recette, moments: Moment[]): Recette {
   return { ...r, sousTitres: mots.length > 0 ? { ...st, mots } : null };
 }
 
+/** Le brouillon prend la plateforme choisie (YouTube : sous-titres replacés à la hauteur par défaut du 16:9). */
+function pourDestination(r: Recette): Recette {
+  const d = destinationChoisie.peek();
+  if (!d || d === 'tiktok') return r;
+  const sousTitres = r.sousTitres ? { ...r.sousTitres, y: undefined } : null;
+  return normaliser({ ...r, destination: d, sousTitres }, { sources: r.sources }).recette;
+}
+
 function brouillons(propositions: PropositionAgent[], moments: Moment[]): Brouillon[] {
   return propositions.map((p) => ({
     uid: nouvelUid(),
-    recette: remplirSousTitres(p.recette, moments),
+    recette: pourDestination(remplirSousTitres(p.recette, moments)),
     raison: p.raison,
     problemes: p.problemes,
   }));

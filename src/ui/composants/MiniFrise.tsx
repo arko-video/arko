@@ -10,6 +10,7 @@ import { auCentieme, formatTemps, pasImage } from '../format';
 import { chercher, mettreEnPause } from '../lecture';
 import { clavierTete } from './frise-clavier';
 import { borner, bornerDecalage, graduations, MARGE_FRISE as MARGE, pasDeRegle, PPS_MAX } from './frise-outils';
+import { TuilesGeneriques, xTete } from './FriseGeneriques';
 import { Regle, TeteLecture } from './FriseElements';
 import { IconeImageMoins, IconeImagePlus, IconeMoins, IconePlus } from './Icones';
 import { RepereRythme } from './RepereRythme';
@@ -22,7 +23,7 @@ export interface Calque {
   label: string;
   choisi?: boolean;
   /** Couleur de la barre. */
-  genre: 'texte' | 'accroche' | 'ligne' | 'son' | 'zoom' | 'coupe';
+  genre: 'texte' | 'accroche' | 'ligne' | 'son' | 'zoom' | 'coupe' | 'plan' | 'chapitre';
   /** Pastille ronde centrée sur t0 (une coupe), au lieu d'une barre. */
   point?: boolean;
 }
@@ -153,6 +154,7 @@ export function MiniFrise({ calques, onToucher }: Props) {
         <Regle ticks={ticks} pas={pas} xDe={xDe} />
         <div class="mini-frise-piste" role="group" aria-label={T.habiller.calques} style={{ height: `${nRangs * H_RANG}px` }}>
           <div class="mini-frise-fond" style={{ left: `${xDe(0)}px`, width: `${duree * pps}px` }} />
+          <TuilesGeneriques xDe={xDe} duree={duree} />
           {calques.length === 0 && (
             <span class="mini-frise-vide petit doux" style={{ left: `${Math.max(8, xDe(0) + 8)}px` }}>
               {T.habiller.rien}
@@ -185,7 +187,7 @@ export function MiniFrise({ calques, onToucher }: Props) {
           })}
         </div>
         <RepereRythme xDe={xDe} pps={pps} largeurVue={largeurVue} />
-        <TeteLecture x={xDe(tete)} tete={tete} duree={duree} onKeyDown={(e) => clavierTete(e, tete, duree)} />
+        <TeteLecture x={xTete(tete, xDe, duree)} tete={tete} duree={duree} onKeyDown={(e) => clavierTete(e, tete, duree)} />
       </div>
 
       <div class="mini-frise-outils">

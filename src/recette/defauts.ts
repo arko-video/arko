@@ -1,5 +1,6 @@
 // Valeurs par défaut de la recette (une seule source pour le normaliseur, le compilateur et le moteur).
 
+import { Y_SOUS_TITRES_PAYSAGE } from './destination';
 import { FORMAT_RECETTE, type MiseEnPage, type Recette, type ReglagesExport } from './types';
 
 export const VITESSE = { defaut: 1, min: 0.25, max: 4 };
@@ -50,8 +51,13 @@ export const STYLES_SOUS_TITRES = ['karaoke', 'pop', 'boite'] as const;
 /** Accroche : texte du début, visible dès la 1re image. */
 export const ACCROCHE = { t: 0, dur: 2.5, style: 'accroche' as const, y: 0.2 };
 
-/** Hauteur par défaut des sous-titres selon la mise en page (flou : sous la vidéo ; jeu + webcam : sur la jointure). */
-export function ySousTitres(mise: MiseEnPage): number {
+/**
+ * Hauteur par défaut des sous-titres selon la mise en page (flou : sous la vidéo ; jeu + webcam : sur la jointure).
+ * En 16:9 (gabarit paysage) : en bas, au-dessus de la barre de lecture de YouTube.
+ */
+export function ySousTitres(mise: MiseEnPage, gab?: { paysage: boolean; sousTitresY: readonly [number, number] }): number {
+  if (gab?.paysage) return Y_SOUS_TITRES_PAYSAGE;
+  if (gab) return Math.min(Math.max(ySousTitres(mise), gab.sousTitresY[0]), gab.sousTitresY[1]);
   if (mise.type === 'flou') return 0.66;
   if (mise.type === 'recadre') return 0.6;
   const part = mise.partCam ?? JEU_CAM.partCam;

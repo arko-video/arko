@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { creerLecteur, type Lecteur, type SourceOuverte } from '../../../moteur/api';
+import { gabaritDe } from '../../../recette/destination';
 import type { Recette } from '../../../recette/types';
 import { T } from '../../../textes-fr';
 import { IconeLecture } from '../Icones';
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export function LecteurClip({ recette, source }: Props) {
+  // YouTube 16:9 : le brouillon s'affiche en paysage.
+  const paysage = gabaritDe(recette).paysage;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lecteurRef = useRef<Lecteur | null>(null);
   /** Pause demandée par l'utilisateur (sinon, la fin du clip relance la lecture). */
@@ -70,11 +73,12 @@ export function LecteurClip({ recette, source }: Props) {
     <button
       type="button"
       class="clip-apercu"
+      data-paysage={paysage ? '1' : '0'}
       aria-label={enPause ? T.apercu.lire : T.apercu.pause}
       onClick={basculer}
       data-testid="clip-apercu"
     >
-      <canvas ref={canvasRef} width={540} height={960} role="img" aria-label={T.apercu.canvas} />
+      <canvas ref={canvasRef} width={paysage ? 960 : 540} height={paysage ? 540 : 960} role="img" aria-label={T.apercu.canvas} />
       {enPause && (
         <span class="clip-pause" aria-hidden="true">
           <IconeLecture taille={34} />

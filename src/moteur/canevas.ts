@@ -12,11 +12,16 @@ export interface ImageSource {
   dessiner(ctx: Ctx2D, sx: number, sy: number, sl: number, sh: number, dx: number, dy: number, dl: number, dh: number): void;
 }
 
-/** Environnement de dessin : taille de la destination et échelle par rapport à 1080 px de large. */
+/** Environnement de dessin : taille de la destination et échelle par rapport à 1080 px (le PETIT côté). */
 export interface Env {
   l: number;
   h: number;
   echelle: number;
+}
+
+/** Env d'un canevas l × h : l'échelle se compte sur le petit côté (1080 en 9:16 comme en 16:9). */
+export function envPour(l: number, h: number): Env {
+  return { l, h, echelle: Math.min(l, h) / 1080 };
 }
 
 /** Crée un canevas hors écran (OffscreenCanvas si possible, sinon un <canvas>). */

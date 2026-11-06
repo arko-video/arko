@@ -2,6 +2,7 @@
 // et les conversions temps de sortie ↔ temps source. Le moteur de rendu ne lit que le scénario.
 
 import { TRANSITION } from './defauts';
+import { gabaritDe, type Gabarit } from './destination';
 import { placerSousTitres, type SousTitresPlaces } from './sous-titres-places';
 import { arrondir, dureePlan } from './temps';
 import type { MiseEnPage, Recette, Sec, Son, SonGuide, Texte, Transition, Zoom } from './types';
@@ -40,6 +41,8 @@ export interface Scenario {
   /** Sous-titres convertis en temps de sortie et découpés en lignes (null si aucun). */
   sousTitres: SousTitresPlaces | null;
   guide: SonGuide | null;
+  /** Gabarit de la destination (taille de référence, zone sûre) : TikTok pour les anciens projets. */
+  gab: Gabarit;
 }
 
 /** Mise en page effective d'un plan : même type que la globale → fusion ; autre type → remplace. */
@@ -82,7 +85,7 @@ export function compiler(recette: Recette): Scenario {
     t += dur;
   });
   const sousTitres = placerSousTitres(recette.sousTitres, plans, recette.mise, premiere);
-  const scenario: Scenario = { duree: t, plans, textes: recette.textes, sons: [], zooms: [], sousTitres, guide: recette.guide };
+  const scenario: Scenario = { duree: t, plans, textes: recette.textes, sons: [], zooms: [], sousTitres, guide: recette.guide, gab: gabaritDe(recette) };
   scenario.sons = poser(scenario, recette.sons, premiere);
   scenario.zooms = poser(scenario, recette.zooms, premiere);
   return scenario;

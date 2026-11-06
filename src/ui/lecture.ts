@@ -34,9 +34,20 @@ export function basculerLecture() {
   if (lecteur.enLecture) lecteur.pause();
   else {
     // Relancer depuis le début si on est à la fin.
-    if (lecteur.temps >= lecteur.duree - 0.05) lecteur.aller(0);
+    if (lecteur.temps >= lecteur.duree - 0.05) lecteur.aller(lecteur.debut);
     lecteur.lire();
   }
+}
+
+/** Va au début de l'intro ou de l'outro (YouTube) et lance la lecture : on voit ce qui sera exporté. */
+export function lireGenerique(place: 'intro' | 'outro') {
+  const r = recetteAffichee.peek();
+  if (!r || !r[place]) return;
+  const t = place === 'intro' ? -r[place].dur : dureeFinale(r);
+  mettreEnPause();
+  teteLecture.value = t;
+  lecteur?.aller(t);
+  lecteur?.lire();
 }
 
 export function mettreEnPause() {

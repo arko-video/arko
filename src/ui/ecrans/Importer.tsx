@@ -8,6 +8,7 @@ import { T } from '../../textes-fr';
 import { ouvrirAide } from '../aide';
 import { ConseilsDepart } from '../composants/ConseilsDepart';
 import { Entete } from '../composants/Entete';
+import { PastilleDestination } from './Depart';
 import { IconeAlerte, IconeImporter } from '../composants/Icones';
 import { Chargement, MesMontages } from '../composants/MesMontages';
 import { CarteRevue, ChoixMonteur } from '../composants/monteur/EntreeMonteur';
@@ -98,6 +99,7 @@ export function Importer() {
         <div class="importer-titres">
           <h1 class="titre">{T.importer.titre}</h1>
           <p class="intro">{T.importer.intro}</p>
+          <PastilleDestination />
         </div>
 
         {bloquant && (

@@ -7,7 +7,7 @@
 import type { Recette, Sec } from '../recette/types';
 import type { Lecteur, SourceOuverte } from './api';
 import { CacheDecodage } from './cache-decodage';
-import { contexte2D, creerCanevas, type Canevas, type Ctx2D, type Env } from './canevas';
+import { contexte2D, creerCanevas, envPour, type Canevas, type Ctx2D, type Env } from './canevas';
 import { CompteurSauts, creerPlanificateur } from './planificateur-dessin';
 import { FREQUENCE_SORTIE } from './audio/reechantillonner';
 import { rendre, type Rendu } from './rendre';
@@ -17,12 +17,13 @@ import { pcmSource } from '../sons/import';
 const BLOC = 12_000; // 0,25 s
 const AVANCE_SON_S = 0.6;
 const DEMARRAGE_S = 0.12; // petite marge avant le premier son
-const ENV_REDUIT: Env = { l: 360, h: 640, echelle: 360 / 1080 };
+/** Aperçu réduit : 360 × 640 (ou 640 × 360 en 16:9). */
+const envReduit = (paysage: boolean): Env => (paysage ? envPour(640, 360) : envPour(360, 640));
 
 export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
   const ctx = canvas.getContext('2d', { alpha: false }) as Ctx2D | null;
   if (!ctx) throw new Error('Canevas 2D indisponible');
-  const env = (): Env => ({ l: canvas.width, h: canvas.height, echelle: canvas.width / 1080 });
+  const env = (): Env => envPour(canvas.width, canvas.height);
 
   let rendu: Rendu | null = null;
   let temps: Sec = 0;
@@ -44,6 +45,11 @@ export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
 
   const prevenir = () => abonnes.forEach((cb) => cb());
   const duree = () => rendu?.duree ?? 0;
+  /**
+   * L'intro et l'outro sont dans l'aperçu (même rendu que l'export). `temps` est le temps de la vidéo ENTIÈRE ;
+   * l'interface, elle, compte depuis le début du montage : négatif pendant l'intro, au-delà de la fin pendant l'outro.
+   */
+  const debutCorps = () => rendu?.debutCorps ?? 0;
   const horloge = () => (audio && audio.state === 'running' ? audio.currentTime : performance.now() / 1000);
 
   /** Dessine l'image du temps courant avec le rendu COURANT (lus au moment du dessin). */
@@ -55,9 +61,14 @@ export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
       if (mesurer && enLecture && sauts.noter(t, performance.now() / 1000)) passerEnReduit();
     };
     if (!reduit) return rendu.image(t, ctx!, env()).then(fin);
-    // Mode réduit (360 × 640) : on dessine petit puis on agrandit dans le canevas de l'interface.
-    const p = petit!;
-    return rendu.image(t, p.ctx, ENV_REDUIT).then(() => {
+    // Mode réduit (360 × 640, ou 640 × 360) : on dessine petit puis on agrandit dans le canevas de l'interface.
+    const er = envReduit(canvas.width > canvas.height);
+    if (!petit || petit.canevas.width !== er.l) {
+      const c = creerCanevas(er.l, er.h);
+      petit = { canevas: c, ctx: contexte2D(c) };
+    }
+    const p = petit;
+    return rendu.image(t, p.ctx, er).then(() => {
       ctx!.imageSmoothingEnabled = true;
       ctx!.drawImage(p.canevas, 0, 0, canvas.width, canvas.height);
       fin();
@@ -68,9 +79,7 @@ export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
 
   /** Repli de l'architecture (§4.3) : trop d'images sautées → aperçu en 360 × 640 jusqu'à la fin de la séance. */
   function passerEnReduit() {
-    if (reduit || canvas.width <= ENV_REDUIT.l) return;
-    const c = creerCanevas(ENV_REDUIT.l, ENV_REDUIT.h);
-    petit = { canevas: c, ctx: contexte2D(c) };
+    if (reduit || Math.min(canvas.width, canvas.height) <= 360) return;
     reduit = true;
   }
 
@@ -143,9 +152,11 @@ export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
         const s = sources.find((x) => x.infos.id === id);
         return s ? pcmSource(s, de, a) : null;
       };
+      // Même rendu que l'export : intro et outro comprises. On garde la position dans le MONTAGE.
+      const tCorps = temps - (ancien?.debutCorps ?? 0);
       rendu = rendre(recette, mediasDe(sources), cache, { lireImporte });
       if (ancien) void ancien.fermer();
-      temps = Math.min(temps, duree());
+      temps = Math.min(Math.max(0, tCorps + debutCorps()), duree());
       if (enLecture) {
         couperSon();
         caler();
@@ -180,7 +191,7 @@ export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
       prevenir();
     },
     aller(t: Sec) {
-      temps = Math.min(Math.max(0, Number.isFinite(t) ? t : 0), duree());
+      temps = Math.min(Math.max(0, (Number.isFinite(t) ? t : 0) + debutCorps()), duree());
       if (enLecture) {
         couperSon();
         caler();
@@ -190,10 +201,13 @@ export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
       prevenir();
     },
     get temps() {
-      return temps;
+      return temps - debutCorps();
     },
     get duree() {
-      return duree();
+      return duree() - debutCorps();
+    },
+    get debut() {
+      return -debutCorps();
     },
     get enLecture() {
       return enLecture;

@@ -23,6 +23,21 @@ export default defineConfig({
         background_color: '#0F1115',
         start_url: './',
         scope: './',
+        // « Partager → Arko » (Android, Arko installé) : le téléphone envoie les sons à ./partager,
+        // reçus par public/partage-sw.js (ajouté au service worker ci-dessous).
+        share_target: {
+          action: './partager',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            files: [
+              {
+                name: 'sons',
+                accept: ['audio/*', '.mp3', '.wav', '.ogg', '.oga', '.opus', '.m4a', '.aac', '.flac', '.zip', 'application/zip'],
+              },
+            ],
+          },
+        },
         icons: [
           { src: 'icones/icone-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icones/icone-512.png', sizes: '512x512', type: 'image/png' },
@@ -32,6 +47,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,ogg}'],
         globIgnores: ['ort/**'],
+        // Réception des sons partagés vers Arko (Web Share Target).
+        importScripts: ['partage-sw.js'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         // Moteur des sous-titres (14 Mo) : gardé au premier usage seulement, puis disponible sans internet.
         runtimeCaching: [

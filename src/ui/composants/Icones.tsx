@@ -234,3 +234,14 @@ export const IconeAide = (p: P) => (
     <path d="M12 17h.01" />
   </Svg>
 );
+export const IconeCrayon = (p: P) => (
+  <Svg {...p}>
+    <path d="M4 20h4L19 9l-4-4L4 16z" />
+    <path d="m13 7 4 4" />
+  </Svg>
+);
+export const IconeGarder = (p: P) => (
+  <Svg {...p}>
+    <path d="M6 3h12v18l-6-4-6 4z" />
+  </Svg>
+);

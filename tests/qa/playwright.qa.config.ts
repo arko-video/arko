@@ -20,6 +20,8 @@ export default defineConfig({
     acceptDownloads: true,
     // QA finale : un clic sur un élément disparu échoue en 15 s au lieu d'attendre la fin du scénario (10 min).
     actionTimeout: 15_000,
+    // Plateforme déjà choisie (TikTok) : les scénarios commencent à l'accueil, comme avant l'écran de départ.
+    storageState: { cookies: [], origins: [{ origin: 'http://localhost:4184', localStorage: [{ name: 'arko.destination', value: 'tiktok' }] }] },
   },
   webServer: {
     command: 'npx vite build --outDir dist-qa && npx vite preview --outDir dist-qa --port 4184 --strictPort',

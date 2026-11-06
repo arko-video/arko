@@ -22,5 +22,5 @@ export type VersWorker = DemandeExport | DemandeAnnulation;
 export type DepuisWorker =
   | { type: 'progression'; p: number; resteS: number | null }
   | { type: 'encodage'; rang: number }
-  | { type: 'fini'; fichier: File; largeur: number; hauteur: number; qualite: '1080p' | '720p'; rang: number; avertissement?: string }
+  | { type: 'fini'; fichier: File; largeur: number; hauteur: number; qualite: '1080p' | '720p' | '1440p'; rang: number; avertissement?: string }
   | { type: 'erreur'; message: string; code: string };

@@ -1,7 +1,0 @@
-{
-  "description": "Aucun plan utilisable (bloquant)",
-  "entree": { "format": "arko.recette/1", "plans": [{ "de": "bientôt", "a": 5 }] },
-  "attendu": { "plans": [] },
-  "messages": ["n'a pas de début (\"de\") ou de fin (\"a\") lisible", "La recette ne garde aucun plan"],
-  "bloquant": true
-}

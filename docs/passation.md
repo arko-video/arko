@@ -1,4 +1,4 @@
-# Passation — Arko (éditeur vidéo TikTok open source)
+# Passation — Arko (éditeur vidéo TikTok et YouTube open source)
 
 Mise à jour : 4 novembre 2026, au petit matin. Toutes les phases (1 à 6) sont construites et testées automatiquement.
 
@@ -127,6 +127,39 @@ Arko est une appli web gratuite et open source (licence MIT), qui s'installe com
   - la raison est affichée (« Gros pic de son après un calme »)
   - les clips gardés vont dans **Mes montages**, où on les retouche et on les exporte un par un
 - **Modèles conseillés** (vérifiés le 4/11/2026 dans les documentations officielles) : `claude-haiku-5-5`, `gpt-6-luna`, `gemini-3.5-flash-lite`. Le bouton « Tester ma clé » liste ceux auxquels ta clé a droit.
+
+### Mes sons (4 novembre 2026, après la publication)
+- Habiller → Sons → **Mes sons** (premier onglet) : sons gardés sur l'appareil pour tous les montages (100 Mo au plus,
+  base IndexedDB à part, jamais nettoyée automatiquement), avec étiquette, recherche, renommer, supprimer.
+- **Importer des sons** : plusieurs fichiers d'un coup ou un `.zip` (lecture sûre : sons seulement, 200 au plus, ni ZIP64 ni chiffré).
+- Bouton « Trouver des sons sur MyInstants ↗ » (nouvel onglet) + 3 lignes d'aide + rappel sur la responsabilité.
+- **Partager → Arko** (Android, Arko installé) : « 2 sons reçus — Les garder ? ».
+- Un son importé dans un montage (onglet « Importés ») peut être gardé dans Mes sons.
+- La bibliothèque de ~300 sons CC0 est **en pause** hors du dépôt : `biblio-en-pause/LISEZ-MOI.md`.
+
+### Couper dans Habiller (4 novembre 2026, demande de Romain)
+- Habiller → **Couper** (1er outil de la barre) : Scinder ici, Supprimer (plan touché sur la mini-frise, sinon celui sous la tête), Début ici / Fin ici (le plan commence ou finit à la tête).
+- Mêmes actions que l'étape Couper (`src/ui/coupes.ts` → opérations de la recette), donc même Annuler / Rétablir.
+- Ce qui suit : sons, zooms, sous-titres suivent les images et disparaissent avec leur passage ; les textes gardent leur moment de la vidéo (un texte qui tomberait après la fin est replacé au début, règle déjà existante).
+
+### TikTok ou YouTube (5 novembre 2026, demande de Romain)
+- **Écran de départ** « Tu montes pour où ? » : TikTok, ou YouTube → **Vidéo (16:9)** / **Short (vertical)**. Choix mémorisé
+  (`localStorage arko.destination`), à changer depuis l'accueil ou Mes montages ; chaque montage garde le sien
+  (champ facultatif `destination` de la recette ; absent = TikTok : les anciens projets s'ouvrent pareil).
+- **Un seul Arko, un seul rendu** : un « gabarit » par destination (`src/recette/destination.ts`) donne la taille de référence
+  (1080 × 1920 ou 1920 × 1080), la zone sûre, les bornes des textes et les durées. Textes, sous-titres, sons, zooms, transitions,
+  Mes sons et Couper marchent tels quels en 16:9.
+- **Short** : zone sûre des Shorts (marges prudentes, pas de mesure officielle de YouTube), export 1080 × 1920, alerte au-delà de 3 min.
+- **16:9** : étape **Cadrage** (sautée si la vidéo est déjà en 16:9), export 1920 × 1080 à 8 Mb/s, 1440p à 16 Mb/s en option,
+  son AAC stéréo à **384 kb/s** (conseil YouTube ; sinon le plus haut accepté par l'encodeur : 320, 256, 192 kb/s) ;
+  **Chapitres** (règles 0:00 / 3 au moins / 10 s, copie en un toucher) ; **Intro / outro** (3 modèles animés ou ta vidéo, ajoutés
+  par `rendre()` : dans l'aperçu comme dans l'export ; sur les frises, une tuile au début et à la fin, non coupable, « × » pour la
+  retirer) ; **Miniature** 1280 × 720 < 2 Mo ; **compilation 16:9** à la
+  fin de la revue du monteur IA. Sources des règles : `README.md` et commentaires du code.
+- **Tests** : 430 Vitest, e2e YouTube (export 1920 × 1080 de 35 s outro comprise, miniatures JPEG / PNG) ; les anciens e2e
+  jouent un appareil qui a déjà choisi TikTok (`playwright.config.ts`, port libre avec `ARKO_PORT`).
+- **À regarder sur le Xiaomi** : l'export 1080p et 1440p en 16:9, la taille des textes en 16:9, les émojis de la miniature,
+  le collage des chapitres dans l'appli YouTube, et la zone sûre des Shorts sur un vrai Short.
 
 ## Décisions prises cette nuit (à valider par Romain)
 - **Sous-titres sur fond flou** : placés juste sous la vidéo (y = 0,66). Un avertissement apparaît s'ils descendent dans la zone cachée par la description TikTok. À juger sur une vraie vidéo.

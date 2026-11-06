@@ -28,6 +28,8 @@ import {
   vignetteProjet,
 } from './etat';
 import { allerA, reprendreA } from './navigation';
+import { destinationChoisie } from './destination';
+import { rouvrirGeneriques } from './generiques';
 import { rouvrirSons } from './sons-gardes';
 
 /** Projets, du plus récent au plus ancien (null : pas encore lus). */
@@ -65,7 +67,7 @@ export async function nouveauMontage(fichier: File, progression: (etape: string)
 export async function demarrerMontage(source: SourceOuverte) {
   await sauverEnAttente();
   await nouveauProjet();
-  demarrerProjet(source, recetteInitiale(source));
+  demarrerProjet(source, recetteInitiale(source, destinationChoisie.peek() ?? 'tiktok'));
   idCourant.value = null;
   derniereEtape.value = 'couper';
   allerA('couper');
@@ -98,7 +100,10 @@ export async function ouvrirMontage(
     }
     const source = await ouvrirSource(fichier, progression);
     const sons = await rouvrirSons(p.recette);
-    demarrerProjet(source, sons.recette, sons.audio);
+    // Intro / outro faites avec une vidéo de l'utilisateur : rouvertes depuis l'appareil.
+    const gen = await rouvrirGeneriques(sons.recette);
+    sons.messages.push(...gen.messages);
+    demarrerProjet(source, gen.recette, [...sons.audio, ...gen.ouvertes]);
     idCourant.value = id;
     vignetteProjet.value = p.vignette;
     reprendreA(p.etape);

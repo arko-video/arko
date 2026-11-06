@@ -52,6 +52,8 @@ export interface TransitionActive {
 
 export interface EtatImage {
   t: Sec;
+  /** Gabarit de la destination (taille de référence des textes, zone sûre). */
+  gab: Scenario['gab'];
   plan: PlanPlace;
   /** Temps source à afficher. */
   ts: Sec;
@@ -71,6 +73,7 @@ export function etatImage(s: Scenario, t: Sec): EtatImage | null {
   const { plan, ts } = pos;
   return {
     t: tb,
+    gab: s.gab,
     plan,
     ts,
     src: plan.src,

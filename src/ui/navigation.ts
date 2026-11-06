@@ -9,9 +9,10 @@ import {
   etatExport,
   historique,
   ORDRE_ECRANS,
-  sourceVerticale,
   type Ecran,
 } from './etat';
+import { etapeCadrageSautee, gabaritProjet } from './destination';
+import { TY } from '../textes-youtube';
 import { panneauDepuisHistorique, reinitialiserHabillage } from './habillage';
 import { surNavigationAide } from './aide';
 import { surNavigationMonteur } from './monteur/navigation-monteur';
@@ -39,13 +40,13 @@ export function allerA(e: Ecran) {
   afficher(e);
 }
 
-/** Étape suivante (saute Vertical si la vidéo est déjà verticale). */
+/** Étape suivante (saute Vertical / Cadrage si la vidéo est déjà au bon format). */
 export function suivant() {
   const actuel = ecran.peek();
   if (actuel === 'couper') {
-    if (sourceVerticale.peek()) {
+    if (etapeCadrageSautee.peek()) {
       allerA('habiller');
-      afficherToast(T.vertical.dejaVerticale);
+      afficherToast(gabaritProjet.peek().paysage ? TY.cadrage.dejaAuFormat : T.vertical.dejaVerticale);
     } else allerA('vertical');
   } else if (actuel === 'vertical') allerA('habiller');
   else if (actuel === 'habiller') allerA('exporter');
@@ -60,7 +61,7 @@ export function retour() {
 export function reprendreA(etape: string) {
   const cible: Ecran = estEcran(etape) && etape !== 'importer' ? etape : 'couper';
   const chemin: Ecran[] = ['couper'];
-  if (cible !== 'couper' && !sourceVerticale.peek()) chemin.push('vertical');
+  if (cible !== 'couper' && !etapeCadrageSautee.peek()) chemin.push('vertical');
   if (cible === 'habiller' || cible === 'exporter') chemin.push('habiller');
   if (cible === 'exporter') chemin.push('exporter');
   for (const e of chemin) history.pushState({ arko: true, ecran: e } satisfies EtatHistorique, '');
@@ -91,8 +92,8 @@ export function initialiserNavigation() {
     }
     // Sans projet ouvert, seules l'importation est possible.
     if (!historique.peek()) cible = 'importer';
-    // Vidéo verticale : l'étape Vertical n'existe pas.
-    if (cible === 'vertical' && sourceVerticale.peek()) cible = 'couper';
+    // Vidéo déjà au format : l'étape Vertical (ou Cadrage) n'existe pas.
+    if (cible === 'vertical' && etapeCadrageSautee.peek()) cible = 'couper';
     afficher(cible);
     // Habiller : l'entrée d'historique dit quel outil est ouvert (Retour ferme le panneau).
     if (cible === 'habiller') panneauDepuisHistorique(etat);

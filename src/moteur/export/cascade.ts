@@ -14,8 +14,10 @@ export interface EssaiEncodage {
   codec: string;
   acceleration: 'prefer-hardware' | 'no-preference' | 'prefer-software';
   debit: number;
-  qualite: '1080p' | '720p';
+  qualite: QualiteExport;
 }
+
+export type QualiteExport = '1080p' | '720p' | '1440p';
 
 const IPS = 30;
 
@@ -33,6 +35,39 @@ export const CASCADE: readonly EssaiEncodage[] = (() => {
   res.push({ rang: res.length, largeur: 720, hauteur: 1280, codec: 'avc1.4d401f', acceleration: 'no-preference', debit: 6_000_000, qualite: '720p' });
   return res;
 })();
+
+/**
+ * Cascade YouTube 16:9. Débits conseillés par YouTube pour du SDR à 24-30 images/s (vérifié le 4/11/2026,
+ * https://support.google.com/youtube/answer/1722171) : 1080p → 8 Mb/s, 1440p → 16 Mb/s, 720p → 5 Mb/s.
+ * Le 1440p (niveau H.264 5.0) n'est essayé que si on le demande (« qualité haute ») ; sinon on le saute.
+ */
+export const CASCADE_169: readonly EssaiEncodage[] = (() => {
+  const res: EssaiEncodage[] = [];
+  for (const acceleration of ['prefer-hardware', 'no-preference'] as const) {
+    res.push({ rang: res.length, largeur: 2560, hauteur: 1440, codec: 'avc1.640032', acceleration, debit: 16_000_000, qualite: '1440p' });
+  }
+  const hd = [
+    ['prefer-hardware', 1080], ['prefer-hardware', 1072],
+    ['no-preference', 1080], ['no-preference', 1072],
+    ['prefer-software', 1080], ['prefer-software', 1072],
+  ] as const;
+  for (const [acceleration, hauteur] of hd) {
+    res.push({ rang: res.length, largeur: 1920, hauteur, codec: 'avc1.640028', acceleration, debit: 8_000_000, qualite: '1080p' });
+  }
+  res.push({ rang: res.length, largeur: 1280, hauteur: 720, codec: 'avc1.4d401f', acceleration: 'no-preference', debit: 5_000_000, qualite: '720p' });
+  return res;
+})();
+
+/** Cascade d'une destination : 16:9 (paysage) ou verticale (TikTok, Short). */
+export function cascadePour(paysage: boolean): readonly EssaiEncodage[] {
+  return paysage ? CASCADE_169 : CASCADE;
+}
+
+/** Un essai convient-il à la qualité demandée ? (720p seul ; 1440p seulement si demandé.) */
+export function essaiPermis(e: EssaiEncodage, seul720: boolean, haute = false): boolean {
+  if (seul720) return e.qualite === '720p';
+  return e.qualite !== '1440p' || haute;
+}
 
 /** Configuration Mediabunny d'un essai. */
 export function configVideo(e: EssaiEncodage, surConfig?: (c: VideoEncoderConfig) => void): VideoEncodingConfig {
@@ -98,9 +133,9 @@ export async function essaiReel(e: EssaiEncodage, delaiMs = 10_000): Promise<boo
  * Premier essai qui marche à partir du rang `depuis` (ou null si aucun).
  * `seul720` = l'utilisateur a demandé du 720p : on commence directement par là.
  */
-export async function choisirEncodage(depuis = 0, seul720 = false): Promise<EssaiEncodage | null> {
-  for (const e of CASCADE) {
-    if (e.rang < depuis || (seul720 && e.qualite !== '720p')) continue;
+export async function choisirEncodage(depuis = 0, seul720 = false, cascade: readonly EssaiEncodage[] = CASCADE, haute = false): Promise<EssaiEncodage | null> {
+  for (const e of cascade) {
+    if (e.rang < depuis || !essaiPermis(e, seul720, haute)) continue;
     if ((await annonceOk(e)) && (await essaiReel(e))) return e;
   }
   return null;

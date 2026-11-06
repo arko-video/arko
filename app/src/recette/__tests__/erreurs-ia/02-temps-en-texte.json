@@ -1,6 +1,0 @@
-{
-  "description": "Temps écrits en texte, à la française et en minutes",
-  "entree": { "format": "arko.recette/1", "plans": [{ "de": "12,5", "a": "0:20" }, { "de": "1:02:14.5", "a": "1:02:16,25" }] },
-  "attendu": { "plans": [{ "de": 12.5, "a": 20 }, { "de": 3734.5, "a": 3736.25 }] },
-  "messages": []
-}

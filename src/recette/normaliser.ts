@@ -3,7 +3,8 @@
 // Il CORRIGE au lieu de rejeter ; seuls quelques cas sont bloquants (aucun plan, vidéo > 10 min, format /2+).
 
 import { catalogueIds } from '../sons/catalogue';
-import { DUREE, EXPORT_DEFAUT, ySousTitres } from './defauts';
+import { EXPORT_DEFAUT, ySousTitres } from './defauts';
+import { gabarit } from './destination';
 import { migrer, VERSION_ACTUELLE, versionDuFormat } from './migrations';
 import {
   normaliserGuide,
@@ -15,6 +16,7 @@ import {
 } from './normaliser-habillage';
 import { estObjet, Journal, nettoyerTexteJson, verifierCles, type Objet } from './normaliser-outils';
 import { normaliserMise, normaliserPlans } from './normaliser-plans';
+import { normaliserChapitres, normaliserDestination, normaliserGenerique } from './normaliser-youtube';
 import { arrondir, dureePlan, formaterNombre, lireTemps } from './temps';
 import { FORMAT_RECETTE, type InfosSources, type Probleme, type Recette, type ReglagesExport, type Source } from './types';
 
@@ -38,7 +40,7 @@ export interface OptionsNormalisation {
 
 const CLES_RECETTE = [
   'format', 'titre', 'sources', 'plans', 'mise', 'textes', 'sousTitres', 'sons', 'zooms', 'guide',
-  'boucle', 'marqueurs', 'statut', 'export',
+  'boucle', 'marqueurs', 'statut', 'export', 'destination', 'chapitres', 'intro', 'outro',
 ] as const;
 
 /**
@@ -67,14 +69,17 @@ export function normaliser(brut: unknown, infos?: InfosSources, options: Options
   const plans = normaliserPlans(obj.plans, videos, journal);
   const duree = arrondir(plans.reduce((s, p) => s + dureePlan(p), 0));
   const mise = normaliserMise(obj.mise, 'mise', journal);
+  const destination = normaliserDestination(obj.destination, journal);
+  const gab = gabarit(destination);
+  const plateforme = gab.plateforme;
 
   const recette: Recette = {
     format: FORMAT_RECETTE,
     sources,
     plans,
     mise,
-    textes: normaliserTextes(obj.textes, duree, journal),
-    sousTitres: normaliserSousTitres(obj.sousTitres, journal, ySousTitres(mise)),
+    textes: normaliserTextes(obj.textes, duree, journal, { yMin: gab.texteY[0], yMax: gab.texteY[1], plateforme }),
+    sousTitres: normaliserSousTitres(obj.sousTitres, journal, ySousTitres(mise, gab), { yMin: gab.sousTitresY[0], yMax: gab.sousTitresY[1], plateforme }),
     sons: normaliserSons(obj.sons, options.sonsConnus ?? catalogueIds(), journal, sources.filter((s) => s.type === 'audio').map((s) => s.id)),
     zooms: normaliserZooms(obj.zooms, journal, mise.type === 'jeuCam' ? 'cam' : 'tout'),
     guide: normaliserGuide(obj.guide, sources, journal),
@@ -87,13 +92,24 @@ export function normaliser(brut: unknown, infos?: InfosSources, options: Options
   if (marqueurs) recette.marqueurs = marqueurs;
   if (obj.statut === 'brouillon' || obj.statut === 'garde' || obj.statut === 'jete') recette.statut = obj.statut;
   else if (obj.statut !== undefined) journal.ignore('statut', `Le statut "${String(obj.statut)}" est inconnu : ignoré.`);
+  // Champs YouTube : seulement s'ils sont là (un ancien projet n'en reçoit aucun).
+  if (destination) recette.destination = destination;
+  const chapitres = normaliserChapitres(obj.chapitres, duree, journal);
+  if (chapitres) recette.chapitres = chapitres;
+  const intro = normaliserGenerique(obj.intro, 'intro', sources, journal);
+  const outro = normaliserGenerique(obj.outro, 'outro', sources, journal);
+  if (intro) recette.intro = intro;
+  if (outro) recette.outro = outro;
 
-  // Durée totale.
+  // Durée totale (les limites dépendent de la destination).
+  const max = gab.dureeMax;
   if (plans.length === 0) {
     journal.bloquant('plans', 'La recette ne garde aucun plan : il n\'y a rien à exporter.');
-  } else if (duree > DUREE.bloquant) {
-    journal.bloquant('plans', `La vidéo finale dure ${formaterNombre(duree / 60, 1)} min : c'est plus que la limite de 10 min. Coupe des passages.`);
-  } else if (duree > DUREE.conseil) {
+  } else if (duree > max) {
+    journal.bloquant('plans', `La vidéo finale dure ${formaterNombre(duree / 60, 1)} min : c'est plus que la limite de ${Math.round(max / 60)} min. Coupe des passages.`);
+  } else if (gab.dureeLimite !== null && duree > gab.dureeLimite) {
+    journal.conseil('plans', `La vidéo finale dure ${Math.round(duree)} s : un Short YouTube dure 3 min au plus. Au-delà, YouTube la publie comme une vidéo normale.`);
+  } else if (gab.dureeConseil !== null && duree > gab.dureeConseil) {
     journal.conseil('plans', `La vidéo finale dure ${Math.round(duree)} s : sur TikTok, les clips de 15 à 30 s marchent mieux.`);
   }
 

@@ -2,8 +2,7 @@
 // Pour une longue vidéo (live…), une barre de navigation dans la vidéo d'origine s'ajoute au-dessus de la frise.
 
 import { useRef } from 'preact/hooks';
-import { commencerIci, dureeFinale, finirIci, scinder, supprimer } from '../../recette/operations';
-import type { Recette } from '../../recette/types';
+import { commencerIci, dureeFinale, finirIci } from '../../recette/operations';
 import { T } from '../../textes-fr';
 import { Apercu } from '../composants/Apercu';
 import { Entete } from '../composants/Entete';
@@ -21,20 +20,13 @@ import {
 import { NavigationSource, SEUIL_LONGUE_SOURCE } from '../composants/NavigationSource';
 import { PanneauPlan } from '../composants/PanneauPlan';
 import { SonGuide } from '../composants/SonGuide';
-import { modifier, recette, recetteAffichee, selection, sources, teteLecture } from '../etat';
+import { agirCoupe, scinderIci, supprimerPlan } from '../coupes';
+import { recette, recetteAffichee, selection, sources, teteLecture } from '../etat';
 import { formatDuree, niveauDuree, pasImage } from '../format';
-import { aimanterRythme, vibrer } from '../guide';
 import { chercher, mettreEnPause } from '../lecture';
 import { suivant } from '../navigation';
 
-/* ------------------------------------------------------------ actions des boutons */
-
-/** Applique une opération puis place la tête de lecture (par défaut : là où elle était). */
-function agir(op: (r: Recette) => Recette, teteApres?: number) {
-  mettreEnPause();
-  const avant = teteLecture.peek();
-  if (modifier(op)) chercher(teteApres ?? avant);
-}
+/* ------------------------------------------------------------ actions des boutons (partagées avec Habiller : coupes.ts) */
 
 function avancerImages(n: number) {
   mettreEnPause();
@@ -42,31 +34,13 @@ function avancerImages(n: number) {
 }
 
 // « Commencer ici » : ce qui était à la tête devient le début, donc la tête revient à 0.
-const surCommencerIci = () => agir((r) => commencerIci(r, teteLecture.peek()), 0);
-const surFinirIci = () => agir((r) => finirIci(r, teteLecture.peek()));
-
-function surScinder() {
-  mettreEnPause();
-  // « Caler les coupes sur le rythme » : la coupe se pose sur le temps fort le plus proche (±0,12 s).
-  const cale = aimanterRythme(teteLecture.peek());
-  const t = cale ?? teteLecture.peek();
-  if (modifier((r) => scinder(r, t))) {
-    selection.value = null;
-    if (cale !== null) {
-      vibrer();
-      chercher(t);
-    }
-  }
-}
+const surCommencerIci = () => agirCoupe((r) => commencerIci(r, teteLecture.peek()), 0);
+const surFinirIci = () => agirCoupe((r) => finirIci(r, teteLecture.peek()));
+const surScinder = () => void scinderIci();
 
 function surSupprimer() {
   const i = selection.peek();
-  if (i === null) return;
-  mettreEnPause();
-  if (modifier((r) => supprimer(r, i))) {
-    selection.value = null;
-    chercher(teteLecture.peek());
-  }
+  if (i !== null) supprimerPlan(i);
 }
 
 /* ------------------------------------------------------------ écran */

@@ -3,7 +3,10 @@
 // Textes de la phase 3 (sons, transitions, zoom, son guide) : src/ui/textes-effets.ts, réunis ici.
 // Textes de la phase 4 (vitesse, combos, modèles, mes montages) : src/ui/textes-rythme.ts, réunis ici aussi.
 // Textes de la phase 6 (monteur IA) : src/ui/textes-monteur.ts ; de l'aide : src/ui/textes-aide.ts. Réunis ici aussi.
+// Textes de Mes sons et de Partager → Arko : src/ui/textes-mes-sons.ts (T.messons.…, T.partage.…).
 
+import { TEXTES_MES_SONS } from './ui/textes-mes-sons';
+import { TEXTES_COUPE } from './ui/textes-coupe';
 import { TEXTES_EFFETS } from './ui/textes-effets';
 import { TEXTES_AIDE } from './ui/textes-aide';
 import { TEXTES_MONTEUR } from './ui/textes-monteur';
@@ -260,6 +263,8 @@ export const T = {
   ...TEXTES_RYTHME,
   ...TEXTES_MONTEUR,
   ...TEXTES_AIDE,
+  ...TEXTES_MES_SONS,
+  ...TEXTES_COUPE,
 
   maj: {
     message: "Une nouvelle version d'Arko est prête.",

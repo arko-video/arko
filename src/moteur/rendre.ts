@@ -19,6 +19,7 @@ import { etatImage } from './etat-image';
 import type { MediaOuvert } from './media';
 import { FondFlou } from './mises-en-page/flou';
 import { policesChargees, policesPretes } from './polices';
+import { assembler, segmentGenerique } from './rendre-generiques';
 
 /** Avance avec laquelle on prépare le plan suivant (pré-décodage avant une coupe). */
 const PRECHAUFFE_S: Sec = 0.5;
@@ -32,6 +33,8 @@ export interface Rendu {
   audio(t0: Sec, n: number, options?: { guide?: boolean }): Promise<Float32Array[]>;
   /** Résolue quand les effets sonores sont chargés (lancé dès la création du rendu, une seule fois). */
   readonly effetsPrets: Promise<void>;
+  /** Temps où commence le montage (= durée de l'intro ; 0 sans intro). */
+  readonly debutCorps?: Sec;
   fermer(): Promise<void>;
 }
 
@@ -44,12 +47,34 @@ export function imageDeSample(s: VideoSample): ImageSource {
   };
 }
 
+export interface OptionsRendu {
+  /** false = sans intro ni outro (miniature : une image du montage seul). Défaut : avec, aperçu comme export. */
+  generiques?: boolean;
+}
+
 /**
  * Prépare le rendu d'une recette. `cache` (facultatif) = décodeurs partagés avec les rendus précédents :
  * l'aperçu en garde un pour ne pas tout re-décoder à chaque modification. Sans cache, le rendu a le sien
- * et le ferme avec lui (cas de l'export).
+ * et le ferme avec lui (cas de l'export). L'intro et l'outro (YouTube) sont ajoutées par le même chemin.
  */
 export function rendre(
+  recette: Recette,
+  medias: ReadonlyMap<string, MediaOuvert>,
+  cachePartage?: CacheDecodage,
+  optionsEffets?: OptionsEffets,
+  options: OptionsRendu = {},
+): Rendu {
+  const corps = rendreMontage(recette, medias, cachePartage, optionsEffets);
+  if (options.generiques === false) return corps;
+  // Aperçu : la vidéo d'une intro / outro partage les décodeurs de l'aperçu ; export : elle a les siens.
+  const mini = (r: Recette, m: ReadonlyMap<string, MediaOuvert>) => rendreMontage(r, m, cachePartage, optionsEffets);
+  const intro = segmentGenerique(recette, 'intro', medias, mini);
+  const outro = segmentGenerique(recette, 'outro', medias, mini);
+  return intro || outro ? assembler(corps, intro, outro) : corps;
+}
+
+/** Rendu du montage seul (plans gardés et habillage). */
+function rendreMontage(
   recette: Recette,
   medias: ReadonlyMap<string, MediaOuvert>,
   cachePartage?: CacheDecodage,

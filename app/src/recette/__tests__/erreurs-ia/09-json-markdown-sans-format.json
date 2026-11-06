@@ -1,6 +1,0 @@
-{
-  "description": "JSON entouré de ```json, sans champ format, un seul plan donné comme objet",
-  "texte": "```json\n{\"plans\": {\"de\": 1, \"a\": 4}}\n```",
-  "attendu": { "format": "arko.recette/1", "plans": [{ "de": 1, "a": 4 }] },
-  "messages": ["Le champ \"format\" manquait"]
-}

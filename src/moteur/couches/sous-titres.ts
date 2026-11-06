@@ -5,13 +5,14 @@
 // Les mots forts sont en citron et un peu plus gros. Mise en page en px de RÉFÉRENCE (1080 px de large),
 // puis ctx.scale(env.echelle) : même rendu dans l'aperçu et dans l'export.
 
+import { TIKTOK, type Gabarit } from '../../recette/destination';
 import type { Ctx2D, Env } from '../canevas';
 import type { SousTitreActif } from '../etat-image';
-import { memo, mesurer, rectArrondi, REF_H, REF_L, retirerEmojis, sortieDouce } from './mesure';
+import { memo, mesurer, rectArrondi, retirerEmojis, sortieDouce } from './mesure';
 import { MOT_FORT, police, styleSousTitres, type StyleSousTitres } from './styles-texte';
 
-/** Largeur maximale d'une ligne de sous-titres, et nombre de rangées avant de rétrécir. */
-export const LARGEUR_MAX_ST = 900;
+/** Largeur maximale d'une ligne de sous-titres en TikTok (les autres : gabarit), et nombre de rangées avant de rétrécir. */
+export const LARGEUR_MAX_ST = TIKTOK.largeurSousTitres;
 const RANGEES_MAX = 2;
 const REDUCTION = 0.9;
 const TAILLE_MIN = 0.6;
@@ -49,14 +50,14 @@ interface MotBrut {
 }
 
 /** Dispose une ligne de mots (null si rien à dessiner). Rétrécit si elle dépasse 2 rangées de 900 px. */
-export function disposerLigne(mots: MotBrut[], st: StyleSousTitres): LigneDisposee | null {
+export function disposerLigne(mots: MotBrut[], st: StyleSousTitres, largeurLigne = LARGEUR_MAX_ST): LigneDisposee | null {
   const propres = mots
     .map((m) => ({ ...m, txt: st.unMot ? retirerEmojis(m.txt).toUpperCase() : retirerEmojis(m.txt) }))
     .filter((m) => m.txt.length > 0);
   if (propres.length === 0) return null;
   const [mx, my] = st.fond?.marge ?? [0, 0];
   const bord = st.contour?.epaisseur ?? 0;
-  const largeurMax = LARGEUR_MAX_ST - 2 * (mx + bord);
+  const largeurMax = largeurLigne - 2 * (mx + bord);
   for (let taille = st.taille; ; taille *= REDUCTION) {
     const normale = police(st.poids, taille, st.famille);
     const forte = police(st.poids, taille * MOT_FORT.echelle, st.famille);
@@ -106,25 +107,25 @@ function motsAffiches(actif: SousTitreActif, st: StyleSousTitres): MotBrut[] {
 }
 
 /** Mise en page de la ligne visible et centre du bloc (px de référence). */
-export function placerSousTitre(actif: SousTitreActif): { dl: LigneDisposee; cx: number; cy: number } | null {
+export function placerSousTitre(actif: SousTitreActif, gab: Gabarit = TIKTOK): { dl: LigneDisposee; cx: number; cy: number } | null {
   const st = styleSousTitres(actif.style);
   const mots = motsAffiches(actif, st);
-  const cle = `st|${actif.style}|${mots.map((m) => `${m.j}:${m.fort ? 1 : 0}:${m.txt}`).join('\u0001')}`;
-  const dl = memo(cle, () => disposerLigne(mots, st));
+  const cle = `st|${gab.largeurSousTitres}|${actif.style}|${mots.map((m) => `${m.j}:${m.fort ? 1 : 0}:${m.txt}`).join('\u0001')}`;
+  const dl = memo(cle, () => disposerLigne(mots, st, gab.largeurSousTitres));
   if (!dl) return null;
-  const cy = Math.min(Math.max(actif.y * REF_H, dl.h / 2 + MARGE_IMAGE), REF_H - dl.h / 2 - MARGE_IMAGE);
-  return { dl, cx: REF_L / 2, cy };
+  const cy = Math.min(Math.max(actif.y * gab.h, dl.h / 2 + MARGE_IMAGE), gab.h - dl.h / 2 - MARGE_IMAGE);
+  return { dl, cx: gab.l / 2, cy };
 }
 
 /** Dessine la ligne de sous-titres visible. */
-export function dessinerSousTitres(ctx: Ctx2D, actif: SousTitreActif | null, env: Env): void {
+export function dessinerSousTitres(ctx: Ctx2D, actif: SousTitreActif | null, env: Env, gab: Gabarit = TIKTOK): void {
   if (!actif) return;
   const st = styleSousTitres(actif.style);
-  const place = placerSousTitre(actif);
+  const place = placerSousTitre(actif, gab);
   if (!place) return;
   const { dl, cx, cy } = place;
   ctx.save();
-  ctx.translate((cx * env.l) / REF_L, (cy * env.h) / REF_H);
+  ctx.translate((cx * env.l) / gab.l, (cy * env.h) / gab.h);
   ctx.scale(env.echelle, env.echelle);
   // Pop : chaque mot arrive avec un petit rebond.
   if (st.unMot && actif.ageMot < 0.1) {

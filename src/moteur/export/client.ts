@@ -1,11 +1,12 @@
 // Côté page : lance l'export dans le Worker, relaie progression / temps restant / annulation,
 // mémorise l'encodeur qui marche sur cet appareil, et estime la taille et la place libre avant l'export.
 
-import { dureeFinale } from '../../recette/operations';
+import { gabaritDe } from '../../recette/destination';
+import { dureeTotale } from '../../recette/generiques';
 import type { Recette } from '../../recette/types';
 import type { EstimationExport, ExportEnCours, ResultatExport, SourceOuverte } from '../api';
 import { ErreurArko } from '../erreurs';
-import { CASCADE } from './cascade';
+import { cascadePour } from './cascade';
 import type { DepuisWorker, VersWorker } from './messages';
 import { effacerExport, nomExport } from './sortie-opfs';
 
@@ -18,34 +19,41 @@ function versionNavigateur(): string {
   return m?.[1] ?? 'inconnue';
 }
 
-export function lireEncodageConnu(): number | null {
+/** Clé de l'encodeur mémorisé : une pour le vertical (inchangée), une pour le 16:9. */
+const cleEncodage = (paysage: boolean) => (paysage ? `${CLE_ENCODAGE}.169` : CLE_ENCODAGE);
+
+export function lireEncodageConnu(paysage = false): number | null {
   try {
-    const brut = localStorage.getItem(CLE_ENCODAGE);
+    const brut = localStorage.getItem(cleEncodage(paysage));
     if (!brut) return null;
     const v = JSON.parse(brut) as { rang?: unknown; navigateur?: unknown };
-    return typeof v.rang === 'number' && v.navigateur === versionNavigateur() && CASCADE[v.rang] ? v.rang : null;
+    return typeof v.rang === 'number' && v.navigateur === versionNavigateur() && cascadePour(paysage)[v.rang] ? v.rang : null;
   } catch {
     return null;
   }
 }
 
-function memoriserEncodage(rang: number) {
+function memoriserEncodage(rang: number, paysage: boolean) {
   try {
-    localStorage.setItem(CLE_ENCODAGE, JSON.stringify({ rang, navigateur: versionNavigateur() }));
+    localStorage.setItem(cleEncodage(paysage), JSON.stringify({ rang, navigateur: versionNavigateur() }));
   } catch {
     /* stockage indisponible : on refera la cascade la prochaine fois */
   }
 }
 
-/** Taille estimée du MP4 : (débit vidéo + audio) × durée, + 1 % de conteneur. */
-export function tailleEstimee(duree: number, hauteur: 1920 | 1280 = 1920): number {
-  const debitVideo = hauteur === 1280 ? 6_000_000 : 10_000_000;
-  return Math.round((((debitVideo + DEBIT_AUDIO) / 8) * duree) * 1.01);
+/** Taille estimée du MP4 : (débit vidéo + audio) × durée, + 1 % de conteneur. YouTube 16:9 : 8 Mb/s (16 en 1440p). */
+export function tailleEstimee(duree: number, hauteur: 1920 | 1280 = 1920, paysage = false, haute = false): number {
+  const debitVideo = paysage
+    ? hauteur === 1280 ? 5_000_000 : haute ? 16_000_000 : 8_000_000
+    : hauteur === 1280 ? 6_000_000 : 10_000_000;
+  return Math.round((((debitVideo + (paysage ? 384_000 : DEBIT_AUDIO)) / 8) * duree) * 1.01);
 }
 
 export async function estimerExport(recette: Recette): Promise<EstimationExport> {
-  const duree = dureeFinale(recette);
-  const tailleOctets = tailleEstimee(duree, recette.export.h ?? 1920);
+  // Durée de la vidéo exportée : intro et outro comprises.
+  const duree = dureeTotale(recette);
+  const paysage = gabaritDe(recette).paysage;
+  const tailleOctets = tailleEstimee(duree, recette.export.h ?? 1920, paysage, recette.export.qualite === 'haute');
   let placeLibreOctets: number | null = null;
   try {
     const e = await navigator.storage?.estimate?.();
@@ -93,11 +101,16 @@ export function lancerExport(recette: Recette, sources: SourceOuverte[]): Export
     rejeter(new ErreurArko('Export annulé.', 'annule'));
   }
 
+  const paysage = gabaritDe(recette).paysage;
   const fichiers: Record<string, File> = {};
   for (const s of sources) fichiers[s.infos.id] = s.fichier;
   const manquante = recette.plans.find((p) => !fichiers[p.src ?? sources[0]?.infos.id ?? '']);
+  // Intro / outro importées : leur vidéo doit être rouverte (elle est gardée sur l'appareil).
+  const generiqueAbsent = [recette.intro?.src, recette.outro?.src].some((id) => id && !fichiers[id]);
   if (sources.length === 0 || manquante) {
     rejeter(new ErreurArko('La vidéo d\'origine n\'est plus ouverte. Choisis-la à nouveau.', 'source'));
+  } else if (generiqueAbsent) {
+    rejeter(new ErreurArko('La vidéo de ton intro ou de ton outro n\'est plus sur l\'appareil. Choisis-la à nouveau dans Habiller → Intro / outro.', 'source'));
   } else {
     arreterActif?.();
     arreterActif = annulerCeluiCi;
@@ -122,18 +135,18 @@ export function lancerExport(recette: Recette, sources: SourceOuverte[]): Export
       const m = ev.data;
       if (termine) return;
       if (m.type === 'progression') for (const cb of abonnes) cb(m.p, m.resteS);
-      else if (m.type === 'encodage') memoriserEncodage(m.rang);
+      else if (m.type === 'encodage') memoriserEncodage(m.rang, paysage);
       else if (m.type === 'erreur') rejeter(new ErreurArko(m.message, m.code));
       else if (m.type === 'fini') {
         termine = true;
-        memoriserEncodage(m.rang);
+        memoriserEncodage(m.rang, paysage);
         arreter(false);
         const r: ResultatExport = { fichier: m.fichier, qualite: m.qualite, largeur: m.largeur, hauteur: m.hauteur };
         if (m.avertissement) r.avertissement = m.avertissement;
         resoudre(r);
       }
     };
-    const demande: VersWorker = { type: 'exporter', recette, fichiers, rangConnu: lireEncodageConnu(), nom };
+    const demande: VersWorker = { type: 'exporter', recette, fichiers, rangConnu: lireEncodageConnu(paysage), nom };
     worker.postMessage(demande);
   }
 

@@ -23,6 +23,7 @@ test('(p3-e) import de son : WAV, MP3, son d\'une vidéo', async ({ page }, test
   const journal = surveiller(page);
   await demarrer(page, MIRE, 4);
   await page.getByTestId('outil-sons').click();
+  await page.getByTestId('famille-mes').click(); // import sous « Importés »
   await importerEtPoser(page, BIP_WAV, 1);
   await importerEtPoser(page, BIP_MP3, 4);
   await importerEtPoser(page, SON_VIDEO, 7);
@@ -63,6 +64,7 @@ test('(p3-f) micro : enregistrement, pistes arrêtées, son dans le MP4', async 
   });
   await demarrer(page, MIRE, 4);
   await page.getByTestId('outil-sons').click();
+  await page.getByTestId('famille-mes').click(); // micro sous « Importés »
   await page.getByTestId('micro').click();
   await expect(page.getByTestId('micro-stop')).toBeVisible({ timeout: 10_000 });
   await page.waitForTimeout(2200);
@@ -120,6 +122,7 @@ test('(p3-g) performance : 4 transitions, 2 zooms, 5 sons', async ({ page }, tes
   }
   await fermerPanneau(page);
   await page.getByTestId('outil-sons').click();
+  await page.getByTestId('famille-impact').click();
   for (const [t, id] of [[0, 'impact.boom'], [3, 'impact.claque'], [5, 'impact.meme'], [7, 'impact.bass-drop'], [9, 'impact.boom']] as const) {
     await teteA(page, t);
     await page.getByTestId(`son-ajouter-${id}`).click();

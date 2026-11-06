@@ -1,6 +1,0 @@
-{
-  "description": "Clés en anglais (start/end, speed) et clé « plan » au lieu de « plans »",
-  "entree": { "format": "arko.recette/1", "plans": [{ "start": 3, "end": 9, "speed": 2 }], "plan": [] },
-  "attendu": { "plans": [{ "de": 3, "a": 9, "vit": 2 }] },
-  "messages": ["La clé \"start\" a été lue comme \"de\".", "La clé \"plan\" est inconnue : ignorée. Voulais-tu dire \"plans\" ?"]
-}

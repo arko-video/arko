@@ -55,10 +55,14 @@ export interface Lecteur {
   charger(recette: Recette, sources: SourceOuverte[]): void;
   lire(): void;
   pause(): void;
-  /** Va au temps de sortie t (en secondes) et affiche l'image correspondante. */
+  /** Va au temps t du montage (de `debut` à `duree`) et affiche l'image correspondante. */
   aller(t: Sec): void;
+  /** Temps du MONTAGE (0 = début du montage) : négatif pendant l'intro, au-delà de la fin pendant l'outro. */
   readonly temps: Sec;
+  /** Fin de la vidéo (outro comprise), en temps du montage. */
   readonly duree: Sec;
+  /** Début de la vidéo (intro comprise) : −durée de l'intro, 0 sans intro. */
+  readonly debut: Sec;
   readonly enLecture: boolean;
   /** Appelé à chaque changement de temps ou d'état (lecture/pause). Renvoie une fonction de désabonnement. */
   surChangement(cb: () => void): () => void;
@@ -81,7 +85,7 @@ export { estimerExport } from './export/client';
 
 export interface ResultatExport {
   fichier: File;
-  qualite: '1080p' | '720p';
+  qualite: '1080p' | '720p' | '1440p';
   largeur: number;
   hauteur: number;
   /** Message à afficher à l'utilisateur si l'export a réussi avec un défaut (ex. son illisible : vidéo muette). */
@@ -192,6 +196,26 @@ export { ecouterSon } from '../sons/ecoute';
  */
 export { importerSon } from '../sons/import';
 
+/* ------------------------------------------------------------------ Mes sons (sons gardés pour tous les projets) */
+
+/** « Mes sons » (sons gardés pour tous les projets) : lister, garder, lire, modifier, supprimer. */
+export {
+  garderMonSon,
+  LIMITE_MES_SONS,
+  listerMesSons,
+  lireMonSon,
+  modifierMonSon,
+  nomDepuisFichier,
+  supprimerMonSon,
+  type MonSon,
+} from '../stockage/mes-sons';
+/** Import de plusieurs sons (fichiers ou .zip) dans Mes sons ; vérifier qu'un fichier est un son lisible. */
+export { importerDansMesSons, verifierSon, type BilanImport } from '../sons/mes-sons-import';
+/** Recherche par mot (sans accents) : chercher(éléments, requête, (e) => ({ nom, autres })). */
+export { chercher } from '../sons/recherche';
+/** Sons reçus par « Partager → Arko » (déposés sur l'appareil par le service worker). */
+export { lireSonsPartages, viderSonsPartages } from '../stockage/partage';
+
 /** Temps forts (attaques rythmiques) d'une source audio, en secondes dans le fichier : pour le son guide. */
 export { tempsForts } from '../sons/rythme';
 
@@ -247,3 +271,22 @@ export {
 export * from '../ia/api-ia';
 /** Agent IA : fournisseurs, clé API (sur l'appareil), consignes, requête, lecture des réponses. */
 export * from '../ia/api-agent';
+
+/* ------------------------------------------------------------------ YouTube : miniature, intro / outro */
+
+/** Miniature : taille selon la destination, image du montage, habillage (gros texte, émoji, flèche), encodage < 2 Mo. */
+export {
+  dessinerHabillageMiniature,
+  EMOJIS_MINIATURE,
+  encoderSousLimite,
+  imageDuMontage,
+  MINIATURE,
+  tailleMiniature,
+  type ReglagesMiniature,
+  type StyleMiniature,
+} from './miniature';
+/** Dessin d'un modèle d'intro / outro (le même que dans l'export). */
+export { dessinerGenerique } from './couches/generique';
+export { envPour } from './canevas';
+/** « Mes génériques » : intros et outros gardées sur l'appareil. */
+export { fichierGenerique, garderGenerique, listerGeneriques, supprimerGenerique, type MonGenerique } from '../stockage/generiques';

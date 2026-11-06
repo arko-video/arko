@@ -1,9 +1,10 @@
-// Outil Sons : les familles en onglets, un toucher écoute le son, « + » le pose à la tête de lecture
-// (attaché au temps source). En bas : importer un son ou l'enregistrer au micro, et la phrase sur les droits.
-// Un son choisi sur la mini-frise ouvre ses réglages (PanneauSon).
+// Outil Sons : « Mes sons » (sons gardés pour tous les projets), puis les familles des sons d'Arko, puis « Importés ».
+// Un toucher écoute le son, « + » le pose à la tête de lecture (attaché au temps source).
+// En bas des familles : importer un son ou l'enregistrer au micro, et la phrase sur les droits ;
+// un son importé dans ce montage peut être gardé dans Mes sons. Un son choisi sur la mini-frise ouvre ses réglages (PanneauSon).
 
 import { useEffect } from 'preact/hooks';
-import { catalogueSons, ecouterSon, famillesSons, type SourceOuverte } from '../../../moteur/api';
+import { catalogueSons, famillesSons, type SourceOuverte } from '../../../moteur/api';
 import { T } from '../../../textes-fr';
 import { recetteAffichee } from '../../etat';
 import {
@@ -16,27 +17,13 @@ import {
   sonsImportes,
 } from '../../effets';
 import { formatDuree } from '../../format';
-import { IconeAlerte, IconeImporter, IconeLecture, IconePlus } from '../Icones';
+import { arreterLecture, ecouter, enChargement } from '../../ecoute-sons';
+import { garderSonImporte } from '../../mes-sons';
+import { IconeAlerte, IconeGarder, IconeImporter, IconeLecture, IconePlus } from '../Icones';
+import { MesSons } from './MesSons';
 import { BoutonMicro } from './Micro';
 import { PanneauSon } from './PanneauSon';
 import { Onglets } from './Reglages';
-
-/** Arrêt du son en cours d'écoute (un seul à la fois). */
-let arreterEcoute: (() => void) | null = null;
-
-export function arreterLecture() {
-  arreterEcoute?.();
-  arreterEcoute = null;
-}
-
-async function ecouter(son: string | SourceOuverte) {
-  arreterLecture();
-  try {
-    arreterEcoute = await ecouterSon(son);
-  } catch (e) {
-    console.error(e);
-  }
-}
 
 interface Ligne {
   id: string;
@@ -54,6 +41,7 @@ export function OutilSons() {
 
   const onglet = ongletSons.value;
   const onglets = [
+    { id: 'messons', nom: T.messons.titre },
     ...famillesSons.map((f) => ({ id: f.id as string, nom: f.nom })),
     { id: 'mes', nom: T.sons.mesSons },
   ];
@@ -77,8 +65,17 @@ export function OutilSons() {
         actif={onglet}
         onChoisir={(id) => (ongletSons.value = id)}
         prefixe="famille"
-        panneau="liste-sons"
+        panneau={onglet === 'messons' ? 'liste-mes-sons' : 'liste-sons'}
       />
+      {onglet === 'messons' && <MesSons />}
+      {onglet !== 'messons' && <ListeSons onglet={onglet} lignes={lignes} />}
+    </div>
+  );
+}
+
+function ListeSons({ onglet, lignes }: { onglet: string; lignes: Ligne[] }) {
+  return (
+    <>
       <p class="petit doux outil-aide">{T.sons.aide}</p>
       <ul
         id="liste-sons"
@@ -94,15 +91,28 @@ export function OutilSons() {
               type="button"
               class="son-ecouter"
               aria-label={T.sons.ecouter(s.nom)}
-              onClick={() => void ecouter(s.source ?? s.id)}
+              aria-busy={enChargement.value === s.id}
+              onClick={() => void ecouter(s.source ?? s.id, s.id)}
               data-testid={`son-ecouter-${s.id}`}
             >
               <span class="son-lecture" aria-hidden="true">
-                <IconeLecture taille={16} />
+                {enChargement.value === s.id ? <span class="rond-chargement" /> : <IconeLecture taille={16} />}
               </span>
               <span class="son-nom">{s.nom}</span>
               <span class="chiffres petit doux">{formatDuree(s.duree)}</span>
             </button>
+            {s.source && (
+              <button
+                type="button"
+                class="btn btn-icone son-secondaire"
+                aria-label={T.messons.garderNom(s.nom)}
+                title={T.messons.garder}
+                onClick={() => void garderSonImporte(s.source!)}
+                data-testid={`son-garder-${s.id}`}
+              >
+                <IconeGarder taille={20} />
+              </button>
+            )}
             <button
               type="button"
               class="btn btn-icone son-ajouter"
@@ -143,6 +153,6 @@ export function OutilSons() {
         <IconeAlerte taille={14} />
         {T.sons.droits}
       </p>
-    </div>
+    </>
   );
 }

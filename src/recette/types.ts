@@ -29,6 +29,31 @@ export interface Recette {
   /** État d'un clip proposé par le monteur IA (phase 6). */
   statut?: 'brouillon' | 'garde' | 'jete';
   export: ReglagesExport;
+  /** Où sera publiée la vidéo (absent = 'tiktok', comme tous les anciens projets). */
+  destination?: 'tiktok' | 'youtube' | 'short';
+  /** Chapitres YouTube (16:9) : temps de SORTIE du montage, sans compter l'intro. */
+  chapitres?: Chapitre[];
+  /** Intro et outro ajoutées au début et à la fin de la vidéo exportée (YouTube 16:9). */
+  intro?: Generique;
+  outro?: Generique;
+}
+
+export interface Chapitre {
+  t: Sec;
+  nom: string;
+}
+
+/**
+ * Intro ou outro. Soit un modèle animé dessiné par Arko (`modele` + nom de la chaîne),
+ * soit une vidéo de l'utilisateur (`src` = id d'une source vidéo de la recette, gardée sur l'appareil).
+ */
+export interface Generique {
+  modele?: 'abonne' | 'neon' | 'ecranFin';
+  chaine?: string;
+  /** Texte principal (ex. « Abonne-toi ! »). */
+  texte?: string;
+  src?: string;
+  dur: Sec;
 }
 
 /** Une référence vers un fichier, jamais ses données. */
@@ -151,8 +176,10 @@ export interface Marqueur {
 }
 
 export interface ReglagesExport {
+  /** 1920 = qualité normale (1080p), 1280 = 720p de secours (en 16:9 aussi : c'est la « petite » qualité). */
   h?: 1920 | 1280;
   ips?: 30;
+  /** 'haute' en YouTube 16:9 : 2560 × 1440 si la vidéo d'origine le permet. */
   qualite?: 'normale' | 'haute';
 }
 

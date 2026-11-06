@@ -1,7 +1,7 @@
 // Compositeur : dessine UNE image de la vidéo finale à partir de son état et de l'image source décodée.
 // Ordre : mouvement de transition (zoom, secousse) → zoom → mise en page → glisse (décalage + flou de mouvement)
 //         → calque de transition (flash, noir, glitch) → textes → sous-titres.
-// Tailles pensées pour 1080 px × env.echelle. Utilisé tel quel par l'aperçu et par l'export (un seul chemin de rendu).
+// Tailles pensées pour 1080 px (le petit côté du gabarit) × env.echelle. Utilisé tel quel par l'aperçu et par l'export (un seul chemin de rendu).
 
 import type { Ctx2D, Env, ImageSource } from './canevas';
 import { dessinerSousTitres } from './couches/sous-titres';
@@ -33,8 +33,8 @@ export function dessinerImage(ctx: Ctx2D, etat: EtatImage | null, image: ImageSo
   ctx.restore();
   if (!etat) return;
   dessinerTransition(ctx, etat.transition, env, etat.t, tampon);
-  dessinerTextes(ctx, etat.textes, env);
-  dessinerSousTitres(ctx, etat.sousTitres, env);
+  dessinerTextes(ctx, etat.textes, env, etat.gab);
+  dessinerSousTitres(ctx, etat.sousTitres, env, etat.gab);
 }
 
 /** Mise en page, avec le zoom sur toute l'image ou (Jeu + webcam) sur une seule bande. */

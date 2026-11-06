@@ -7,7 +7,7 @@ export const TEXTES_EFFETS = {
   sons: {
     titre: 'Sons',
     familles: 'Familles de sons',
-    mesSons: 'Mes sons',
+    mesSons: 'Importés',
     ecouter: (nom: string) => `Écouter « ${nom} »`,
     ajouter: (nom: string) => `Ajouter « ${nom} » à la tête de lecture`,
     ajoute: (nom: string, t: string) => `« ${nom} » ajouté à ${t}.`,
@@ -15,7 +15,7 @@ export const TEXTES_EFFETS = {
     vide: 'Aucun son ici pour l\'instant.',
     importer: 'Importer un son',
     importerAide: 'Fichier audio, ou une vidéo dont je prends le son.',
-    importe: (nom: string) => `« ${nom} » est dans « Mes sons ».`,
+    importe: (nom: string) => `« ${nom} » est dans « Importés ».`,
     micro: 'Enregistrer au micro',
     stop: 'Stop',
     enregistrement: (t: string) => `Enregistrement… ${t}`,

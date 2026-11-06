@@ -11,6 +11,7 @@ import { RepereRythme } from './RepereRythme';
 import { clavierPoignee, clavierTete } from './frise-clavier';
 import { creerGestesFrise, type Geste, type VueFrise } from './frise-gestes';
 import { borner, bornerDecalage, graduations, MARGE_FRISE as MARGE, pasDeRegle, PPS_MAX } from './frise-outils';
+import { TuilesGeneriques, xTete } from './FriseGeneriques';
 import { Poignee, Regle, TeteLecture } from './FriseElements';
 import { VignettesPlan } from './Vignettes';
 
@@ -113,6 +114,7 @@ export function Frise({ zoomRef }: { zoomRef?: { current: ((facteur: number) => 
       <Regle ticks={ticks} pas={pas} xDe={xDe} />
 
       <div class="frise-piste" role="group" aria-label={T.couper.frise}>
+        <TuilesGeneriques xDe={xDe} duree={duree} />
         <div
           class="frise-accroche"
           aria-hidden="true"
@@ -173,7 +175,7 @@ export function Frise({ zoomRef }: { zoomRef?: { current: ((facteur: number) => 
       </div>
 
       <RepereRythme xDe={xDe} pps={pps} largeurVue={largeurVue} />
-      <TeteLecture x={xDe(tete)} tete={tete} duree={duree} onKeyDown={(e) => clavierTete(e, tete, duree)} />
+      <TeteLecture x={xTete(tete, xDe, duree)} tete={tete} duree={duree} onKeyDown={(e) => clavierTete(e, tete, duree)} />
       {bulle && (
         <div class="bulle chiffres" style={{ left: `${borner(bulle.x, 32, largeurVue - 32)}px` }} data-testid="bulle">
           {bulle.texte}

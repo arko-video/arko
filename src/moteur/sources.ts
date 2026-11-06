@@ -1,6 +1,7 @@
 // Sources côté page : ouverture d'une vidéo choisie (analyse, codec, empreinte), recette initiale, vignettes.
 
 import { DUREE_INITIALE, recetteVide } from '../recette/defauts';
+import type { Destination } from '../recette/destination';
 import { normaliser } from '../recette/normaliser';
 import { arrondir } from '../recette/temps';
 import type { Recette, Sec, Source } from '../recette/types';
@@ -93,10 +94,13 @@ export function fermerSource(source: SourceOuverte): void {
 }
 
 /** Un plan [0, durée] (ou [0, 60] si la vidéo dépasse 180 s), mise en page fond flou. */
-export function recetteInitiale(source: SourceOuverte): Recette {
+export function recetteInitiale(source: SourceOuverte, destination?: Destination): Recette {
   const d = source.infos.duree;
-  const fin = d > DUREE_INITIALE.seuil ? DUREE_INITIALE.garde : d;
+  // YouTube 16:9 : une vidéo plus longue est normale ; on garde tout jusqu'à 20 min (sinon les 10 premières).
+  const limite = destination === 'youtube' ? { seuil: 1200, garde: 600 } : DUREE_INITIALE;
+  const fin = d > limite.seuil ? limite.garde : d;
   const brute: Recette = { ...recetteVide(), sources: [{ ...source.infos }], plans: [{ de: 0, a: fin }] };
+  if (destination) brute.destination = destination;
   return normaliser(brute, { sources: [source.infos] }).recette;
 }
 

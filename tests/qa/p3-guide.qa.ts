@@ -66,6 +66,7 @@ test('(p3-d) son guide : aperçu, pas dans le MP4, temps forts, aimant, rappel, 
   // Un son importé dans Habiller (pour la reprise).
   await allerAEtape(page, 4);
   await page.getByTestId('outil-sons').click();
+  await page.getByTestId('famille-mes').click(); // « Importer un son » est sous « Importés » (Mes sons s'ouvre en premier)
   await page.getByTestId('importer-son-fichier').setInputFiles(BIP_WAV);
   await expect(page.getByTestId('famille-mes')).toHaveAttribute('aria-selected', 'true', { timeout: 15_000 });
   const idImporte = await page.locator('[data-testid^="son-ajouter-a"]').first().getAttribute('data-testid');

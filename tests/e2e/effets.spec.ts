@@ -129,8 +129,9 @@ test('Effets : son guide, son, transition partout, zoom, export vérifié dans l
   // --- Sons : « + » à 1 s, attaché au temps source ; repère sur la mini-frise ; volume 150 %.
   await teteA(page, 1);
   await page.getByTestId('outil-sons').click();
-  await expect(page.getByTestId('droits-sons')).toContainText('le droit de publier');
+  // Le panneau s'ouvre sur « Mes sons » ; les sons d'Arko sont dans les familles.
   await page.getByTestId('famille-impact').click();
+  await expect(page.getByTestId('droits-sons')).toContainText('le droit de publier');
   await capture(page, 'sons-liste');
   await page.getByTestId(`son-ajouter-${SON}`).click();
   const repere = page.locator('[data-testid^="calque-son-"]').first();
@@ -232,6 +233,7 @@ test('Reprise : sons importés et son guide rouverts sans les re-choisir', async
   await page.getByTestId('suivant').click();
   await teteA(page, 1);
   await page.getByTestId('outil-sons').click();
+  await page.getByTestId('famille-mes').click(); // « Importer un son » est sous « Importés » (Mes sons s'ouvre en premier)
   await page.getByTestId('importer-son-fichier').setInputFiles(wav(testInfo, 'bip.wav', 1000, 0.5));
   await page.locator('[data-testid^="son-ajouter-"]').first().click();
   await expect(page.locator('[data-testid^="calque-son-"]')).toHaveCount(1);

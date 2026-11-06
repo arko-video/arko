@@ -27,3 +27,4 @@ Les fichiers sous MPL-2.0 ne sont pas modifiés. Leur code source est disponible
 - Tous les effets sonores d'Arko sont **fabriqués par le code d'Arko** (synthèse, sans aucun enregistrement copié).
 - Ils sont placés dans le **domaine public (CC0)** : tu peux les utiliser dans tes vidéos sans rien demander à personne.
 - Les sons tendance de TikTok ne sont pas dans Arko : on les ajoute dans TikTok au moment de publier.
+- « Mes sons » contient seulement les sons que **toi** tu importes (fichiers, `.zip` ou Partager → Arko), gardés sur ton appareil. Ils ne font pas partie d'Arko ni du dépôt, et restent sous ta responsabilité.

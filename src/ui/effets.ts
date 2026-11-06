@@ -41,8 +41,8 @@ export const sonChoisi = signal<number | null>(null);
 export const coupeChoisie = signal<number | null>(null);
 /** Zoom choisi (indice dans recette.zooms) : réglages et cible sur l'aperçu. */
 export const zoomChoisi = signal<number | null>(null);
-/** Onglet du panneau Sons : une famille du catalogue, ou « mes » (sons importés). */
-export const ongletSons = signal<string>('impact');
+/** Onglet du panneau Sons : « messons » (Mes sons, gardés pour tous les projets), une famille du catalogue, ou « mes » (sons importés dans ce montage). */
+export const ongletSons = signal<string>('messons');
 /** Import d'un son en cours (fichier ou micro). */
 export const importEnCours = signal(false);
 

@@ -32,7 +32,11 @@ const VERSION_ORT = `?v=${encodeURIComponent(env.backends.onnx.versions?.web ?? 
 
 /** Réglages de transformers.js : WASM local, 1 fil, modèle depuis huggingface.co uniquement. */
 function configurer() {
-  const ort = new URL(import.meta.env.BASE_URL + 'ort/', self.location.origin).href;
+  // En production, le Worker est dans <base>/assets/ : le WASM est dans <base>/ort/, quelle que soit l'adresse
+  // où Arko est hébergé (GitHub Pages, sous-dossier…). En développement, on part de la base de Vite.
+  const ort = import.meta.env.DEV
+    ? new URL(import.meta.env.BASE_URL + 'ort/', self.location.origin).href
+    : new URL('../ort/', self.location.href).href;
   env.allowLocalModels = false;
   const wasm = env.backends.onnx.wasm;
   if (wasm) {

@@ -1,7 +1,0 @@
-{
-  "description": "Recette d'une version future (bloquant) et vidéo finale de plus de 10 min (bloquant)",
-  "entree": { "format": "arko.recette/2", "plans": [{ "de": 0, "a": 700 }] },
-  "attendu": { "plans": [{ "de": 0, "a": 700 }] },
-  "messages": ["version 2 du format", "plus que la limite de 10 min"],
-  "bloquant": true
-}

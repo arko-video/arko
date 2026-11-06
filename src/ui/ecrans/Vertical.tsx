@@ -1,10 +1,13 @@
 // Étape 3 : mettre en vertical. Fond flou, Plein écran (on fait glisser l'image pour cadrer),
 // Jeu + webcam (un éditeur s'ouvre pour placer le cadre de la webcam).
+// En YouTube 16:9, la même étape devient « Cadrage » : Plein 16:9 (recadré) ou Ajustée + fond flou.
 
 import { useRef, useState } from 'preact/hooks';
 import { choisirMise } from '../../recette/operations';
 import type { MiseEnPage, Recette } from '../../recette/types';
 import { T } from '../../textes-fr';
+import { TY } from '../../textes-youtube';
+import { gabaritProjet } from '../destination';
 import { Apercu, InterrupteurZoneSure, type Glisse } from '../composants/Apercu';
 import { EditeurWebcam } from '../composants/EditeurWebcam';
 import { Entete } from '../composants/Entete';
@@ -36,11 +39,14 @@ export function Vertical() {
   const r = recetteAffichee.value;
   const debutGlisse = useRef<{ r0: Recette; x0: number } | null>(null);
   const [editeur, setEditeur] = useState(false);
+  const paysage = gabaritProjet.value.paysage;
   if (!r) return null;
   const type = r.mise.type;
   const src = sources.value[0]?.infos;
-  // Part de la largeur source visible en plein écran 9:16.
-  const partVisible = src?.l && src?.h ? Math.min(1, ((9 / 16) * src.h) / src.l) : 0.3164;
+  // Part de la largeur source visible en plein écran (9:16, ou 16:9 en YouTube vidéo).
+  const rapport = paysage ? 16 / 9 : 9 / 16;
+  const partVisible = src?.l && src?.h ? Math.min(1, (rapport * src.h) / src.l) : paysage ? 1 : 0.3164;
+  const nom = paysage ? TY.cadrage.nom : T.vertical.nom;
 
   function choisir(t: TypeMise) {
     const actuel = recette.peek()?.mise.type;
@@ -105,9 +111,9 @@ export function Vertical() {
 
   return (
     <div class="ecran">
-      <Entete titre={T.vertical.nom} ecran="vertical" avecHistorique />
-      <main class="ecran-corps vertical">
-        <h2 class="titre titre-etape">{T.vertical.titre}</h2>
+      <Entete titre={nom} ecran="vertical" avecHistorique />
+      <main class="ecran-corps vertical" data-paysage={paysage ? '1' : '0'}>
+        <h2 class="titre titre-etape">{paysage ? TY.cadrage.titre : T.vertical.titre}</h2>
         <Apercu
           glisse={glisse}
           enfants={
@@ -124,11 +130,18 @@ export function Vertical() {
           </p>
         )}
 
-        <div class="mises" role="radiogroup" aria-label={T.vertical.titre} onKeyDown={(e) => clavierMises(e, type, choisir)}>
-          <CarteMise type="flou" actif={type === 'flou'} label={T.vertical.fondFlou} onChoisir={choisir} />
-          <CarteMise type="recadre" actif={type === 'recadre'} label={T.vertical.pleinEcran} onChoisir={choisir} />
-          <CarteMise type="jeuCam" actif={type === 'jeuCam'} label={T.vertical.jeuWebcam} onChoisir={choisir} />
-        </div>
+        {paysage ? (
+          <div class="mises mises-169" role="radiogroup" aria-label={TY.cadrage.titre}>
+            <CarteMise type="recadre" actif={type === 'recadre'} label={TY.cadrage.plein} onChoisir={choisir} />
+            <CarteMise type="flou" actif={type === 'flou'} label={TY.cadrage.ajuste} onChoisir={choisir} />
+          </div>
+        ) : (
+          <div class="mises" role="radiogroup" aria-label={T.vertical.titre} onKeyDown={(e) => clavierMises(e, type, choisir)}>
+            <CarteMise type="flou" actif={type === 'flou'} label={T.vertical.fondFlou} onChoisir={choisir} />
+            <CarteMise type="recadre" actif={type === 'recadre'} label={T.vertical.pleinEcran} onChoisir={choisir} />
+            <CarteMise type="jeuCam" actif={type === 'jeuCam'} label={T.vertical.jeuWebcam} onChoisir={choisir} />
+          </div>
+        )}
         {type === 'jeuCam' && (
           <button type="button" class="btn" onClick={() => setEditeur(true)} data-testid="regler-webcam">
             {T.vertical.regler}

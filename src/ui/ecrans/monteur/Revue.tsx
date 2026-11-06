@@ -10,6 +10,9 @@ import { formatDuree, formatHeure } from '../../format';
 import { revue, sourceMonteur } from '../../monteur/etat-monteur';
 import { quitterMonteur, retourMonteur } from '../../monteur/navigation-monteur';
 import { gardesEcrits, garder, jeter, retoucherPremier } from '../../monteur/revue-monteur';
+import { compilerGardes } from '../../monteur/compilation-monteur';
+import { destinationChoisie } from '../../destination';
+import { TY } from '../../../textes-youtube';
 
 /** Part de la largeur à balayer pour garder ou jeter. */
 const SEUIL = 0.28;
@@ -218,6 +221,20 @@ function Fin() {
         >
           {n > 0 ? T.monteur.voirMontages : T.monteur.accueil}
         </button>
+        {n > 0 && sourceMonteur.value && destinationChoisie.value === 'youtube' && (
+          <button
+            type="button"
+            class="btn"
+            disabled={occupe}
+            onClick={() => {
+              setOccupe(true);
+              void compilerGardes().then((ok) => !ok && setOccupe(false));
+            }}
+            data-testid="compiler"
+          >
+            {TY.monteur.compiler}
+          </button>
+        )}
         {n > 0 && sourceMonteur.value && (
           <button
             type="button"

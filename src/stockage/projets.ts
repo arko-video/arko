@@ -26,6 +26,8 @@ export interface ResumeProjet {
   /** Nom du fichier vidéo d'origine (pour le re-choisir). */
   nomSource: string;
   vignette?: string;
+  /** Plateforme du montage (absent = TikTok). */
+  destination?: 'youtube' | 'short';
 }
 
 /** Toutes les opérations passent par cette file : jamais deux écritures de l'index en même temps. */

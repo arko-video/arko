@@ -30,7 +30,16 @@ function lireT(v: unknown, chemin: string, journal: Journal): Sec | null {
   return arrondir(t);
 }
 
-export function normaliserTextes(brut: unknown, dureeFinale: Sec, journal: Journal): Texte[] {
+/** Bornes verticales de la zone visible, selon la destination (TikTok par défaut). */
+export interface BornesY {
+  yMin: number;
+  yMax: number;
+  plateforme: string;
+}
+const BORNES_TEXTE: BornesY = { yMin: TEXTE.yMin, yMax: TEXTE.yMax, plateforme: 'TikTok' };
+const BORNES_ST: BornesY = { yMin: SOUS_TITRES.yMin, yMax: SOUS_TITRES.yMax, plateforme: 'TikTok' };
+
+export function normaliserTextes(brut: unknown, dureeFinale: Sec, journal: Journal, bornes: BornesY = BORNES_TEXTE): Texte[] {
   const res: Texte[] = [];
   lireListe(brut, 'textes', journal).forEach((b, i) => {
     const ch = `textes[${i}]`;
@@ -57,10 +66,10 @@ export function normaliserTextes(brut: unknown, dureeFinale: Sec, journal: Journ
     const dur = lireNombre(o.dur, `${ch}.dur`, journal, { defaut: TEXTE.dur, min: TEXTE.durMin, max: Infinity, nom: 'la durée du texte' });
     const x = lireNombre(o.x, `${ch}.x`, journal, { defaut: TEXTE.x, min: 0, max: 1, nom: 'la position horizontale' });
     let y = lireTemps(o.y) ?? TEXTE.y;
-    if (y < TEXTE.yMin || y > TEXTE.yMax) {
-      const yb = borner(y, TEXTE.yMin, TEXTE.yMax);
-      const sens = y > TEXTE.yMax ? 'remonté' : 'descendu';
-      journal.corrige(`${ch}.y`, `Le texte sortait de la zone visible sur TikTok (y = ${formaterNombre(y)}) : ${sens} à ${formaterNombre(yb)}.`);
+    if (y < bornes.yMin || y > bornes.yMax) {
+      const yb = borner(y, bornes.yMin, bornes.yMax);
+      const sens = y > bornes.yMax ? 'remonté' : 'descendu';
+      journal.corrige(`${ch}.y`, `Le texte sortait de la zone visible sur ${bornes.plateforme} (y = ${formaterNombre(y)}) : ${sens} à ${formaterNombre(yb)}.`);
       y = yb;
     }
     const style = lireStyle(o.style, STYLES_TEXTE, `${ch}.style`, 'de texte', journal);
@@ -81,21 +90,21 @@ function lireStyle(brut: unknown, styles: readonly string[], chemin: string, quo
 }
 
 /** Position verticale des sous-titres, gardée dans [0,15 ; 0,72] (zone visible sur TikTok). */
-function lireYSousTitres(brut: unknown, yDefaut: number, journal: Journal): number {
+function lireYSousTitres(brut: unknown, yDefaut: number, journal: Journal, bornes: BornesY): number {
   const y = brut === undefined || brut === null ? null : lireTemps(brut);
   if (y === null) {
     if (brut !== undefined && brut !== null) journal.corrige('sousTitres.y', `La position des sous-titres ${JSON.stringify(brut)} est illisible : ${formaterNombre(yDefaut)} choisi.`);
     return arrondir(yDefaut);
   }
-  if (y >= SOUS_TITRES.yMin && y <= SOUS_TITRES.yMax) return arrondir(y);
-  const yb = borner(y, SOUS_TITRES.yMin, SOUS_TITRES.yMax);
-  const sens = y > SOUS_TITRES.yMax ? 'remontés' : 'descendus';
-  journal.corrige('sousTitres.y', `Les sous-titres sortaient de la zone visible sur TikTok (y = ${formaterNombre(y)}) : ${sens} à ${formaterNombre(yb)}.`);
+  if (y >= bornes.yMin && y <= bornes.yMax) return arrondir(y);
+  const yb = borner(y, bornes.yMin, bornes.yMax);
+  const sens = y > bornes.yMax ? 'remontés' : 'descendus';
+  journal.corrige('sousTitres.y', `Les sous-titres sortaient de la zone visible sur ${bornes.plateforme} (y = ${formaterNombre(y)}) : ${sens} à ${formaterNombre(yb)}.`);
   return yb;
 }
 
 /** `yDefaut` = hauteur par défaut selon la mise en page (ySousTitres dans defauts.ts). */
-export function normaliserSousTitres(brut: unknown, journal: Journal, yDefaut: number = SOUS_TITRES.y): SousTitres | null {
+export function normaliserSousTitres(brut: unknown, journal: Journal, yDefaut: number = SOUS_TITRES.y, bornes: BornesY = BORNES_ST): SousTitres | null {
   if (brut === undefined || brut === null || brut === false) return null;
   if (brut === 'auto' || brut === true) brut = { mots: 'auto' };
   if (!estObjet(brut)) {
@@ -105,7 +114,7 @@ export function normaliserSousTitres(brut: unknown, journal: Journal, yDefaut: n
   verifierCles(brut, ['style', 'y', 'src', 'parLigne', 'mots'], 'sousTitres', journal);
   const st: SousTitres = {
     style: lireStyle(brut.style, STYLES_SOUS_TITRES, 'sousTitres.style', 'de sous-titres', journal),
-    y: lireYSousTitres(brut.y, yDefaut, journal),
+    y: lireYSousTitres(brut.y, yDefaut, journal, bornes),
     parLigne: Math.round(lireNombre(brut.parLigne, 'sousTitres.parLigne', journal, { defaut: SOUS_TITRES.parLigne, min: 1, max: 8, nom: 'le nombre de mots par ligne' })),
     mots: 'auto',
   };

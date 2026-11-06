@@ -17,8 +17,10 @@ import { modifier, recette, recetteTemporaire, teteLecture } from './etat';
 import { auCentieme } from './format';
 import { ajouterTexteLibre } from './placement';
 
-export type Outil = 'accroche' | 'texte' | 'sousTitres' | 'sons' | 'transitions' | 'zoom' | 'combos' | 'modeles';
-export const OUTILS: Outil[] = ['accroche', 'texte', 'sousTitres', 'sons', 'transitions', 'zoom', 'combos', 'modeles'];
+export type Outil = 'couper' | 'accroche' | 'texte' | 'sousTitres' | 'sons' | 'transitions' | 'zoom' | 'combos' | 'modeles' | 'chapitres' | 'generiques';
+export const OUTILS: Outil[] = ['couper', 'accroche', 'texte', 'sousTitres', 'sons', 'transitions', 'zoom', 'combos', 'modeles', 'chapitres', 'generiques'];
+/** Outils réservés à YouTube 16:9. */
+export const OUTILS_YOUTUBE: readonly Outil[] = ['chapitres', 'generiques'];
 
 /** Outil ouvert dans le panneau du bas (null = barre d'outils). Changé par ouvrirOutil / fermerOutil. */
 export const outilOuvert = signal<Outil | null>(null);

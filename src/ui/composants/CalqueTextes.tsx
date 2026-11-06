@@ -8,10 +8,12 @@ import { modifierTexte } from '../../recette/operations';
 import { TEXTE } from '../../recette/defauts';
 import type { Recette } from '../../recette/types';
 import { T } from '../../textes-fr';
+import { textesPour } from '../../textes-youtube';
+import { destinationProjet } from '../destination';
 import { modifier, recette, recetteAffichee, recetteTemporaire, teteLecture, zoneSure } from '../etat';
 import { glisseTexte, ouvrirOutil, outilOuvert, texteChoisi, validerSaisie } from '../habillage';
 import { mettreEnPause } from '../lecture';
-import { bornerCentre } from '../placement';
+import { bornerCentre, zoneDe, type ZoneUI } from '../placement';
 import { IconeZoneSure } from './Icones';
 
 const SEUIL_PX = 6;
@@ -39,11 +41,11 @@ interface Geste {
  * Nouvelle position (centre du texte) après un glissé de (dx, dy) en fractions de l'aperçu. Pure.
  * C'est la BOÎTE entière (l × h) qui reste dans la zone sûre, comme au dessin.
  */
-export function positionGlissee(g: { cx: number; cy: number; l: number; h: number }, dx: number, dy: number) {
+export function positionGlissee(g: { cx: number; cy: number; l: number; h: number }, dx: number, dy: number, zone?: ZoneUI) {
   let x = g.cx + dx;
   const aimante = Math.abs(x - 0.5) < AIMANT;
   if (aimante) x = 0.5;
-  return { ...bornerCentre(x, g.cy + dy, g.l, g.h), aimante };
+  return { ...bornerCentre(x, g.cy + dy, g.l, g.h, zone), aimante };
 }
 
 /** Déplace le texte i avec les flèches (une entrée d'annulation par appui). */
@@ -57,7 +59,7 @@ function clavierTexte(e: KeyboardEvent, b: BoiteTexte) {
   modifier((r) => {
     const x = r.textes[b.i];
     if (!x) return r;
-    const p = bornerCentre((x.x ?? TEXTE.x) + d[0] * pas, (x.y ?? TEXTE.y) + d[1] * pas, b.l, b.h);
+    const p = bornerCentre((x.x ?? TEXTE.x) + d[0] * pas, (x.y ?? TEXTE.y) + d[1] * pas, b.l, b.h, zoneDe(r));
     return modifierTexte(r, b.i, p);
   });
 }
@@ -101,7 +103,7 @@ export function CalqueTextes() {
       glisseTexte.value = true;
     }
     if (!g.bouge) return;
-    const p = positionGlissee(g, (e.clientX - g.x0) / L, (e.clientY - g.y0) / H);
+    const p = positionGlissee(g, (e.clientX - g.x0) / L, (e.clientY - g.y0) / H, zoneDe(g.r0));
     if (p.aimante && !g.aimante && 'vibrate' in navigator) navigator.vibrate(8);
     g.aimante = p.aimante;
     recetteTemporaire.value = modifierTexte(g.r0, g.i, { x: p.x, y: p.y });
@@ -173,7 +175,7 @@ function BoutonZoneSure() {
       data-actif={actif ? '1' : '0'}
       aria-pressed={actif}
       aria-label={T.zoneSure.bouton}
-      title={T.zoneSure.aide}
+      title={textesPour(destinationProjet.value).zoneSureAide}
       onPointerDown={stop}
       onPointerUp={stop}
       onClick={() => (zoneSure.value = !actif)}

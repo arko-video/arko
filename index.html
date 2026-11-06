@@ -18,7 +18,8 @@
         nos fichiers, cette CSP ne s'y applique pas, donc ni blob: ni 'wasm-unsafe-eval' ne sont utiles ici.
         Si un jour le WASM ou un worker blob tourne dans la page, ajouter 'wasm-unsafe-eval' à script-src
         et blob: à worker-src.
-      - connect-src 'self' : rechargement à chaud de Vite en dev, futurs sons de public/sons.
+      - connect-src 'self' : rechargement à chaud de Vite en dev. Arko ne télécharge aucun son depuis un autre site :
+        le lien MyInstants de « Mes sons » s'ouvre dans un nouvel onglet, c'est l'utilisateur qui télécharge puis importe.
       - base-uri et form-action 'none' : pas de balise base, aucun formulaire envoyé.
     -->
     <meta

@@ -1,7 +1,0 @@
-{
-  "description": "Son inconnu : retiré avec 3 propositions",
-  "sonsConnus": ["impact.boom", "impact.grave", "cartoon.boing", "whoosh.rapide", "musique.lofi"],
-  "entree": { "format": "arko.recette/1", "plans": [{ "de": 0, "a": 5 }], "sons": [{ "id": "vine_boom", "ts": 2 }, { "id": "impact.grave", "t": 1, "ts": 2, "vol": 3 }] },
-  "attendu": { "sons": [{ "id": "impact.grave", "ts": 2, "vol": 1.5 }] },
-  "messages": ["Le son \"vine_boom\" n'existe pas. Sons proches : impact.boom, impact.grave, cartoon.boing. Son retiré.", "seul \"ts\"", "Le volume (3,00) était hors limites : ramené à 1,50."]
-}

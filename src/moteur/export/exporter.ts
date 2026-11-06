@@ -5,7 +5,7 @@
 import { AudioSample, AudioSampleSource, CanvasSource, Mp4OutputFormat, Output, Quality } from 'mediabunny';
 import type { Recette } from '../../recette/types';
 import { FREQUENCE_SORTIE } from '../audio/reechantillonner';
-import { contexte2D } from '../canevas';
+import { contexte2D, envPour } from '../canevas';
 import { ErreurArko } from '../erreurs';
 import type { MediaOuvert } from '../media';
 import { rendre } from '../rendre';
@@ -21,6 +21,8 @@ export interface OptionsExport {
   recette: Recette;
   medias: ReadonlyMap<string, MediaOuvert>;
   essai: EssaiEncodage;
+  /** Débit du son AAC (b/s) : 128 kb/s par défaut ; YouTube 16:9 : le plus haut permis, jusqu'à 384 kb/s. */
+  debitAudio?: number;
   /** Nom du fichier de sortie. */
   nom: string;
   fastStart: 'reserve' | false;
@@ -61,7 +63,7 @@ export async function exporterUneFois(o: OptionsExport): Promise<ResultatBrut> {
 
   const canevas = new OffscreenCanvas(essai.largeur, essai.hauteur);
   const ctx = contexte2D(canevas);
-  const env = { l: essai.largeur, h: essai.hauteur, echelle: essai.largeur / 1080 };
+  const env = envPour(essai.largeur, essai.hauteur);
 
   let sortieDisque: Sortie | null = null;
   let output: Output | null = null;
@@ -73,7 +75,7 @@ export async function exporterUneFois(o: OptionsExport): Promise<ResultatBrut> {
     });
     const video = new CanvasSource(canevas, configVideo(essai));
     output.addVideoTrack(video, { frameRate: IPS, maximumPacketCount: max.video });
-    const audio = new AudioSampleSource({ codec: 'aac', quality: new Quality({ bitrate: DEBIT_AUDIO }) });
+    const audio = new AudioSampleSource({ codec: 'aac', quality: new Quality({ bitrate: o.debitAudio ?? DEBIT_AUDIO }) });
     output.addAudioTrack(audio, { maximumPacketCount: max.audio });
     await output.start();
 

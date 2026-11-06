@@ -12,6 +12,7 @@ import {
 } from '../moteur/api';
 import { definirSousTitres, modifierMot } from '../recette/operations';
 import { SOUS_TITRES, ySousTitres } from '../recette/defauts';
+import { gabaritDe } from '../recette/destination';
 import type { Mot, Recette } from '../recette/types';
 import { T } from '../textes-fr';
 import { afficherToast, modifier, projetActuel, quandProjetQuitte, recette, sources } from './etat';
@@ -116,7 +117,7 @@ function poserSousTitres(r: Recette, mots: Mot[]): Recette {
   const st = r.sousTitres;
   return definirSousTitres(r, {
     style: st?.style ?? SOUS_TITRES.style,
-    y: ySousTitres(r.mise),
+    y: ySousTitres(r.mise, gabaritDe(r)),
     parLigne: st?.parLigne ?? SOUS_TITRES.parLigne,
     mots,
   });

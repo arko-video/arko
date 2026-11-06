@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'preact/hooks';
 import { estimerExport, type EstimationExport, type ResultatExport } from '../../moteur/api';
-import { dureeFinale } from '../../recette/operations';
+import { dureeTotale } from '../../recette/generiques';
 import { T } from '../../textes-fr';
 import { InterrupteurZoneSure, ZoneSure } from '../composants/Apercu';
 import { Entete } from '../composants/Entete';
-import { IconeAlerte, IconeAmpoule, IconeHorloge, IconeNote, IconePartager, IconeTelecharger } from '../composants/Icones';
+import { AstuceExport, BoutonMiniature, InfosExport } from '../composants/ExportYoutube';
+import { IconeAlerte, IconeHorloge, IconeNote, IconePartager, IconeTelecharger } from '../composants/Icones';
+import { destinationProjet } from '../destination';
 import { etatExport, recette, toutFermer, zoneSure } from '../etat';
 import { demarrerExport, lireBatterie, retourAvantExport } from '../exportation';
 import { formatDuree, formatTaille } from '../format';
@@ -46,7 +48,8 @@ function Avant() {
   }, [r]);
 
   if (!r) return null;
-  const duree = estimation?.duree ?? dureeFinale(r);
+  // Durée de la vidéo exportée (intro et outro YouTube comprises).
+  const duree = estimation?.duree ?? dureeTotale(r);
   return (
     <>
       <h2 class="titre titre-etape">{T.exporter.titre}</h2>
@@ -57,7 +60,7 @@ function Avant() {
         <li>{estimation ? T.exporter.environTaille(formatTaille(estimation.tailleOctets)) : '…'}</li>
         <li>{T.exporter.environTemps(formatDuree(Math.max(5, duree * FACTEUR_TEMPS)))}</li>
       </ul>
-      <p class="petit doux">{T.exporter.qualite}</p>
+      <InfosExport r={r} duree={duree} />
 
       {batterieFaible && (
         <div class="message message-alerte" role="alert" data-testid="alerte-batterie">
@@ -73,6 +76,7 @@ function Avant() {
       )}
 
       <div class="pousse" />
+      <BoutonMiniature />
       <button type="button" class="btn btn-principal" onClick={demarrerExport} data-testid="creer-video">
         <IconeTelecharger />
         {T.exporter.creer}
@@ -170,7 +174,7 @@ function Apres({ url, resultat }: { url: string; resultat: ResultatExport }) {
   const fichier = resultat.fichier;
   const avertissement = avertissementDe(resultat);
   // Le son guide n'est pas dans le MP4 : on rappelle où le démarrer dans TikTok.
-  const guide = recette.value?.guide;
+  const guide = destinationProjet.value === 'tiktok' ? recette.value?.guide : null;
   const nom =fichier.name.endsWith('.mp4') ? fichier.name : NOM_SECOURS;
   const fichierPartage = fichier.name === nom ? fichier : new File([fichier], nom, { type: 'video/mp4' });
   const peutPartager =
@@ -224,10 +228,8 @@ function Apres({ url, resultat }: { url: string; resultat: ResultatExport }) {
         </a>
       </div>
       <p class="petit doux">{T.exporter.ouVaLeFichier}</p>
-      <div class="message message-info">
-        <IconeAmpoule />
-        <span>{T.exporter.astuce}</span>
-      </div>
+      <BoutonMiniature />
+      <AstuceExport />
       <button
         type="button"
         class="btn btn-discret"

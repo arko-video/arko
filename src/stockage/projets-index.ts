@@ -87,6 +87,8 @@ export function resumeDe(id: string, projet: ProjetSauvegarde, titre: string): R
     nomSource: nomSource(projet.recette),
   };
   if (vignetteValide(projet.vignette)) r.vignette = projet.vignette;
+  const d = projet.recette.destination;
+  if (d === 'youtube' || d === 'short') r.destination = d;
   return r;
 }
 

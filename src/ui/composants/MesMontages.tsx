@@ -4,6 +4,8 @@
 import { useState } from 'preact/hooks';
 import type { ResumeProjet } from '../../moteur/api';
 import { T } from '../../textes-fr';
+import { TY } from '../../textes-youtube';
+import { destinationChoisie, ouvrirChoix } from '../destination';
 import { formatDepuis, formatDuree } from '../format';
 import { continuerMontage, dupliquerMontage, estOuvert, montages, renommerMontage, supprimerMontage } from '../montages';
 import { Dialogue } from './Dialogue';
@@ -52,9 +54,14 @@ export function MesMontages({ occupe, chargement, onRechoisir }: Props) {
 
   return (
     <section class="montages" aria-labelledby="montages-titre" data-testid="mes-montages">
-      <h2 id="montages-titre" class="montages-titre">
-        {T.montages.titre}
-      </h2>
+      <div class="montages-entete">
+        <h2 id="montages-titre" class="montages-titre">
+          {T.montages.titre}
+        </h2>
+        <button type="button" class="btn btn-discret btn-petit" onClick={ouvrirChoix} aria-label={TY.changerAide} data-testid="montages-changer-destination">
+          {TY.pour(TY.noms[destinationChoisie.value ?? 'tiktok'])} · {TY.changer}
+        </button>
+      </div>
       <ul class="montages-liste">
         {liste.map((m, i) => {
           const ouvert = estOuvert(m.id);
@@ -80,10 +87,15 @@ export function MesMontages({ occupe, chargement, onRechoisir }: Props) {
                     <strong class="montage-titre" data-testid={`montage-titre-${i}`}>
                       {m.titre}
                     </strong>
+                    {m.destination && (
+                      <span class="badge-destination petit" data-testid={`montage-destination-${i}`}>
+                        {TY.noms[m.destination]}
+                      </span>
+                    )}
                     <span class="petit doux chiffres">
                       {formatDuree(m.duree)} · {formatDepuis(m.modifieLe)}
                     </span>
-                    {i === 0 && <span class="petit doux">{T.importer.arreteA(NOMS_ETAPES[m.etape] ?? T.couper.nom)}</span>}
+                    {i === 0 && <span class="petit doux">{T.importer.arreteA((m.destination === 'youtube' && m.etape === 'vertical' ? TY.cadrage.nom : NOMS_ETAPES[m.etape]) ?? T.couper.nom)}</span>}
                   </span>
                 )}
                 {i === 0 && ouvert && !charge && <IconeFleche />}

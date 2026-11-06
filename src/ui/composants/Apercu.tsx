@@ -1,4 +1,4 @@
-// Aperçu 9:16 : canevas dessiné par le lecteur du moteur, bouton lecture, zone sûre en calque DOM.
+// Aperçu 9:16 (ou 16:9 en YouTube vidéo) : canevas dessiné par le lecteur du moteur, bouton lecture, zone sûre en calque DOM.
 // Peut recevoir un glissé horizontal (cadrage du Plein écran) : un simple toucher lance/arrête la lecture.
 
 import { useSignalEffect } from '@preact/signals';
@@ -6,6 +6,8 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import { creerLecteur, type Lecteur } from '../../moteur/api';
 import { T } from '../../textes-fr';
+import { textesPour } from '../../textes-youtube';
+import { destinationProjet, gabaritProjet } from '../destination';
 import { recetteAffichee, sources, teteLecture, zoneSure } from '../etat';
 import { basculerLecture, brancherLecteur, enLecture } from '../lecture';
 import { IconeLecture, IconePause } from './Icones';
@@ -82,6 +84,7 @@ export function Apercu({ glisse, enfants, zoneSureForcee }: Props) {
   });
 
   const lecture = enLecture.value;
+  const paysage = gabaritProjet.value.paysage;
 
   function bas(e: PointerEvent) {
     if (!e.isPrimary) return;
@@ -112,6 +115,7 @@ export function Apercu({ glisse, enfants, zoneSureForcee }: Props) {
   return (
     <div
       class="apercu"
+      data-paysage={paysage ? '1' : '0'}
       data-lecture={lecture ? '1' : '0'}
       data-glisse={glisse ? '1' : '0'}
       style={glisse ? { cursor: 'grab' } : undefined}
@@ -121,7 +125,7 @@ export function Apercu({ glisse, enfants, zoneSureForcee }: Props) {
       onPointerCancel={haut}
       data-testid="apercu"
     >
-      <canvas ref={canvasRef} width={540} height={960} role="img" aria-label={T.apercu.canvas} />
+      <canvas ref={canvasRef} width={paysage ? 960 : 540} height={paysage ? 540 : 960} role="img" aria-label={T.apercu.canvas} />
       {(zoneSure.value || zoneSureForcee) && <ZoneSure />}
       {enfants}
       <button
@@ -139,10 +143,13 @@ export function Apercu({ glisse, enfants, zoneSureForcee }: Props) {
   );
 }
 
-/** Ce que l'interface de TikTok cache : haut 12,5 %, bas 34,375 %, côtés 11,1 %. */
+/** Ce que l'interface de la plateforme cache (TikTok : haut 12,5 %, bas 34,375 %, côtés 11,1 %). */
 export function ZoneSure() {
+  const z = gabaritProjet.value.zone;
+  const pc = (v: number) => `${(v * 100).toFixed(3)}%`;
+  const style = { '--zs-haut': pc(z.haut), '--zs-bas': pc(z.bas), '--zs-cote': pc(z.cote) } as Record<string, string>;
   return (
-    <div class="zone-sure" aria-hidden="true" data-testid="zone-sure">
+    <div class="zone-sure" aria-hidden="true" data-testid="zone-sure" style={style}>
       <div class="zs-haut" />
       <div class="zs-bas" />
       <div class="zs-gauche" />
@@ -157,7 +164,7 @@ export function InterrupteurZoneSure() {
     <label class="interrupteur">
       <span>
         <strong>{T.zoneSure.titre}</strong>
-        <span class="petit doux">{T.zoneSure.aide}</span>
+        <span class="petit doux">{textesPour(destinationProjet.value).zoneSureAide}</span>
       </span>
       <input
         type="checkbox"

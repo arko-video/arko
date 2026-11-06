@@ -121,6 +121,7 @@ test('(p4-e) Mes montages : 3 projets, ouvrir, renommer, dupliquer, supprimer ; 
   await importer(page, MIRE);
   await allerAEtape(page, 4);
   await page.getByTestId('outil-sons').click();
+  await page.getByTestId('famille-mes').click(); // « Importer un son » est sous « Importés » (Mes sons s'ouvre en premier)
   await page.getByTestId('importer-son-fichier').setInputFiles(BIP_WAV);
   await expect.poll(() => page.locator('[data-testid^="son-ajouter-a"]').count(), { timeout: 20_000 }).toBe(1);
   await teteA(page, 2);

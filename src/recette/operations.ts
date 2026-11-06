@@ -5,6 +5,7 @@
 
 import { compiler, dansArret, planAuTemps, sourceA } from './chronologie';
 import { FIGE, ySousTitres } from './defauts';
+import { gabaritDe } from './destination';
 import { normaliser } from './normaliser';
 import { arrondir, DUREE_MIN_PLAN, dureePlan } from './temps';
 import type { MiseEnPage, Plan, Recette, Sec } from './types';
@@ -15,6 +16,7 @@ export * from './operations-effets';
 export * from './operations-rythme';
 export { avertissementsZone } from './zone-sure';
 export { dureePlan } from './temps';
+export * from './operations-youtube';
 
 const EPS = 1e-6;
 const FIGE_MIN = FIGE.min;
@@ -175,8 +177,8 @@ export function choisirMise(recette: Recette, mise: MiseEnPage): Recette {
   if (JSON.stringify(mise) === JSON.stringify(recette.mise)) return recette;
   const r = finir({ ...recette, mise: { ...mise } as MiseEnPage });
   const st = recette.sousTitres;
-  if (st && st.y === arrondir(ySousTitres(recette.mise)) && r.sousTitres) {
-    return finir({ ...r, sousTitres: { ...r.sousTitres, y: arrondir(ySousTitres(r.mise)) } });
+  if (st && st.y === arrondir(ySousTitres(recette.mise, gabaritDe(recette))) && r.sousTitres) {
+    return finir({ ...r, sousTitres: { ...r.sousTitres, y: arrondir(ySousTitres(r.mise, gabaritDe(r))) } });
   }
   return r;
 }

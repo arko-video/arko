@@ -242,3 +242,21 @@ label.btn[data-occupe='1'] {
 .guide-choisir {
   width: 100%;
 }
+
+/* ---------- outil Couper de Habiller : plans côte à côte sur la mini-frise */
+.calque[data-genre='plan'] .calque-label {
+  background: var(--surface-2);
+  border: 1px solid var(--bord-fort);
+}
+.calque[data-genre='plan'][data-choisi='1'] .calque-label {
+  background: var(--accent);
+  color: var(--accent-texte);
+  outline: none;
+}
+.coupe-etat {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 0 0 8px;
+}

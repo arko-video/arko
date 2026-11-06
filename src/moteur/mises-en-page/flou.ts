@@ -33,37 +33,38 @@ export function placementFond(srcL: number, srcH: number, l = FLOU_L, h = FLOU_H
   return { x: (l - srcL * e) / 2, y: (h - srcH * e) / 2, l: srcL * e, h: srcH * e };
 }
 
-/** Petit canevas de travail du fond flou (un par rendu). */
+/** Petit canevas de travail du fond flou (un par rendu) : 90 × 160, ou 160 × 90 pour une vidéo 16:9. */
 export class FondFlou {
   // Créé au premier dessin seulement (le rendu peut ainsi être construit dans Node, pour les tests du son).
-  private petit: { canevas: Canevas; ctx: Ctx2D; filtreDispo: boolean } | null = null;
+  private petit: { canevas: Canevas; ctx: Ctx2D; filtreDispo: boolean; l: number; h: number } | null = null;
 
   get canevas(): Canevas {
-    return this.preparer().canevas;
+    return this.preparer(false).canevas;
   }
 
-  private preparer() {
-    if (!this.petit) {
-      const canevas = creerCanevas(FLOU_L, FLOU_H);
+  private preparer(paysage: boolean) {
+    const [l, h] = paysage ? [FLOU_H, FLOU_L] : [FLOU_L, FLOU_H];
+    if (!this.petit || this.petit.l !== l) {
+      const canevas = creerCanevas(l, h);
       const ctx = contexte2D(canevas);
-      this.petit = { canevas, ctx, filtreDispo: typeof ctx.filter === 'string' };
+      this.petit = { canevas, ctx, filtreDispo: typeof ctx.filter === 'string', l, h };
     }
     return this.petit;
   }
 
   /** Dessine le fond flou de `img` sur toute la destination. */
   dessiner(ctx: Ctx2D, img: ImageSource, env: Env) {
-    const { ctx: f, filtreDispo } = this.preparer();
-    const r = placementFond(img.largeur, img.hauteur);
+    const { ctx: f, filtreDispo, l, h, canevas } = this.preparer(env.l > env.h);
+    const r = placementFond(img.largeur, img.hauteur, l, h);
     f.filter = 'none';
     f.fillStyle = '#000';
-    f.fillRect(0, 0, FLOU_L, FLOU_H);
+    f.fillRect(0, 0, l, h);
     if (filtreDispo) f.filter = `blur(${RAYON_FLOU}px)`;
     img.dessiner(f, 0, 0, img.largeur, img.hauteur, r.x, r.y, r.l, r.h);
     f.filter = 'none';
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(this.canevas, 0, 0, env.l, env.h);
+    ctx.drawImage(canevas, 0, 0, env.l, env.h);
     ctx.fillStyle = `rgba(0, 0, 0, ${ASSOMBRISSEMENT})`;
     ctx.fillRect(0, 0, env.l, env.h);
   }

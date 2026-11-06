@@ -1,5 +1,0 @@
-```json
-{"recettes":[
-{"titre":"Il m'a one-shot","raison":"Le cri puis le fou rire font une chute parfaite.","plans":[{"de":842.3,"a":862,"m":"m01"}],"textes":[{"txt":"IL M'A ONE-SHOT ??","role":"accroche","t":0,"dur":2.5}],"sons":[{"id":"impact.boom","ts":857.1}],"sousTitres":{"mots":"auto"}},
-{"titre":"Silence puis panique","raison":"Le calme, puis le cri : contraste immédiat.","plans":[{"de":1198,"a":1216.5,"m":"m02"}],"textes":[{"txt":"Le calme avant… {la tempête}","role":"accroche","t":0}],"sons":[{"id":"tension.coeur","ts":1200}],"sousTitres":{"mots":"auto"}},
-{"titre":"Le clutch final","raison":"1 contre 3 en fin de partie","plans":[{"de":2405.5,"a":2418,"m":"m03"},{"de":2422,"a

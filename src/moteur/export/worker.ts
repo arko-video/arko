@@ -2,11 +2,12 @@
 // lance la boucle d'export et renvoie le fichier MP4 (écrit dans l'OPFS) à la page.
 
 /// <reference lib="webworker" />
-import { canEncodeAudio } from 'mediabunny';
+import { canEncodeAudio, Quality } from 'mediabunny';
 import { ErreurArko } from '../erreurs';
 import { fermerMedia, ouvrirMedia, type MediaOuvert } from '../media';
 import { policesPretes } from '../polices';
-import { annonceOk, CASCADE, choisirEncodage, type EssaiEncodage } from './cascade';
+import { gabaritDe } from '../../recette/destination';
+import { annonceOk, cascadePour, choisirEncodage, essaiPermis, type EssaiEncodage } from './cascade';
 import { erreurEncodeur, erreurReserve, exporterUneFois } from './exporter';
 import type { DemandeExport, DepuisWorker, VersWorker } from './messages';
 
@@ -54,12 +55,32 @@ async function preparerAac() {
   registerAacEncoder();
 }
 
-async function choisir(rangConnu: number | null, seul720: boolean): Promise<EssaiEncodage> {
-  if (rangConnu !== null) {
-    const connu = CASCADE[rangConnu];
-    if (connu && (!seul720 || connu.qualite === '720p') && (await annonceOk(connu))) return connu;
+/**
+ * Débit du son. YouTube conseille 384 kb/s en AAC-LC stéréo (https://support.google.com/youtube/answer/1722171) :
+ * en 16:9 on prend le plus haut que l'encodeur de l'appareil accepte (384, puis 320, 256, 192 kb/s).
+ * TikTok et Short : 128 kb/s, comme avant.
+ */
+export const DEBITS_AUDIO_YOUTUBE = [384_000, 320_000, 256_000, 192_000] as const;
+async function debitAudio(paysage: boolean): Promise<number> {
+  if (!paysage) return 128_000;
+  for (const d of DEBITS_AUDIO_YOUTUBE) {
+    try {
+      if (await canEncodeAudio('aac', { numberOfChannels: 2, sampleRate: 48000, quality: new Quality({ bitrate: d }) })) return d;
+    } catch {
+      /* débit refusé : on essaie le suivant */
+    }
   }
-  const e = await choisirEncodage(0, seul720);
+  return 128_000;
+}
+
+async function choisir(rangConnu: number | null, seul720: boolean, cascade: readonly EssaiEncodage[], haute: boolean): Promise<EssaiEncodage> {
+  if (rangConnu !== null) {
+    const connu = cascade[rangConnu];
+    // Qualité haute demandée : on retente le 1440p même si l'appareil s'était arrêté au 1080p.
+    const garder = connu && essaiPermis(connu, seul720, haute) && (!haute || connu.qualite === '1440p');
+    if (connu && garder && (await annonceOk(connu))) return connu;
+  }
+  const e = await choisirEncodage(0, seul720, cascade, haute);
   if (!e) {
     throw new ErreurArko(
       'Ton téléphone n\'arrive pas à encoder la vidéo (H.264 indisponible). Mets Chrome à jour, redémarre le téléphone puis réessaie.',
@@ -90,7 +111,12 @@ async function exporter(d: DemandeExport) {
     }
     await Promise.all([preparerAac(), policesPretes()]); // polices prêtes avant la 1re image
     const seul720 = d.recette.export.h === 1280;
-    let essai = await choisir(d.rangConnu, seul720);
+    // YouTube 16:9 : cascade 16:9 ; « qualité haute » = 1440p si l'appareil sait l'encoder.
+    const paysage = gabaritDe(d.recette).paysage;
+    const cascade = cascadePour(paysage);
+    const haute = paysage && d.recette.export.qualite === 'haute';
+    let essai = await choisir(d.rangConnu, seul720, cascade, haute);
+    const debit = await debitAudio(paysage);
     envoyer({ type: 'encodage', rang: essai.rang });
 
     let fastStart: 'reserve' | false = 'reserve';
@@ -101,6 +127,7 @@ async function exporter(d: DemandeExport) {
           recette: d.recette,
           medias,
           essai,
+          debitAudio: debit,
           nom: d.nom,
           fastStart,
           annule: () => annule,
@@ -119,7 +146,7 @@ async function exporter(d: DemandeExport) {
         if (encoreUnEssai && erreurEncodeur(e)) {
           // Échec d'un vrai export → une fois l'essai suivant de la cascade.
           encoreUnEssai = false;
-          const suivant = await choisirEncodage(essai.rang + 1, seul720);
+          const suivant = await choisirEncodage(essai.rang + 1, seul720, cascade, haute);
           if (suivant) {
             essai = suivant;
             envoyer({ type: 'encodage', rang: essai.rang });

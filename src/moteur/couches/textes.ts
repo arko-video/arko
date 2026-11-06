@@ -1,19 +1,19 @@
 // Calque des textes (phase 2) : 5 styles, retour à la ligne, réduction automatique, entrée animée, fondu de sortie.
-// La mise en page est calculée en px de RÉFÉRENCE (1080 × 1920), puis dessinée avec ctx.scale(env.echelle) :
-// les retours à la ligne sont les mêmes dans l'aperçu et dans l'export.
+// La mise en page est calculée en px de RÉFÉRENCE (1080 × 1920 en vertical, 1920 × 1080 en YouTube 16:9 : c'est
+// le gabarit de la destination), puis dessinée avec ctx.scale(env.echelle) : les retours à la ligne sont les mêmes
+// dans l'aperçu et dans l'export.
 // boitesTextes() (pour toucher un texte dans l'interface) utilise EXACTEMENT la même mise en page que le dessin.
 
-import { ZONE_SURE } from '../../recette/defauts';
+import { gabaritDe, TIKTOK, type Gabarit } from '../../recette/destination';
 import type { Recette } from '../../recette/types';
 import type { BoiteTexte } from '../api';
 import type { Ctx2D, Env } from '../canevas';
 import { textesActifs, type TexteActif } from '../etat-image';
-import { couperEnLignes, memo, mesurer, rectArrondi, REF_H, REF_L, retirerEmojis, sortieDouce } from './mesure';
+import { couperEnLignes, memo, mesurer, rectArrondi, retirerEmojis, sortieDouce } from './mesure';
 import { police, styleTexte, type StyleTexte } from './styles-texte';
 
-/** Largeur maximale d'un texte : 1080 − 2 × 120 px (zone sûre des côtés). */
-export const LARGEUR_MAX = 840;
-const MARGE_COTE = (REF_L - LARGEUR_MAX) / 2;
+/** Largeur maximale d'un texte en TikTok : 1080 − 2 × 120 px (zone sûre des côtés). Les autres : gabarit. */
+export const LARGEUR_MAX = TIKTOK.largeurTexte;
 export const LIGNES_MAX = 3;
 /** Réduction à chaque essai, et taille minimale (× la taille du style). */
 const REDUCTION = 0.92;
@@ -41,16 +41,16 @@ export function contientEmoji(txt: string): boolean {
 }
 
 /** Met un texte en page (null s'il ne reste rien à dessiner, par exemple un texte fait seulement d'émojis). */
-export function mettreEnPageTexte(txt: string, styleId?: string): TexteMisEnPage | null {
-  return memo(`texte|${styleId ?? ''}|${txt}`, () => calculer(txt, styleTexte(styleId)));
+export function mettreEnPageTexte(txt: string, styleId?: string, gab: Gabarit = TIKTOK): TexteMisEnPage | null {
+  return memo(`texte|${gab.largeurTexte}|${styleId ?? ''}|${txt}`, () => calculer(txt, styleTexte(styleId), gab.largeurTexte));
 }
 
-function calculer(txt: string, st: StyleTexte): TexteMisEnPage | null {
+function calculer(txt: string, st: StyleTexte, largeurTexte: number): TexteMisEnPage | null {
   const propre = retirerEmojis(txt);
   if (!propre) return null;
   const [mx, my] = st.fond?.marge ?? [0, 0];
   const bord = st.contour?.epaisseur ?? 0;
-  const largeurMax = LARGEUR_MAX - 2 * (mx + bord);
+  const largeurMax = largeurTexte - 2 * (mx + bord);
   for (let taille = st.taille; ; taille *= REDUCTION) {
     const p = police(st.poids, taille, st.famille);
     const largeur = (s: string) => mesurer(s, p);
@@ -64,17 +64,22 @@ function calculer(txt: string, st: StyleTexte): TexteMisEnPage | null {
   }
 }
 
-/** Zone sûre de TikTok en px de référence : un texte entier doit y rester. */
-const ZONE = { haut: ZONE_SURE.haut * REF_H, bas: (1 - ZONE_SURE.bas) * REF_H };
-
 /**
  * Centre de la boîte (px de référence) : x, y de la recette, ramené pour que la boîte ENTIÈRE reste dans
- * la zone sûre (côtés à 120 px, haut ≥ 12,5 %, bas ≤ 65,6 %). `deplace` = 'remonte' ou 'descendu' si y a été changé.
+ * la zone sûre du gabarit (TikTok : côtés à 120 px, haut ≥ 12,5 %, bas ≤ 65,6 %).
+ * `deplace` = 'remonte' ou 'descendu' si y a été changé.
  */
-export function centreTexte(mp: TexteMisEnPage, x = 0.5, y = 0.2): { cx: number; cy: number; deplace: 'remonte' | 'descendu' | null } {
+export function centreTexte(
+  mp: TexteMisEnPage,
+  x = 0.5,
+  y = 0.2,
+  gab: Gabarit = TIKTOK,
+): { cx: number; cy: number; deplace: 'remonte' | 'descendu' | null } {
+  const ZONE = { haut: gab.zone.haut * gab.h, bas: (1 - gab.zone.bas) * gab.h };
+  const marge = (gab.l - gab.largeurTexte) / 2;
   const demi = mp.l / 2;
-  const cx = demi <= LARGEUR_MAX / 2 ? Math.min(Math.max(x * REF_L, MARGE_COTE + demi), REF_L - MARGE_COTE - demi) : REF_L / 2;
-  const voulu = y * REF_H;
+  const cx = demi <= gab.largeurTexte / 2 ? Math.min(Math.max(x * gab.l, marge + demi), gab.l - marge - demi) : gab.l / 2;
+  const voulu = y * gab.h;
   // Boîte plus haute que la zone (cas extrême) : centrée dans la zone.
   const cy = mp.h >= ZONE.bas - ZONE.haut ? (ZONE.haut + ZONE.bas) / 2 : Math.min(Math.max(voulu, ZONE.haut + mp.h / 2), ZONE.bas - mp.h / 2);
   const deplace = cy < voulu - 0.5 ? 'remonte' : cy > voulu + 0.5 ? 'descendu' : null;
@@ -113,16 +118,16 @@ export function animationTexte(ta: TexteActif, st: StyleTexte): AnimationTexte {
 }
 
 /** Dessine les textes visibles (le dernier de la liste par-dessus). */
-export function dessinerTextes(ctx: Ctx2D, textes: TexteActif[], env: Env): void {
+export function dessinerTextes(ctx: Ctx2D, textes: TexteActif[], env: Env, gab: Gabarit = TIKTOK): void {
   for (const ta of textes) {
     const st = styleTexte(ta.texte.style);
-    const mp = mettreEnPageTexte(ta.texte.txt, ta.texte.style);
+    const mp = mettreEnPageTexte(ta.texte.txt, ta.texte.style, gab);
     if (!mp) continue;
     const anim = animationTexte(ta, st);
     if (anim.opacite <= 0) continue;
-    const { cx, cy } = centreTexte(mp, ta.texte.x, ta.texte.y);
+    const { cx, cy } = centreTexte(mp, ta.texte.x, ta.texte.y, gab);
     ctx.save();
-    ctx.translate((cx * env.l) / REF_L, (cy * env.h) / REF_H);
+    ctx.translate((cx * env.l) / gab.l, (cy * env.h) / gab.h);
     ctx.scale(env.echelle, env.echelle);
     ctx.translate(anim.dx, anim.dy);
     if (anim.rotation) ctx.rotate((anim.rotation * Math.PI) / 180);
@@ -167,11 +172,12 @@ function dessinerBloc(ctx: Ctx2D, mp: TexteMisEnPage, st: StyleTexte, echelle: n
 /** CONTRAT (phase 2) : boîtes des textes visibles au temps de sortie t (coordonnées 0–1, sans animation). */
 export function boitesTextes(recette: Recette, t: number): BoiteTexte[] {
   const res: BoiteTexte[] = [];
+  const gab = gabaritDe(recette);
   for (const ta of textesActifs(recette, t)) {
-    const mp = mettreEnPageTexte(ta.texte.txt, ta.texte.style);
+    const mp = mettreEnPageTexte(ta.texte.txt, ta.texte.style, gab);
     if (!mp) continue;
-    const { cx, cy } = centreTexte(mp, ta.texte.x, ta.texte.y);
-    res.push({ i: ta.i, x: (cx - mp.l / 2) / REF_L, y: (cy - mp.h / 2) / REF_H, l: mp.l / REF_L, h: mp.h / REF_H });
+    const { cx, cy } = centreTexte(mp, ta.texte.x, ta.texte.y, gab);
+    res.push({ i: ta.i, x: (cx - mp.l / 2) / gab.l, y: (cy - mp.h / 2) / gab.h, l: mp.l / gab.l, h: mp.h / gab.h });
   }
   return res;
 }

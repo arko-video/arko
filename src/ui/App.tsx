@@ -11,6 +11,10 @@ import './styles/monteur.css';
 import './styles/revue.css';
 // Aide (phase 5).
 import './styles/aide.css';
+// Mes sons.
+import './styles/mes-sons.css';
+// YouTube (écran de départ, cadrage, chapitres, intro / outro, miniature).
+import './styles/youtube.css';
 import { useEffect } from 'preact/hooks';
 import { T } from '../textes-fr';
 import { Couper } from './ecrans/Couper';
@@ -23,6 +27,12 @@ import { Analyse } from './ecrans/monteur/Analyse';
 import { Demande } from './ecrans/monteur/Demande';
 import { Revue } from './ecrans/monteur/Revue';
 import { Vertical } from './ecrans/Vertical';
+import { Depart } from './ecrans/Depart';
+import { Miniature } from './ecrans/Miniature';
+import { choixOuvert, destinationChoisie } from './destination';
+import { miniatureOuverte } from './miniature';
+import { RecevoirSons } from './composants/RecevoirSons';
+import { verifierPartage } from './mes-sons';
 import { ecran, historique, majDisponible, toast, toastAction } from './etat';
 import { outilOuvert } from './habillage';
 import { ecranMonteur } from './monteur/etat-monteur';
@@ -30,12 +40,21 @@ import { suivrePics } from './rythme';
 
 export function App() {
   useEffect(() => suivrePics(), []);
+  // Arko ouvert par « Partager → Arko » : on propose de garder les sons reçus.
+  useEffect(() => void verifierPartage(), []);
   // Monteur IA (phase 6) et Aide : leurs écrans passent devant Importer.
   const m = ecranMonteur.value;
   const aide = !m && aideOuverte.value;
-  const e = m || aide ? 'sous-ecran' : historique.value ? ecran.value : 'importer';
+  const e0 = m || aide ? 'sous-ecran' : historique.value ? ecran.value : 'importer';
+  // Écran de départ (TikTok ou YouTube) : au tout premier lancement, ou quand on touche « Changer » à l'accueil.
+  const depart = e0 === 'importer' && (destinationChoisie.value === null || choixOuvert.value);
+  // Miniature (YouTube) : par-dessus l'étape Exporter.
+  const mini = e0 === 'exporter' && miniatureOuverte.value;
+  const e = depart ? 'depart' : mini ? 'miniature' : e0;
   return (
     <>
+      {e === 'depart' && <Depart />}
+      {e === 'miniature' && <Miniature />}
       {m === 'demande' && <Demande />}
       {m === 'analyse' && <Analyse />}
       {m === 'revue' && <Revue />}
@@ -73,6 +92,7 @@ export function App() {
         </div>
       )}
       <BandeauMaj />
+      <RecevoirSons />
     </>
   );
 }
