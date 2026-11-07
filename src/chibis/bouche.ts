@@ -58,11 +58,17 @@ function niveau(env: EnveloppeDb, t: Sec): number {
   return m;
 }
 
-/** Bits de bouche (base64) pour [de, a] d'après l'enveloppe ; ouverte si niveau > seuilDb. */
-export function bitsBouche(env: EnveloppeDb, de: Sec, a: Sec, seuilDb: number): string {
+/**
+ * Bits de bouche (base64) pour [de, a] d'après l'enveloppe ; ouverte si niveau > seuilDb (et, si `permise` est
+ * donnée, seulement là où elle dit oui : la v4 n'ouvre la bouche que là où le détecteur de voix entend parler).
+ */
+export function bitsBouche(env: EnveloppeDb, de: Sec, a: Sec, seuilDb: number, permise?: (t: Sec) => boolean): string {
   const n = Math.max(0, Math.ceil((a - de) / BOUCHE.pas - 1e-9));
   const bits = new Uint8Array(n);
-  for (let k = 0; k < n; k++) bits[k] = niveau(env, de + k * BOUCHE.pas) > seuilDb ? 1 : 0;
+  for (let k = 0; k < n; k++) {
+    const t = de + k * BOUCHE.pas;
+    bits[k] = niveau(env, t) > seuilDb && (!permise || permise(t)) ? 1 : 0;
+  }
   // Tenue minimale : une bouche qui s'ouvre reste ouverte 0,08 s (pas de clignement d'une seule image).
   const tenue = Math.round(BOUCHE.tenueMin / BOUCHE.pas);
   for (let k = 0; k < n; k++) {

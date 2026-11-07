@@ -62,6 +62,9 @@ export function normaliserMusique(brut: unknown, sourcesAudio: readonly string[]
   const res: PisteMusique = { morceaux: morceaux.sort((a, b) => a.t - b.t) };
   if (brut.vol !== undefined) res.vol = lireNombre(brut.vol, 'musique.vol', journal, { defaut: MUSIQUE.vol, min: MUSIQUE.volMin, max: MUSIQUE.volMax, nom: 'le volume de la musique' });
   if (brut.baisse !== undefined) res.baisse = brut.baisse !== false;
+  // v4 : seule valeur connue 'parole' ; toute autre valeur est retirée (le comportement d'avant reste).
+  if (brut.baisseSur === 'parole') res.baisseSur = 'parole';
+  else if (brut.baisseSur !== undefined && brut.baisseSur !== null) journal.ignore('musique.baisseSur', `La baisse « ${String(brut.baisseSur)} » est inconnue : ignorée.`);
   const fondu = (cle: 'fonduEntree' | 'fonduSortie', defaut: number) =>
     lireNombre(brut[cle], `musique.${cle}`, journal, { defaut, min: 0, max: MUSIQUE.fonduMax, nom: 'le fondu de la musique' });
   if (brut.fonduEntree !== undefined) res.fonduEntree = fondu('fonduEntree', MUSIQUE.fonduEntree);

@@ -47,8 +47,13 @@ export interface ReglagesExpress {
   transcrire: boolean;
   punchlines: boolean;
   bruitages: boolean;
-  /** Ids « Mes sons » des morceaux de musique (1 à 6), ou [] pour aucune musique. */
+  /** Ids « Mes sons » des morceaux de musique (1 à 6), ou [] pour aucune musique (quand `musiqueAuto` est faux). */
   musique: string[];
+  /**
+   * Musique automatique (défaut de la page : oui) : un morceau par groupe de séquences, choisi par Arko (Ma
+   * bibliothèque, sinon Kevin MacLeod, sinon une musique fabriquée), voir auto/son/musique-auto.ts. Absent = non.
+   */
+  musiqueAuto?: boolean;
   /** Enlever les bords de l'écran (capture OBS). */
   bords: boolean;
   zooms: ForceZoomsAuto | null;
@@ -79,8 +84,8 @@ export interface AnalyseExpress {
 
 /**
  * Ce que la page a préparé AVANT (tâches asynchrones) : sons de Mes sons copiés dans le projet comme sources audio,
- * bruitages choisis (proposerBruitages + choisirSon du dev 3), piste musique (ses morceaux sont RE-PLACÉS ici au
- * début des chapitres : seul l'ordre des `src` compte).
+ * bruitages choisis (proposerBruitages + choisirSon du dev 3), piste musique (morceaux choisis à la main : RE-PLACÉS
+ * ici au début des chapitres, seul l'ordre des `src` compte ; musique automatique : déjà placés, gardés tels quels).
  */
 export interface RessourcesExpress {
   sourcesAudio: Source[];
@@ -206,10 +211,13 @@ export function etapesMontage(
     r = finir({ ...r, chapitres });
     if (o.sections ?? reglages.sections) r = titresDeSection(r, { source: 'chapitres' });
   }
-  // 8. F — Musique (au début des chapitres) et volume final −14 LUFS / −1,5 dBTP.
+  // 8. F — Musique (au début des chapitres) et volume final −14 LUFS / −1,5 dBTP. Musique automatique (un morceau par
+  //    groupe de séquences, après l'accroche : auto/son/musique-auto.ts) : ses morceaux arrivent DÉJÀ placés (un
+  //    début > 0) et sont gardés tels quels ; les morceaux choisis à la main (tous à 0) sont placés ici.
   const srcs = ressources.musique?.morceaux.map((m) => m.src) ?? [];
   if (srcs.length > 0 && ressources.musique) {
-    const morceauxMusique = placerMorceaux(srcs, (r.chapitres ?? []).map((c) => c.t), compiler(r).duree);
+    const places = ressources.musique.morceaux.some((m) => m.t > 0 || m.fin !== undefined);
+    const morceauxMusique = places ? ressources.musique.morceaux.map((m) => ({ ...m })) : placerMorceaux(srcs, (r.chapitres ?? []).map((c) => c.t), compiler(r).duree);
     r = definirMusique(r, { ...ressources.musique, morceaux: morceauxMusique }, ressources.sourcesAudio);
   }
   return choisirVolumeFinal(r, { lufs: VOLUME_FINAL.lufs, crete: VOLUME_FINAL.crete });

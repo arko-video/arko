@@ -6,17 +6,19 @@ import { signal } from '@preact/signals';
 import { BRUITAGES, dureeBruitage, proposerBruitages, type PropositionBruitage } from '../../../auto/son/bruitages';
 import { choisirSon, type ChoixSon } from '../../../auto/son/choix-son';
 import { DECLENCHEURS_DEFAUT, lireDeclencheurs, type Declencheur } from '../../../auto/son/declencheurs';
+import { fichierPropose, kevinGardes } from '../../../auto/son/musiques-arko';
 import { lireSignauxSource } from '../../../auto/signaux-source';
 import type { SignauxSource } from '../../../auto/types';
 import { catalogueSons, ErreurArko, estBruitage, importerSon, lireMonSon, type MonSon, type SourceOuverte } from '../../../moteur/api';
 import { MUSIQUE, VOLUME_FINAL } from '../../../recette/normaliser-auto-son';
-import { choisirVolumeFinal, definirMusique, poserBruitages, retirerBruitagesAuto, type BruitagePose } from '../../../recette/operations-son-auto';
+import { choisirVolumeFinal, definirMusique, poserBruitages, remplacerMorceauMusique, retirerBruitagesAuto, type BruitagePose } from '../../../recette/operations-son-auto';
 import type { MorceauMusique, PisteMusique, Recette, Source } from '../../../recette/types';
 import { TA } from '../../../textes-auto';
 import { afficherToast, ajouterSourceOuverte, idsPris, modifier, quandProjetQuitte, recette, recetteTemporaire, sources, teteLecture } from '../../etat';
 import { lireExtrait } from '../../lecture';
 import { compiler, sortiesDe } from '../../../recette/chronologie';
 import { chargerMesSons, mesSons } from '../../mes-sons';
+import { ecouterFichier } from '../../ecoute-sons';
 import { garderFichier } from '../../sons-gardes';
 
 export const CLE_DECLENCHEURS = 'arko.declencheurs';
@@ -197,18 +199,52 @@ function changerPiste(partiel: Partial<PisteMusique>, morceaux = morceauxActuels
   modifier((r) => ensuite(definirMusique(r, morceaux.length > 0 ? { ...piste, ...partiel, morceaux } : null, nouvelles)));
 }
 
-/** Ajoute un morceau (son de Mes sons ou fichier) : au début s'il n'y a pas de musique, sinon à la tête de lecture. */
-export async function ajouterMorceau(depuis: { monSon: MonSon } | { fichier: File }) {
+/**
+ * Morceaux posés à la main au plus (avant : 6). Une vidéo de 25 à 30 min en a ~8 en musique automatique ; la recette
+ * en accepte 20.
+ */
+export const MORCEAUX_MAX_PANNEAU = 12;
+
+/** Morceau à remplacer (indice) : les listes « Ajouter » deviennent « Remplacer » ; null = ajouter. */
+export const morceauARemplacer = signal<number | null>(null);
+/** Morceaux de Kevin MacLeod déjà gardés sur l'appareil (ids). */
+export const kevinSurAppareil = signal<ReadonlySet<string>>(new Set());
+
+/** D'où vient un morceau : Mes sons, un fichier, ou une musique proposée par Arko (« kevin:… », « arko:… »). */
+export type DepuisMorceau = { monSon: MonSon } | { fichier: File } | { propose: string };
+
+/** Relit quels morceaux de Kevin MacLeod sont sur l'appareil (onglet « Musiques d'Arko »). */
+export async function chargerMusiquesArko() {
+  kevinSurAppareil.value = await kevinGardes();
+}
+
+async function ouvrirMorceau(depuis: DepuisMorceau): Promise<SourceOuverte> {
+  if ('monSon' in depuis) return copierMonSon(depuis.monSon.id);
+  const f = 'fichier' in depuis ? depuis.fichier : await fichierPropose(depuis.propose);
+  if (!f) throw new ErreurArko(TA.son.bruitages.introuvable, 'introuvable');
+  const source = await importerSon(f, idsPris());
+  ajouterSourceOuverte(source);
+  garderFichier(source);
+  return source;
+}
+
+/**
+ * Ajoute un morceau : au début s'il n'y a pas de musique, sinon à la tête de lecture. En mode « Remplacer »
+ * (`morceauARemplacer`), le morceau choisi prend la place du morceau remplacé (même début, même fin). Un seul Annuler.
+ */
+export async function ajouterMorceau(depuis: DepuisMorceau) {
   const morceaux = morceauxActuels();
-  if (morceaux.length >= 6) return afficherToast(TA.son.musique.maxMorceaux);
+  const remplace = morceauARemplacer.peek();
+  if ((remplace === null || !morceaux[remplace]) && morceaux.length >= MORCEAUX_MAX_PANNEAU) return afficherToast(TA.son.musique.maxMorceaux);
   attenteSon.value = TA.son.musique.chargement;
   try {
-    let source: SourceOuverte;
-    if ('monSon' in depuis) source = await copierMonSon(depuis.monSon.id);
-    else {
-      source = await importerSon(depuis.fichier, idsPris());
-      ajouterSourceOuverte(source);
-      garderFichier(source);
+    const source = await ouvrirMorceau(depuis);
+    if ('propose' in depuis && depuis.propose.startsWith('kevin:')) void chargerMusiquesArko();
+    if (remplace !== null && morceaux[remplace]) {
+      // Même place ; le nouveau morceau se lit depuis son début. Un seul Annuler.
+      modifier((r) => remplacerMorceauMusique(r, remplace, source.infos));
+      morceauARemplacer.value = null;
+      return;
     }
     const t = morceaux.length === 0 ? 0 : Math.round(teteLecture.peek() * 100) / 100;
     const liste = [...morceaux.filter((m) => m.t !== t), { src: source.infos.id, t }].sort((a, b) => a.t - b.t);
@@ -222,6 +258,20 @@ export async function ajouterMorceau(depuis: { monSon: MonSon } | { fichier: Fil
   }
 }
 
+/** Écoute une musique proposée par Arko (télécharge le morceau de Kevin MacLeod s'il n'est pas encore là). */
+export async function ecouterPropose(id: string) {
+  attenteSon.value = TA.son.musique.chargement;
+  try {
+    const f = await fichierPropose(id);
+    if (f) await ecouterFichier(f, id);
+    if (id.startsWith('kevin:')) void chargerMusiquesArko();
+  } catch {
+    afficherToast(TA.son.musique.telechargementRate, 5000);
+  } finally {
+    attenteSon.value = null;
+  }
+}
+
 export function retirerMorceau(i: number) {
   changerPiste({}, morceauxActuels().filter((_, k) => k !== i));
 }
@@ -230,7 +280,7 @@ export function retirerMusique() {
   modifier((r) => definirMusique(r, null, []));
 }
 
-export function reglerMusique(partiel: { vol?: number; baisse?: boolean }) {
+export function reglerMusique(partiel: { vol?: number; baisse?: boolean; baisseSur?: 'parole' | undefined }) {
   changerPiste(partiel);
 }
 

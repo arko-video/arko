@@ -13,10 +13,39 @@ export interface TranscriptionGardee {
   version: number;
   duree: Sec;
   langue: string;
-  /** Plages déjà transcrites (triées, sans chevauchement). */
+  /**
+   * Plages déjà faites (triées, sans chevauchement). Best-of v4 (transcrireZones) : une tranche dont Whisper n'a écouté
+   * que la parole compte comme faite pour le Best-of, mais pas comme ÉCOUTÉE (voir `ecoutees`).
+   */
   plages: PlageTemps[];
+  /**
+   * Plages VRAIMENT écoutées par Whisper (intégrateur, relecture point 1) ; absent = `plages` (transcriptions d'avant
+   * la v4, toutes écoutées d'un bout à l'autre). transcrireLongue et les sous-titres ne se fient qu'à elles.
+   */
+  ecoutees?: PlageTemps[];
   /** Mots déjà transcrits (triés). */
   mots: Mot[];
+}
+
+/** Ce que Whisper a vraiment écouté (les transcriptions d'avant la v4 : tout ce qui est fait). */
+export function plagesEcoutees(g: Pick<TranscriptionGardee, 'plages' | 'ecoutees'>): PlageTemps[] {
+  return g.ecoutees ?? g.plages;
+}
+
+/** `de` privé de `moins` (morceaux de plus de 0,01 s). Pure. */
+export function soustrairePlages(de: readonly PlageTemps[], moins: readonly PlageTemps[]): PlageTemps[] {
+  const res: PlageTemps[] = [];
+  const m = unionPlages(moins);
+  for (const p of unionPlages(de)) {
+    let t = p.de;
+    for (const x of m) {
+      if (x.a <= t || x.de >= p.a) continue;
+      if (x.de - t > 0.01) res.push({ de: t, a: x.de });
+      t = Math.max(t, x.a);
+    }
+    if (p.a - t > 0.01) res.push({ de: t, a: p.a });
+  }
+  return res;
 }
 
 export function transcriptionVide(duree: Sec, langue: string): TranscriptionGardee {
@@ -27,7 +56,7 @@ export function transcriptionVide(duree: Sec, langue: string): TranscriptionGard
 export function gardeeUtilisable(g: unknown, duree: Sec, langue: string): g is TranscriptionGardee {
   if (!g || typeof g !== 'object') return false;
   const o = g as Partial<TranscriptionGardee>;
-  return o.version === VERSION_TRANSCRIPTION && typeof o.duree === 'number' && Math.abs(o.duree - duree) < 0.5 && o.langue === langue && Array.isArray(o.plages) && Array.isArray(o.mots);
+  return o.version === VERSION_TRANSCRIPTION && typeof o.duree === 'number' && Math.abs(o.duree - duree) < 0.5 && o.langue === langue && Array.isArray(o.plages) && Array.isArray(o.mots) && (o.ecoutees === undefined || Array.isArray(o.ecoutees));
 }
 
 /** Plages triées et fusionnées (celles qui se touchent à 0,05 s près n'en font qu'une). */
@@ -79,15 +108,20 @@ function dans(m: Mot, p: PlageTemps): boolean {
 /**
  * Ajoute une tranche finie : ses mots remplacent ceux qu'on avait déjà au même endroit (une tranche refaite ne
  * double jamais ses mots), et la tranche rejoint les plages faites. Pure : renvoie une nouvelle transcription.
+ * `o.faites` : ce qui compte comme fait (défaut : toute la tranche ; sans une fenêtre sautée, elle reste à refaire) ;
+ * `o.ecoutees` : ce que Whisper a vraiment écouté (défaut : `faites` ; Best-of : seulement les zones de parole).
  */
-export function ajouterTranche(g: TranscriptionGardee, tranche: PlageTemps, mots: readonly Mot[]): TranscriptionGardee {
+export function ajouterTranche(g: TranscriptionGardee, tranche: PlageTemps, mots: readonly Mot[], o: { faites?: readonly PlageTemps[]; ecoutees?: readonly PlageTemps[] } = {}): TranscriptionGardee {
   const gardes = g.mots.filter((m) => !dans(m, tranche));
   const nouveaux = mots.filter((m) => dans(m, tranche));
-  return {
-    ...g,
-    plages: unionPlages([...g.plages, tranche]),
-    mots: [...gardes, ...nouveaux].sort((a, b) => a[1] - b[1]),
-  };
+  const faites = o.faites ?? [tranche];
+  const plages = unionPlages([...g.plages, ...faites]);
+  const ecoutees = unionPlages([...plagesEcoutees(g), ...(o.ecoutees ?? faites)]);
+  const res: TranscriptionGardee = { ...g, plages, mots: [...gardes, ...nouveaux].sort((a, b) => a[1] - b[1]) };
+  // Tout ce qui est fait a été écouté : pas besoin du champ (les transcriptions restent comme avant la v4).
+  if (JSON.stringify(ecoutees) !== JSON.stringify(plages)) res.ecoutees = ecoutees;
+  else delete res.ecoutees;
+  return res;
 }
 
 /** Mots dont le milieu est dans la plage. */
@@ -106,7 +140,8 @@ export function plagesDans(faites: readonly PlageTemps[], voulue: PlageTemps): P
  * Mots déjà transcrits qui couvrent TOUTES les plages voulues (les sous-titres réutilisent la transcription de
  * « Couper les blancs » ou du Montage express : pas de 2ᵉ passage de Whisper) ; null s'il en manque une partie.
  */
-export function motsCouverts(g: Pick<TranscriptionGardee, 'plages' | 'mots'>, voulues: readonly PlageTemps[]): Mot[] | null {
-  if (voulues.length === 0 || voulues.some((v) => plagesManquantes(v, g.plages).length > 0)) return null;
+export function motsCouverts(g: Pick<TranscriptionGardee, 'plages' | 'mots' | 'ecoutees'>, voulues: readonly PlageTemps[]): Mot[] | null {
+  const ecoutees = plagesEcoutees(g);
+  if (voulues.length === 0 || voulues.some((v) => plagesManquantes(v, ecoutees).length > 0)) return null;
   return g.mots.filter((m) => voulues.some((v) => dans(m, v)));
 }

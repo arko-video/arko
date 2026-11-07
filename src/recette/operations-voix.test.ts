@@ -50,6 +50,24 @@ describe('definirQuiParle', () => {
   });
 });
 
+describe('definirQuiParle : option « completer » (Best-of v4)', () => {
+  it('sans l\'option : completerTours (v3) ; avec : la fonction donnée reçoit les tours, les niveaux et l\'enveloppe', () => {
+    const env = { pas: 0.02, duree: 60, db: new Float32Array(3000).fill(-30), bandes: new Float32Array(24000) };
+    const v3 = definirQuiParle(base(), d, { empreintes: [env] });
+    expect(v3.paroles!.every((t) => t.emo === 'parle' && typeof t.b === 'string')).toBe(true);
+    const vus: { n: number; niveaux: unknown; env: boolean }[] = [];
+    const r = definirQuiParle(base(), d, {
+      empreintes: [env],
+      completer: (tours, c) => {
+        vus.push({ n: tours.length, niveaux: c.niveaux, env: c.enveloppe?.(tours[0]!) === env });
+        return tours.map((t) => ({ ...t, emo: 'rit' as const }));
+      },
+    });
+    expect(vus).toEqual([{ n: 3, niveaux: { p1: -40, p2: -25 }, env: true }]);
+    expect(r.paroles!.map((t) => t.emo)).toEqual(['rit', 'rit', 'rit']);
+  });
+});
+
 describe('corriger qui parle', () => {
   const r = definirQuiParle(base(), d);
 

@@ -13,6 +13,17 @@ export const BAISSE = {
   detection: 0.01,
 };
 
+/**
+ * v4 (`musique.baisseSur: 'parole'`) : pendant la parole, la commande du compresseur vaut AU MOINS ce niveau (RMS
+ * linéaire, ≈ −24,4 dBFS) : 6 dB au-dessus du seuil × (1 − 1/6) ≈ 5 dB de baisse, même si la voix est faible (Romain
+ * arrive à −40 dBFS dans le mélange : seulement 10 % de ses trames dépassaient le seuil). Une voix plus forte compte
+ * telle quelle (elle baisse un peu plus la musique, comme avant).
+ */
+// 7/11 au soir (vérification indépendante) : 8 dB de baisse sur un montage où l'on parle presque tout le temps
+// laissait la musique à ≈ −25 dB d'un bout à l'autre (« pas de musique ») ; 5 dB la garde audible, comme le montage à
+// la main validé par Romain (où sa voix faible ne la baissait presque pas).
+export const NIVEAU_PAROLE = 0.06;
+
 /** État du compresseur entre deux blocs : énergie lissée de la voix et réduction en cours (dB). */
 export interface EtatBaisse {
   energie: number;
@@ -56,9 +67,10 @@ export function gainsBaisse(cle: Float32Array, frequence: number, etat: EtatBais
 
 /**
  * Voix du bloc, en mono : moyenne des 2 canaux des plans, gardée seulement pendant la parole (temps de sortie)
- * si on la connaît. Pure.
+ * si on la connaît. Avec `niveauParole` (v4) : pendant la parole, chaque échantillon vaut au moins ce niveau (la
+ * commande ne dépend plus de la force de la voix). Pure.
  */
-export function voixDuBloc(plans: Float32Array[], t0: number, frequence: number, parole?: readonly { t0: number; t1: number }[]): Float32Array {
+export function voixDuBloc(plans: Float32Array[], t0: number, frequence: number, parole?: readonly { t0: number; t1: number }[], niveauParole?: number): Float32Array {
   const n = plans[0]?.length ?? 0;
   const res = new Float32Array(n);
   const [g, d] = [plans[0]!, plans[1] ?? plans[0]!];
@@ -70,6 +82,9 @@ export function voixDuBloc(plans: Float32Array[], t0: number, frequence: number,
     const k1 = Math.min(n, Math.ceil((p.t1 - t0) * frequence));
     for (let k = k0; k < k1; k++) garde[k] = 1;
   }
-  for (let k = 0; k < n; k++) if (!garde[k]) res[k] = 0;
+  for (let k = 0; k < n; k++) {
+    if (!garde[k]) res[k] = 0;
+    else if (niveauParole !== undefined && Math.abs(res[k]!) < niveauParole) res[k] = niveauParole;
+  }
   return res;
 }

@@ -30,7 +30,9 @@ function enMinutes(s: Sec): string {
 
 /** Messages sur les longs passages sans son (fin d'enregistrement AFK) : jamais proposés. */
 export function avertissementsMuets(s: SignauxSource): string[] {
-  return s.muets.map((m) => (s.duree - m.a < 5 ? TA.express.afk(enMinutes(m.a - m.de)) : TA.express.afkMilieu(enMinutes(m.a - m.de))));
+  return s.muets.map((m) =>
+    m.sonIsole ? TA.express.afkIsole(enMinutes(m.a - m.de - m.sonIsole), enMinutes(m.sonIsole)) : s.duree - m.a < 5 ? TA.express.afk(enMinutes(m.a - m.de)) : TA.express.afkMilieu(enMinutes(m.a - m.de)),
+  );
 }
 
 /** Zones de voix (sans texte) vues comme des « mots » vides : les règles des scènes et des coupes marchent pareil. */

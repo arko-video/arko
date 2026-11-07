@@ -9,10 +9,17 @@ import { detecterCris, detecterPics, enDecibels, fondGlissant, lisser, PAS_ENVEL
 import type { SourceOuverte } from '../moteur/api';
 import { ErreurArko } from '../moteur/erreurs';
 import type { Sec } from '../recette/types';
-import type { OptionsTache, PlageSignal, PlageTemps, SignauxSource } from './types';
+import type { OptionsTache, PlageMuette, PlageSignal, PlageTemps, SignauxSource } from './types';
 
 /** Un passage plus long que ça sans aucun son (sous −60 dBFS) est « muet » (fin d'enregistrement AFK). */
 export const MUET = { dureeMin: 120, dbMax: -60 };
+
+/**
+ * Fin AFK avec des bruits isolés : après un passage muet, s'il reste moins de `ilotMax` s de son en tout (hors autres
+ * passages muets) ET moins que la durée de ce passage muet, ce reste n'est qu'une courte activité isolée (quelqu'un
+ * passe, une notification, le jeu resté ouvert) : la fin entière compte comme muette.
+ */
+export const FIN_AFK = { ilotMax: 300 };
 
 /** Plancher des niveaux (dBFS) : une case vide vaut ça. */
 const PLANCHER = -100;
@@ -39,8 +46,25 @@ export function passagesMuets(rms: Float32Array, pas: Sec): PlageTemps[] {
 }
 
 /**
+ * Passages muets avec la fin AFK (pure) : le premier passage muet après lequel il ne reste qu'une courte activité
+ * isolée (FIN_AFK) s'étend jusqu'à la fin de la source ; `sonIsole` dit combien de secondes de son il recouvre.
+ */
+export function avecFinAfk(muets: readonly PlageTemps[], duree: Sec): PlageMuette[] {
+  const m = [...muets].filter((x) => x.a > x.de).sort((x, y) => x.de - y.de);
+  for (let i = 0; i < m.length; i++) {
+    const pause = m[i]!.a - m[i]!.de;
+    let muetApres = 0;
+    for (let j = i + 1; j < m.length; j++) muetApres += Math.min(duree, m[j]!.a) - Math.max(m[j]!.de, m[i]!.a);
+    const actif = Math.max(0, duree - m[i]!.a - muetApres);
+    if (actif > 0 && actif < Math.min(FIN_AFK.ilotMax, pause)) return [...m.slice(0, i), { de: m[i]!.de, a: duree, sonIsole: actif }];
+    if (actif === 0) break;
+  }
+  return m;
+}
+
+/**
  * Signaux à partir d'une enveloppe déjà calculée (PURE, testable avec un signal fabriqué) :
- * pics (detecterPics), cris (detecterCris), rires (detecterRires), passages muets.
+ * pics (detecterPics), cris (detecterCris), rires (detecterRires), passages muets (avec la fin AFK, avecFinAfk).
  * Mêmes réglages que le monteur IA (ia/candidats.ts) : on retrouve les mêmes moments.
  */
 export function signauxDepuisEnveloppe(src: string, duree: Sec, pas: Sec, rms: Float32Array): SignauxSource {
@@ -54,7 +78,7 @@ export function signauxDepuisEnveloppe(src: string, duree: Sec, pas: Sec, rms: F
     pics: detecterPics(db, fond, pas).map((p) => ({ ts: p.t, db: p.db, z: p.z })),
     cris: detecterCris(db, rms, fond, pas).map(enPlageSignal),
     rires: detecterRires(rms, db, fond, pas).map(enPlageSignal),
-    muets: passagesMuets(rms, pas),
+    muets: avecFinAfk(passagesMuets(rms, pas), duree),
   };
 }
 

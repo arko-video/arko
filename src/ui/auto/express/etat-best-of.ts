@@ -11,7 +11,26 @@ export const PRETE_BEST_OF = true;
 
 export type StyleMontage = 'express' | 'bestOf';
 
-export const styleMontage = signal<StyleMontage>('express');
+/** Le style choisi la dernière fois est retenu sur l'appareil : la prochaine ouverture est en 2 touchers. */
+const CLE_STYLE = 'arko.express.style';
+
+function styleRetenu(): StyleMontage {
+  try {
+    return globalThis.localStorage?.getItem(CLE_STYLE) === 'bestOf' ? 'bestOf' : 'express';
+  } catch {
+    return 'express';
+  }
+}
+
+export function retenirStyle(st: StyleMontage) {
+  try {
+    globalThis.localStorage?.setItem(CLE_STYLE, st);
+  } catch {
+    // Pas de stockage (navigation privée) : le choix vaut pour cette session.
+  }
+}
+
+export const styleMontage = signal<StyleMontage>(styleRetenu());
 export const reglagesBestOf = signal<ReglagesBestOf>({ ...BEST_OF_DEFAUT });
 export const nomsVoix = signal<Record<string, string>>({});
 export const chibisVoix = signal<Record<string, { def: DefinitionChibi; bib?: string }>>({});

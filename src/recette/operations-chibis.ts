@@ -3,7 +3,7 @@
 // Annuler par geste). Contrat : contrat-wankil.md §5.
 
 import { normaliser } from './normaliser';
-import type { DefinitionChibi, Personne, PlaceAvatar, Recette, ReglagesAvatars, Sec, Situation, TourDeParole } from './types';
+import type { DefinitionChibi, Emotion, Personne, PlaceAvatar, Recette, ReglagesAvatars, Sec, Situation, TourDeParole } from './types';
 
 function finir(origine: Recette, r: Recette): Recette {
   const res = normaliser(r, { sources: r.sources }).recette;
@@ -90,4 +90,42 @@ export function situationDe(r: Recette, ts: Sec, fin: Sec, src?: string): Situat
     }
   }
   return mieux?.sit ?? 'aucune';
+}
+
+/**
+ * Émotion d'un passage (Best-of v4, menu « Émotion » sous chaque phrase de « Qui parle ? ») : donnée aux tours de
+ * parole qui chevauchent [ts, fin] (temps source, vidéo `src` ou la 1re). « parle » = l'émotion d'office (le champ est
+ * retiré : la situation de la phrase choisit alors la sienne, comme partout). Sans tour concerné, ou rien qui
+ * change : la recette d'origine. Une opération = un seul Annuler.
+ */
+export function emotionDuPassage(r: Recette, ts: Sec, fin: Sec, emo: Emotion, src?: string): Recette {
+  if (!(fin > ts)) return r;
+  const premiere = r.sources.find((s) => s.type === 'video')?.id;
+  const cible = src ?? premiere;
+  let touche = false;
+  const paroles = (r.paroles ?? []).map((t) => {
+    if ((t.src ?? premiere) !== cible || t.fin <= ts || t.ts >= fin) return t;
+    touche = true;
+    const n: TourDeParole = { ...t };
+    if (emo === 'parle') delete n.emo;
+    else n.emo = emo;
+    return n;
+  });
+  return touche ? finir(r, { ...r, paroles }) : r;
+}
+
+/** Émotion du tour qui couvre le plus [ts, fin] (« parle » sans tour ou sans émotion). */
+export function emotionDe(r: Recette, ts: Sec, fin: Sec, src?: string): Emotion {
+  const premiere = r.sources.find((s) => s.type === 'video')?.id;
+  let mieux: TourDeParole | null = null;
+  let recouvre = 0;
+  for (const t of r.paroles ?? []) {
+    if ((t.src ?? premiere) !== (src ?? premiere)) continue;
+    const c = Math.min(fin, t.fin) - Math.max(ts, t.ts);
+    if (c > recouvre) {
+      recouvre = c;
+      mieux = t;
+    }
+  }
+  return mieux?.emo ?? 'parle';
 }

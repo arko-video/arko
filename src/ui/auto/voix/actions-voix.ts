@@ -9,12 +9,13 @@ import type { VoixDetectees } from '../../../auto/types-v3';
 import { analyserQuiParle, type EmpreintesNommees } from '../../../auto/voix/mesures-voix';
 import { ErreurArko, type SourceOuverte } from '../../../moteur/api';
 import { donnerChibi } from '../../../recette/operations-chibis';
-import type { Situation } from '../../../chibis/catalogue';
+import type { Emotion, Situation } from '../../../chibis/catalogue';
 import { situationDuPassage } from '../../../recette/operations-chibis';
 import { definirQuiParle, personneSuivante, renommerPersonne, retirerQuiParle } from '../../../recette/operations-voix';
 import type { DefinitionChibi, Mot, Recette } from '../../../recette/types';
 import { TV } from '../../../textes-v3';
 import { afficherToast, modifier, recette, sources } from '../../etat';
+import { BRANCHEMENTS } from '../express/branchements-v4';
 import { arreterEcoute } from './ecoute';
 import { fermerQuiParle } from './etat-voix';
 import { garderVoix, relireVoix } from './memoire-voix';
@@ -158,6 +159,34 @@ export function choisirChibiVoix(p: string, def: DefinitionChibi, bib?: string) 
 /** Situation de jeu d'une phrase (menu à côté d'elle) : donnée au tour de parole qui la couvre. */
 export function changerSituation(ts: number, fin: number, sit: Situation) {
   changer((e) => ({ brouillon: situationDuPassage(e.brouillon, ts, fin, sit, e.detectees.src) }));
+}
+
+/** L'émotion montrée pendant une phrase : celle du tour de parole qui la couvre le plus (« parle » d'office). Lecture seule. */
+export function emotionDe(r: Recette, ts: number, fin: number, src?: string): Emotion {
+  const premiere = r.sources.find((s) => s.type === 'video')?.id;
+  let mieux: Emotion = 'parle';
+  let recouvre = 0;
+  for (const t of r.paroles ?? []) {
+    if ((t.src ?? premiere) !== (src ?? premiere)) continue;
+    const c = Math.min(fin, t.fin) - Math.max(ts, t.ts);
+    if (c > recouvre) {
+      recouvre = c;
+      mieux = t.emo ?? 'parle';
+    }
+  }
+  return mieux;
+}
+
+/** Le menu « Émotion » existe-t-il ? (opération emotionDuPassage de dev-persos branchée, branchements-v4.ts) */
+export function emotionModifiable(): boolean {
+  return BRANCHEMENTS.emotionDuPassage !== null;
+}
+
+/** Émotion d'une phrase (menu sous elle) : donnée au tour de parole qui la couvre, dans le brouillon (Valider = un Annuler). */
+export function changerEmotion(ts: number, fin: number, emo: Emotion) {
+  const op = BRANCHEMENTS.emotionDuPassage;
+  if (!op) return;
+  changer((e) => ({ brouillon: op(e.brouillon, ts, fin, emo, e.detectees.src) }));
 }
 
 /** Un toucher sur une phrase : elle passe à la personne suivante. */

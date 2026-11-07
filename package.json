@@ -14,7 +14,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "verif": "tsc --noEmit && vitest run",
-    "postinstall": "node scripts/copier-ort.mjs"
+    "postinstall": "node scripts/copier-ort.mjs",
+    "banc-reel": "node tests/banc-reel/lancer.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

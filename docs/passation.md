@@ -635,6 +635,85 @@ montage sans IA à placer correctement, selon qui parle, un perso qui correspond
   aucun perso sous 1,5 s de parole ; les anciens montages verticaux voient leurs avatars (sans place choisie) passer
   à la nouvelle place ; les retouches des situations (trophée, flammes, cuisse, micro, coffre) et les 6 persos.
 
+## Best-of v4 (7/11/2026, le soir)
+Demande de Romain (7/11, 12 h 04) : sur sa vraie session (Minecraft, 2 voix dans un seul mélange), le « Best-of serré »
+sans IA n'avait trouvé qu'une voix, pas de musique, des blancs et de mauvais cuts. Une équipe (diagnostic, références,
+bancs, 11 devs, intégrateur) l'a refait : `/home/claude/equipe/` (BRIEF, CONTRAT, rapports) côté VM. Toujours : gratuit,
+sur l'appareil, aucune dépendance npm ajoutée, recette `arko.recette/1` (un seul champ nouveau, facultatif :
+`musique.baisseSur: 'parole'`), une seule voie de rendu.
+
+### La chaîne (une fonction pure par étape, la même pour l'appli et le banc)
+`src/auto/express/chaine-best-of.ts` : réglages (`reglagesBestOfV4` : coupe **Normal** = la DA 0,25 / 0,35 / 0,5,
+musique automatique, Transcrire coché) → mesures sur l'appareil (`mesures-best-of.ts` : signaux, UNE passe du son =
+empreintes + détecteur de voix + hauteur, Whisper seulement sur la parole, empreinte CAM++ si elle est là) →
+`analyserChaine` : parole (`auto/vad/`, Silero VAD v5) → mots nettoyés (`auto/mots/`) → qui parle (`auto/voix/qui-parle-v4.ts`,
+niveau par morceau, p1 = la voix la plus forte, à gauche) → moments (`auto/moments/`, règles relatives à chaque voix,
+hauteur) → coupes (`auto/coupes/coupes-v4.ts`, jamais dans la parole) → séquences (`auto/derush/sequences.ts`,
+histoires réparties sur toute la session) → revue (durée annoncée = durée montée, accroche comprise) →
+`monterSansMusique` : habillage (`auto/habillage/*-v4.ts` : punchlines, zooms, accroche de ~6 s prise dans les
+séquences) → persos phrase par phrase (`auto/voix/persos-v4.ts`, `chibis/emotions-v4.ts`) → musique automatique
+(`auto/son/musique-auto.ts` : Ma bibliothèque → Kevin MacLeod → musique fabriquée) → `poserMusique` (baisse sur la
+parole, même la voix faible ; rien pendant l'accroche ; −14 LUFS). Un seul `modifier()` : un seul Annuler.
+Interface : `src/ui/auto/express/etat-v4.ts` (parcours testable sans navigateur), `best-of-v4.ts` (branchements),
+`CarteModules.tsx` (accord pour Whisper seulement). Une étape qui lève est remplacée par celle d'avant (journal).
+
+### Modèles
+- **Silero VAD v5** (2,2 Mo, MIT) : **rangé dans l'appli** (`public/modeles/`, décision de l'orchestrateur), jamais
+  proposé au téléchargement, lu et vérifié au 1er Best-of puis gardé (Cache Storage `arko-modeles`). Hors ligne avant
+  tout Best-of : repli « sans modèle » (énergie + rythme des syllabes) et bandeau « moins précis ».
+- **CAM++** (empreinte de voix, 28 Mo, Apache 2.0) : jamais d'office ; proposé sur la revue seulement quand Arko
+  n'entend qu'une voix ou hésite ; s'il est déjà sur l'appareil, il sert tout seul aux morceaux ambigus.
+- Ni les modèles ni les musiques ne sont pré-cachés par le service worker (`vite.config.ts`, testé).
+
+### Tout reste modifiable
+Revue : cocher / décocher, ↑ ↓, Écouter, « ± 1 phrase » (`ajusterSequence`), durée visée sans réanalyse, une ou deux
+personnes (sans réécouter), noms, persos, Sous-titres pour, empreinte. Habiller : Couper → **Rythme des coupes**
+Serré / Normal / Large (recoupe sans réécouter, mesures gardées dans IndexedDB `arko.mesures.<emp>`), **Séquences**
+(↑ ↓, Retirer → « Passages pas retenus », « + contexte » / « − un bout » : `recette/operations-sequences.ts`),
+Passages pas retenus → Ajouter (coupé comme le Best-of) ; Avatars → Qui parle ? → menu **Émotion** ; Sons → Musique
+(Remplacer, Musiques d'Arko, « Baisser même quand la voix est faible »). « Rythme des coupes » ne s'affiche que sur un
+montage fait par un Best-of ; « Séquences », que sur un montage à chapitres (YouTube 16:9) : un montage fait à la main
+ne les voit pas.
+
+### Ce qui change aussi hors du Best-of (voulu)
+- **Montage express (style « express »)** : la musique est mise d'office lui aussi (Ma bibliothèque → Kevin MacLeod →
+  musique fabriquée ; demande de Romain « musique mise d'office », décision de l'orchestrateur du 7/11). Avant : pas de
+  musique sans en cocher une. Cocher un morceau à la main coupe la musique automatique.
+- **Sous-titres de la voix faible** (« Sous-titres pour ») : chaque ligne reste 0,4 s après son dernier mot ; cela se
+  voit aussi sur les Best-of d'avant la v4 rouverts (aperçu et export).
+- **Transcriptions gardées** : le Best-of ne fait écouter que la parole à Whisper ; ce qu'il n'a pas écouté est noté
+  à part (`ecoutees`) et Couper les blancs, le Montage express et les sous-titres le retranscrivent. Une tranche qui
+  plante fait de nouveau échouer ces outils (avec un message ; ce qui est fini est gardé) ; dans le Best-of elle reste
+  « à refaire » et la revue le dit.
+
+### Mesures (banc réel, la vraie session de Romain, Best-of sans IA ; `tests/banc-reel/`, données privées hors dépôt)
+| | Avant (7/11 matin) mots / voix | Après (v4) mots / voix |
+|---|---|---|
+| Cibles atteintes | 4 / 19 · 6 / 19 (refait par le vérificateur : 3 / 19 · 6 / 19) | **15 / 19 · 13 / 19** (version livrée) |
+| Voix trouvées, phrases bien attribuées | 1 · 34,7 % / 2 (jeu + voix) · 44,4 % | **2 · 92,4 %** (Romain 2ᵉ voix, Guts 1ʳᵉ) |
+| Persos bon / mauvais | 57,7 / 35,6 % · 70,0 / 27,4 % | **91,9 / 9,2 % · 93,8 / 8,6 %** |
+| Blancs (temps mort, > 2 s) | 0,1 s/min · 13,5 s/min et 19 | **2,7 · 3,4 s/min, 0** |
+| Coupes en pleine parole (Silero) | 16,6 % · 1,0 % | **0,3 % · 0,2 %** (la main : 4,6 %) |
+| Musique | aucune | **100 % hors accroche, parole de Romain et de Guts baissée ≥ 6 dB : 100 %** |
+| Durée | 14 min 33 · 15 min 22 | 16 min 55 · 16 min 44 |
+| Séquences de la vérité · punchlines gardées | 5/19 · 13/53 / 6/19 · 9/53 | 8/19 · 20/53 / 5/19 · 17/53 (cible 16/19, 37/53 : **non atteinte**) |
+Sans Whisper : 13/19 ; sans le détecteur de voix (repli) : 12/19 (mots), 10/19 (voix). Ce qui manque (séquences,
+punchlines, sous-titres de Romain) vient du SENS des histoires et des mots que Whisper base rate sur la voix faible :
+aucun indice du son ne les retrouve (rapports dev-scenes, dev-habillage, dev-persos).
+**Après la vérification (7/11, tard)** — corrigé : plus aucune séquence après la fin AFK (avant : 2 gardées + 1 proposée à 2 h 46, dans les 2 modes ; `avecFinAfk` de `signaux-source.ts` : < 5 min de son après une pause plus longue = fin muette ; `vad/audible.ts` : parole d'une séquence et mots à moins de 15 dB sous celle de la session ; ≥ 3 mots pas « douteux » par séquence) ; titres et punchlines ne prennent plus de mot douteux (boucles, piles). Banc : 15/19 (mots) inchangé, 13/19 (voix) au lieu de 14 : « mauvais perso » 8,6 → 11,4 % car les 35 s libérées vont à un passage d'échanges rapides (le retard connu de ~0,5 s aux changements de tour).
+**Musique (problème 2 de la vérification)** : la baisse sur la parole passe de ≈ 8 dB à ≈ 5 dB (`NIVEAU_PAROLE` 0,09 → 0,06 dans `auto/son/baisse.ts`) : avec 8 dB, la musique restait à ≈ −25 dB tout le montage. À juger à l'écoute par Romain (les pauses courtes restent bouchées : `MARGE_PAROLE_V4.fusion` 0,6 s).
+**Sous-titres précis** (facultatif, Whisper small 226 Mo, accord demandé) : réécoute seulement la voix faible dans les passages gardés ; mots justes de Romain 28 % → 76 %, ses sous-titres recouverts 32 → 61 / 227 (banc) ; jamais essayé dans un vrai navigateur.
+**Pas corrigé** (manque de temps) : les sous-titres ne filtrent que les mots inaudibles (pas les répétitions « douteuses ») ; « sur 20 » au lieu de 19 dans le banc ; la course de l'e2e CAM++ ; le pré-cache (+1,5 Mo, pas +0,65) ; l'essai Chrome des « Sous-titres précis ». Dossier de l'équipe sur le PC de Romain : `C:\video arko\travail-claude\equipe\`.
+
+### À valider par Romain (contrat §8)
+Le détecteur de voix rangé dans l'appli (+2,2 Mo) ; l'empreinte proposée seulement si besoin ; coupe Normal d'office
+(nom « Best-of serré » gardé ?) ; la voix forte à gauche ; ≈ 1 histoire par minute ; sons forts gardés seulement
+s'ils sont suivis d'une réaction ; la musique baisse de ≈ 8 dB dès qu'on parle (et ne remonte presque pas entre deux
+phrases) ; ta voix remontée avant Whisper (non mis d'office : à essayer) ; durée de l'analyse sur le Xiaomi (estimée
+30 à 60 min pour 2 h, non mesurée) ; accroche sans texte ni musique ; rires trouvés par des règles (à juger à
+l'écoute) ; Silero v5 plutôt que v6.2. Correctif de bug d'avant : la fenêtre de Whisper qui faisait échouer
+l'analyse à 58 % (vers 1 h 57 de la session) passe maintenant ; une fenêtre qui plante encore est sautée et notée.
+
 ## Décisions prises cette nuit (à valider par Romain)
 - **Sous-titres sur fond flou** : placés juste sous la vidéo (y = 0,66). Un avertissement apparaît s'ils descendent dans la zone cachée par la description TikTok. À juger sur une vraie vidéo.
 - **Cadre webcam par défaut** : en bas à gauche, à ajuster une fois puis mémorisé.

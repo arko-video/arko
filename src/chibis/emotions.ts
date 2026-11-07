@@ -13,10 +13,11 @@ export const REGLES_EMOTION = {
   rireFort: 0.7, rireLong: 3, hurleDb: -6, juronDb: -16, picChoque: 6, calme: 1.5, ecartCalmeDb: 6, forteDb: -16,
 } as const;
 
-const SURPRIS = new Set(['quoi', 'hein', 'pardon', 'comment']);
-const FRIME = new Set(['gg', 'ez', 'easy', 'ggwp', 'izi']);
-const MOQUEUR = new Set(['nul', 'nulle', 'noob', 'mdr', 'lol', 'looser', 'loser', 'nullos']);
-const PANIQUE = new Set(['vite', 'aide', 'aidez', 'cours', 'courez', 'help', 'fuis', 'fuyez']);
+/** Mots clés des émotions (partagés avec la v4, emotions-v4.ts : mêmes listes). */
+export const SURPRIS: ReadonlySet<string> = new Set(['quoi', 'hein', 'pardon', 'comment']);
+export const FRIME: ReadonlySet<string> = new Set(['gg', 'ez', 'easy', 'ggwp', 'izi']);
+export const MOQUEUR: ReadonlySet<string> = new Set(['nul', 'nulle', 'noob', 'mdr', 'lol', 'looser', 'loser', 'nullos']);
+export const PANIQUE: ReadonlySet<string> = new Set(['vite', 'aide', 'aidez', 'cours', 'courez', 'help', 'fuis', 'fuyez']);
 
 const db = (rms: number) => (rms > 0 ? 20 * Math.log10(rms) : -120);
 

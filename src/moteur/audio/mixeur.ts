@@ -82,7 +82,7 @@ export function mixerBloc(e: EntreeMixage): Float32Array[] {
     appliquerFondus(sortie, m, e.scenario, e.t0, f, e.fondus ?? FONDUS_HABITUELS);
   });
   // La voix qui commande la baisse de la musique : le son des plans seuls (avant les effets).
-  const voix = e.musique?.baisse ? voixDuBloc(sortie, e.t0, f, e.musique.parole) : null;
+  const voix = e.musique?.baisse ? voixDuBloc(sortie, e.t0, f, e.musique.parole, e.musique.niveauParole) : null;
   for (const son of e.sons ?? []) ajouterSon(sortie, son, e.t0, f);
   if (e.avecGuide && e.guide) ajouterSon(sortie, e.guide, e.t0, f);
   if (e.musique && e.musique.sons.length > 0) ajouterMusique(sortie, e, voix, f);

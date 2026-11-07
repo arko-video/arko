@@ -66,7 +66,10 @@ export const TEXTES_EXPRESS = {
   tropLong: (max: string) => `Plus long que ${max}, la limite pour cette destination. Décoche des séquences.`,
   afk: (duree: string) => `La fin (${duree} sans son) n'est pas proposée.`,
   afkMilieu: (duree: string) => `Un passage de ${duree} sans son n'est pas proposé.`,
+  afkIsole: (duree: string, bruits: string) => `La fin (${duree} sans son, à part ${bruits} de bruits isolés) n'est pas proposée.`,
   sansMots: 'Voix détectée au son (sans transcription) : pas de punchlines ni de bruitages sur les mots.',
+  /** Best-of : une partie que Whisper n'a pas pu écrire (elle sera refaite à la prochaine analyse). */
+  partieManquante: (parties: string) => `Une partie n'a pas pu être écrite (${parties}) : refais l'analyse pour la finir.`,
   iaOk: (f: string) => `${f} a choisi les séquences.`,
   iaErreur: (m: string) => `L'IA n'a pas répondu (${m}). Les séquences viennent d'Arko, sans IA.`,
   iaIllisible: 'Réponse de l\'IA illisible : les séquences viennent d\'Arko, sans IA.',

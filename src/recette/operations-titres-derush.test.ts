@@ -99,6 +99,16 @@ describe('C : passages pas retenus', () => {
     expect((apres.sousTitres!.mots as Mot[]).map((m) => m[0])).toEqual(['salut', 'on', 'a', 'gagné', 'quoi']);
   });
 
+  it('Best-of v4 : des morceaux déjà coupés comme le Best-of sont pris tels quels (bornés au passage) ; [] = entier', () => {
+    const r = definirPassages(recette({ blancs: { niveau: 'normal', fonduEntree: 0.02, fonduSortie: 0.04 } }), passages);
+    const { recette: apres, i } = ajouterPassage(r, passages[0]!, { morceaux: [{ de: 212, a: 219.5 }, { de: 199, a: 204.25 }] });
+    expect(i).toBe(1);
+    expect(apres.plans.slice(1, 3).map((p) => [p.de, p.a])).toEqual([[200, 204.25], [212, 219.5]]);
+    expect(apres.derush?.passages).toHaveLength(1);
+    const entier = ajouterPassage(r, passages[0]!, { morceaux: [] }).recette;
+    expect(entier.plans.slice(1, 2).map((p) => [p.de, p.a])).toEqual([[200, 230]]);
+  });
+
   it('passage d\'une vidéo inconnue : sans effet', () => {
     const r = definirPassages(recette(), passages);
     expect(ajouterPassage(r, { ...passages[0]!, src: 'zz' })).toEqual({ recette: r, i: -1 });

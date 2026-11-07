@@ -29,6 +29,8 @@ export * from './operations-insertion'; // dev 2
 export * from './operations-pistes'; // dev 2
 export * from './operations-chibis'; // dev 3
 export * from './operations-best-of'; // intégrateur
+export * from './operations-sequences'; // intégrateur (Best-of v4 : séquences dans Habiller)
+export * from './operations-recoupe'; // intégrateur (Best-of v4 : rythme des coupes dans Habiller)
 
 const EPS = 1e-6;
 const FIGE_MIN = FIGE.min;

@@ -1,12 +1,14 @@
 // Best-of (intégrateur) : « Sous-titres pour : <personne> ». En mode punchlines, TOUTES les phrases d'une personne
 // (la voix qu'on entend mal, retour de Romain sur son vrai montage) sont aussi sous-titrées, en style « boîte », en bas :
 // 7 mots au plus, 0,7 à 2,8 s par ligne ; jamais en même temps qu'une punchline (elle a la priorité).
+// Une ligne reste 0,4 s après la fin de son dernier mot (comme la punchline de la DA, + 0,2 s ; demande de dev-persos :
+// + 11 sous-titres de Romain recouverts sur les plans de la vérité), sans dépasser 2,8 s ni toucher la suivante.
 // Pures : appelées par sous-titres-places.ts, donc par le scénario (un seul chemin : aperçu = export).
 
 import type { MotPlace, LignePlacee } from './sous-titres-places';
 import type { Mot, Sec, TourDeParole } from './types';
 
-export const SOUS_TITRES_VOIX = { style: 'boite', motsMax: 7, min: 0.7, max: 2.8, yPaysage: 0.88 } as const;
+export const SOUS_TITRES_VOIX = { style: 'boite', motsMax: 7, min: 0.7, max: 2.8, tenue: 0.4, yPaysage: 0.88 } as const;
 
 /** Personne d'un mot : celle dont les tours le recouvrent le plus (tours triés par début) ; null si aucun. */
 export function personneDuMotRapide(tours: readonly TourDeParole[], longueurMax: Sec, mot: Mot): string | null {
@@ -57,7 +59,7 @@ export function avecLignesVoix(
   const S = SOUS_TITRES_VOIX;
   const croise = (l: { t0: Sec; t1: Sec }) => punch.some((x) => l.t0 < x.t1 && x.t0 < l.t1);
   const voix = decouper(siens, S.motsMax, S.max)
-    .map((l) => ({ ...l, t1: Math.max(l.t1, l.t0 + S.min), style: S.style, y }))
+    .map((l) => ({ ...l, t1: Math.max(l.t0 + S.min, Math.min(l.t1 + S.tenue, Math.max(l.t1, l.t0 + S.max))), style: S.style, y }))
     .filter((l) => !croise({ t0: l.t0, t1: l.mots[l.mots.length - 1]!.t1 }));
   const toutes = [...punch, ...voix].sort((x, z) => x.t0 - z.t0);
   // Une ligne tenue (0,7 s au moins) s'arrête où la suivante commence.

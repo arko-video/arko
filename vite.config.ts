@@ -46,7 +46,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,ogg}'],
-        globIgnores: ['ort/**'],
+        // Jamais pré-cachés : le moteur ONNX (14 Mo, gardé au 1er usage ci-dessous), les modèles (le détecteur de voix,
+        // 2,2 Mo, est gardé VÉRIFIÉ par auto/modeles/modeles.ts dans « arko-modeles » : pas de 2ᵉ copie) et les musiques
+        // de Kevin MacLeod (13 Mo, gardées à la demande par auto/son/musiques-arko.ts dans « arko-musiques »).
+        globIgnores: ['ort/**', 'modeles/**', 'musiques/**'],
         // Réception des sons partagés vers Arko (Web Share Target).
         importScripts: ['partage-sw.js'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,

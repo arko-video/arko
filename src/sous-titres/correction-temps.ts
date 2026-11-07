@@ -22,6 +22,27 @@ interface ModeleWhisper {
   _extract_token_timestamps?: (...args: unknown[]) => { dims: number[]; data: Float32Array };
 }
 
+/** Ce qu'on utilise du découpeur de texte de Whisper (transformers.js 4.3.2). */
+interface TokeniseurWhisper {
+  decode?: (ids: unknown, options?: unknown) => string;
+}
+
+/**
+ * Correction d'un 2ᵉ bug de transformers.js 4.3.2 (dev-mots, 7/11/2026) : quand Whisper rend deux repères de temps
+ * à la suite SANS texte entre eux (un « segment vide », fréquent sur un son presque muet), `_decode_asr` appelle
+ * `decode([])`, qui lève « token_ids must be a non-empty array of integers. » : toute la fenêtre de 28 s plante, et
+ * avant ce correctif toute l'analyse avec elle (vraie session : fenêtre 7039–7067 s, à chaque essai). Un segment
+ * vide doit simplement donner un texte vide (c'est ce que fait la version Python). Installée une seule fois.
+ */
+export function reparerDecodageVide(asr: { tokenizer: unknown }): void {
+  const t = asr.tokenizer as TokeniseurWhisper | null | undefined;
+  const original = t?.decode;
+  if (!t || typeof original !== 'function' || (original as { arkoVide?: boolean }).arkoVide) return;
+  const repare = (ids: unknown, options?: unknown): string => (Array.isArray(ids) && ids.length === 0 ? '' : original.call(t, ids, options));
+  (repare as { arkoVide?: boolean }).arkoVide = true;
+  t.decode = repare;
+}
+
 /** Installe la correction sur le modèle du pipeline (une seule fois). */
 export function corrigerTempsWhisper(asr: { model: unknown }): void {
   const modele = asr.model as ModeleWhisper;

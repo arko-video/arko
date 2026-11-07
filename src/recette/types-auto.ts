@@ -94,6 +94,11 @@ export interface PisteMusique {
   vol?: number;
   /** Baisse automatique quand on parle (défaut oui). */
   baisse?: boolean;
+  /**
+   * v4 (facultatif) : 'parole' = la musique baisse pendant la PAROLE (tours de `paroles`, sinon les mots des sous-titres),
+   * d'≈ 8 dB même si la voix est faible ; absent = comme avant (la voix des plans au-delà du seuil de −30,5 dBFS).
+   */
+  baisseSur?: 'parole';
   /** Fondus d'entrée et de sortie de chaque morceau (défaut 1,2 s et 1,5 s). */
   fonduEntree?: Sec;
   fonduSortie?: Sec;

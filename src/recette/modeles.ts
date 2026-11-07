@@ -5,7 +5,7 @@ import { ancrage, compiler, sourceA } from './chronologie';
 import { SON } from './defauts';
 import { normaliser } from './normaliser';
 import { arrondir, dureePlan } from './temps';
-import type { Plan, Recette, Sec, Son, Texte } from './types';
+import type { Plan, Recette, Sec, Son, Texte, ZoomFixe } from './types';
 
 /** Durée des textes « #3 », « #2 », « #1 » et de l'accroche « TOP 3 ». */
 export const TOP3 = { dureeNumero: 1.2, dureeAccroche: 1.5, yNumero: 0.32, son: 'impact.boom', transition: 'zoom' };
@@ -49,6 +49,71 @@ function dureeSource(r: Recette, p: Plan): Sec {
   const id = p.src ?? r.sources.find((s) => s.type === 'video')?.id;
   const s = r.sources.find((x) => x.id === id);
   return s && s.duree > 0 ? s.duree : Infinity;
+}
+
+/** Une copie de l'accroche du Best-of v4 : un morceau de source (temps source). */
+export interface MorceauAccroche {
+  de: Sec;
+  a: Sec;
+  /** Source (défaut : celle du plan qui contient `de`, sinon la 1re vidéo). */
+  src?: string;
+  /** Zoom fixe de la copie (null ou absent = aucun). */
+  zoomFixe?: ZoomFixe | null;
+}
+
+/**
+ * Accroche du Best-of v4 : copie 1 ou 2 morceaux de la source (`plages`, temps source, dans l'ordre) au tout début,
+ * puis une transition glitch vers la suite (comme « Le meilleur d'abord » : le banc et la musique la trouvent par là).
+ * La séquence d'origine garde son passage. Les textes, sons, zooms et le son guide posés en TEMPS DE SORTIE sont
+ * décalés de la durée ajoutée ; ceux en temps source (sous-titres, punchlines) réapparaissent tout seuls dans la copie.
+ * `texte` : texte posé sur l'accroche (« ATTENDS… ») ; absent ou null = aucun texte (Best-of sans titres).
+ * `modeleMeilleurDAbord` ne change pas (Montage express, Habiller).
+ */
+export function accrocheDesMorceaux(recette: Recette, plages: readonly MorceauAccroche[], o: { texte?: string | null } = {}): Recette {
+  if (recette.plans.length === 0) return recette;
+  const premiere = recette.sources.find((s) => s.type === 'video')?.id;
+  const sc = compiler(recette);
+  const copies: Plan[] = [];
+  for (const x of plages) {
+    if (!(x.a > x.de) || !Number.isFinite(x.de) || !Number.isFinite(x.a)) continue;
+    // Le plan d'où vient le morceau : sa source, sa vitesse et sa mise en page passent à la copie.
+    const pp = sc.plans.find((p) => !p.ins && (x.src === undefined || p.src === x.src) && x.de >= p.de - 1e-6 && x.de < p.a);
+    const original = pp ? recette.plans[pp.i] : undefined;
+    const copie: Plan = { de: arrondir(Math.max(0, x.de)), a: arrondir(x.a) };
+    if (original?.src !== undefined) copie.src = original.src;
+    else if (x.src !== undefined && x.src !== premiere) copie.src = x.src;
+    const lim = dureeSource(recette, copie);
+    if (Number.isFinite(lim)) copie.a = arrondir(Math.min(copie.a, lim));
+    if (!(copie.a > copie.de)) continue;
+    if (original?.vit !== undefined && original.vit !== 1) copie.vit = original.vit;
+    if (original?.mise) copie.mise = { ...original.mise };
+    if (x.zoomFixe) copie.zoomFixe = { ...x.zoomFixe };
+    copies.push(copie);
+  }
+  if (copies.length === 0) return recette;
+  const d = arrondir(copies.reduce((t, p) => t + dureePlan(p), 0));
+  const [premier, ...reste] = recette.plans;
+  const plans: Plan[] = [...copies, { ...premier!, trans: MEILLEUR.transition }, ...reste];
+  const decaler = <T extends { t?: Sec; ts?: Sec }>(e: T): T =>
+    e.ts === undefined && e.t !== undefined ? { ...e, t: arrondir(e.t + d) } : e;
+  const textes: Texte[] = recette.textes.map((x) => ({ ...x, t: arrondir(x.t + d) }));
+  const texte = o.texte ?? null;
+  if (texte !== null && texte.trim()) {
+    const attends: Texte = { txt: texte, style: 'accroche', t: 0, dur: d };
+    if (!aUneAccroche(recette)) attends.role = 'accroche';
+    textes.unshift(attends);
+  }
+  const guide = recette.guide ? { ...recette.guide, t: arrondir((recette.guide.t ?? 0) + d) } : null;
+  const chapitres = recette.chapitres?.map((c, i) => (i === 0 && c.t <= 0.5 ? { ...c } : { ...c, t: arrondir(c.t + d) }));
+  return finir({
+    ...recette,
+    plans,
+    textes,
+    sons: recette.sons.map(decaler),
+    zooms: recette.zooms.map(decaler),
+    guide,
+    ...(chapitres ? { chapitres } : {}),
+  });
 }
 
 /**

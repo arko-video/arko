@@ -11,7 +11,8 @@ import { appliquerReponseExpress, consignesExpress, IA_EXPRESS, lireReponseExpre
 import { dureeGardee, type SceneProposee } from '../../../auto/express/scenes';
 import { ErreurArko, importerSon, lireMonSon, moduleSousTitres, nouveauProjet, recetteInitiale, trouverFournisseur, type IdFournisseur, type SourceOuverte } from '../../../moteur/api';
 import { compiler } from '../../../recette/chronologie';
-import { pistesGardees } from '../../../recette/operations';
+import { definirMusique, pistesGardees } from '../../../recette/operations';
+import type { Recette } from '../../../recette/types';
 import { gabarit, type Destination } from '../../../recette/destination';
 import { TA } from '../../../textes-auto';
 import { TV } from '../../../textes-v3';
@@ -26,18 +27,28 @@ import { reprendreA } from '../../navigation';
 import { garderFichier } from '../../sons-gardes';
 import { ouvrirOutil } from '../../habillage';
 import { ouvrirBruitages } from '../son/etat-son';
-import { enBestOf, preparerVoix, reglagesBestOf, ressourcesBestOf, styleMontage, type StyleMontage } from './etat-best-of';
+import { DUREES_BEST_OF } from '../../../auto/express/chaine-best-of';
+import { enBestOf, preparerVoix, reglagesBestOf, ressourcesBestOf, retenirStyle, styleMontage, type StyleMontage } from './etat-best-of';
+import { estV4, reglagesPourStyle } from './etat-v4';
+import { preparerMusiqueAuto } from './musique-express';
 import { avecVoix, choixVoix, voixApres } from './voix-express';
 import { allerExpress, fermerExpress, garde, remplacerExpress } from './navigation-express';
 
 export { ecranExpress } from './navigation-express';
 
-/** Durées visées proposées (s), selon la destination ; la 2ᵉ est choisie par défaut. */
-export const DUREES_EXPRESS: Record<Destination, { min: number; max: number }[]> = {
-  youtube: [{ min: 480, max: 720 }, { min: 900, max: 1200 }, { min: 1500, max: 1800 }],
-  tiktok: [{ min: 45, max: 60 }, { min: 60, max: 120 }, { min: 120, max: 180 }],
-  short: [{ min: 30, max: 45 }, { min: 45, max: 60 }, { min: 120, max: 180 }],
-};
+/** Durées visées proposées (s), selon la destination ; la 2ᵉ est choisie par défaut (les mêmes que la chaîne v4). */
+export const DUREES_EXPRESS: Readonly<Record<Destination, readonly { min: number; max: number }[]>> = DUREES_BEST_OF;
+
+/**
+ * Best-of v4 (dev-ui) : le parcours de best-of-v4.ts se branche ici (pas d'import : il lit les signals de ce
+ * fichier). `lancer` / `monter` / `annuler` remplacent ceux du Montage express quand le Best-of est choisi.
+ */
+export const routeBestOf: { lancer?: () => Promise<void>; monter?: () => Promise<unknown>; annuler?: () => void } = {};
+const surOuverture = new Set<() => void>();
+/** Appelé à chaque ouverture du Montage express (les refus de modules et les voix forcées sont oubliés). */
+export function quandOuvertureExpress(cb: () => void) {
+  surOuverture.add(cb);
+}
 
 export const sourceExpress = signal<SourceOuverte | null>(null);
 export const destinationExpress = signal<Destination>('youtube');
@@ -53,6 +64,8 @@ function reglagesParDefaut(d: Destination): ReglagesExpress {
     // Retour de Romain (6/11) : décoché d'office ; coché, rien n'est posé sans sa validation (revue après le montage).
     bruitages: false,
     musique: [],
+    // Musique de fond d'office (retour de Romain, 7/11) : un morceau par groupe de séquences, choisi par Arko.
+    musiqueAuto: true,
     bords: true,
     zooms: 'normal',
     sections: d === 'youtube',
@@ -68,15 +81,23 @@ export function reglerExpress(p: Partial<ReglagesExpress>) {
   reglagesExpress.value = { ...reglagesExpress.peek(), ...p };
 }
 
-/** Montage express ou Best-of serré (Best-of : coupe Serrée, jamais de bruitages, sans IA). */
+/** Pose les réglages d'un style (Best-of : ceux de la chaîne v4 EN ENTIER, coupe Normal = la DA, sans IA). */
+function poserReglagesStyle(st: StyleMontage, d: Destination) {
+  const { express, bestOf } = reglagesPourStyle(st, d, reglagesExpress.peek());
+  reglagesExpress.value = express;
+  if (bestOf) reglagesBestOf.value = { ...bestOf };
+}
+
+/** Montage express ou Best-of serré (retenu sur l'appareil). Best-of : ses réglages d'office à chaque choix. */
 export function choisirStyle(st: StyleMontage) {
   styleMontage.value = st;
-  reglerExpress(st === 'bestOf' ? { niveauBlancs: 'serre', bruitages: false, avecIA: false } : { niveauBlancs: 'normal' });
+  retenirStyle(st);
+  poserReglagesStyle(st, destinationExpress.peek());
 }
 
 export function choisirDestinationExpress(d: Destination) {
   destinationExpress.value = d;
-  reglerExpress({ dureeVisee: DUREES_EXPRESS[d][1]!, sections: d === 'youtube' });
+  reglerExpress({ dureeVisee: { ...DUREES_EXPRESS[d][1]! }, sections: enBestOf() ? false : d === 'youtube' });
 }
 
 export type EtatAnalyseExpress =
@@ -113,18 +134,28 @@ export async function ouvrirExpress(source: SourceOuverte) {
   sourceExpress.value = source;
   const d = destinationChoisie.peek() ?? 'youtube';
   destinationExpress.value = d;
-  reglagesExpress.value = { ...reglagesParDefaut(d), transcrire: module.present, musique: reglagesExpress.peek().musique };
+  const avant = reglagesExpress.peek();
+  // Best-of : ses réglages d'office à CHAQUE ouverture (fin du bug de la 2ᵉ ouverture) ; Transcrire reste coché même
+  // sans le module sous-titres : « Analyser » proposera de le télécharger (jamais de mode voix en silence).
+  if (enBestOf()) poserReglagesStyle('bestOf', d);
+  else reglagesExpress.value = { ...reglagesParDefaut(d), transcrire: module.present, musique: avant.musique, musiqueAuto: avant.musiqueAuto ?? true };
   fournisseurExpress.value = demande.peek().fournisseur;
+  for (const cb of surOuverture) cb();
   void chargerMesSons();
   allerExpress('reglages');
 }
 
-/** Coche / décoche un morceau de musique (6 au plus). */
+/** Coche / décoche un morceau de musique (6 au plus). Choisir ses morceaux arrête la musique automatique. */
 export function basculerMorceau(id: string) {
   const liste = reglagesExpress.peek().musique;
-  if (liste.includes(id)) return reglerExpress({ musique: liste.filter((x) => x !== id) });
+  if (liste.includes(id)) return reglerExpress({ musique: liste.filter((x) => x !== id), musiqueAuto: false });
   if (liste.length >= 6) return afficherToast(TA.express.musiqueMax);
-  reglerExpress({ musique: [...liste, id] });
+  reglerExpress({ musique: [...liste, id], musiqueAuto: false });
+}
+
+/** « Musique automatique » : cochée, Arko choisit (les morceaux cochés à la main sont oubliés) ; décochée sans morceau = pas de musique. */
+export function choisirMusiqueAuto(v: boolean) {
+  reglerExpress(v ? { musiqueAuto: true, musique: [] } : { musiqueAuto: false });
 }
 
 /** Demande à l'IA de choisir les séquences (texte seulement). Sans clé ou en cas d'erreur : le choix d'Arko reste. */
@@ -155,6 +186,7 @@ async function demanderIA(a: AnalyseExpress, signal: AbortSignal): Promise<{ sce
 export async function lancerExpress() {
   const source = sourceExpress.peek();
   if (!source) return;
+  if (enBestOf() && routeBestOf.lancer) return routeBestOf.lancer();
   controleur?.abort();
   const c = new AbortController();
   controleur = c;
@@ -199,6 +231,7 @@ export async function lancerExpress() {
 
 export function annulerExpress() {
   controleur?.abort();
+  routeBestOf.annuler?.();
 }
 
 export function basculerScene(i: number) {
@@ -249,6 +282,7 @@ export async function monterExpress() {
   const source = sourceExpress.peek();
   const a = analyseExpress.peek();
   const scenes = scenesExpress.peek();
+  if (estV4(a) && routeBestOf.monter) return void (await routeBestOf.monter());
   if (!source || !a || montageEnCours.peek() || !scenes.some((s) => s.garde)) return;
   montageEnCours.value = true;
   try {
@@ -259,10 +293,23 @@ export async function monterExpress() {
     const nom = source.infos.nom.replace(/\.[^.]+$/, '');
     demarrerProjet(source, { ...recetteInitiale(source, destinationExpress.peek()), titre: (bestOf ? TV.bestOf.titreProjet : TA.express.titreProjet)(nom) });
     idCourant.value = null;
-    const ressources = await preparerRessources(reg);
+    const construire = (r: Recette, res: RessourcesExpress) =>
+      bestOf ? construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(res)) : construireMontageExpress(r, a, scenes, reg, { ...res, ...choixVoix() });
     // Un nouveau montage, construit en UNE opération : un seul Annuler revient à la vidéo brute.
-    if (bestOf) modifier((r) => construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(ressources)));
-    else modifier((r) => construireMontageExpress(r, a, scenes, reg, { ...ressources, ...choixVoix() }));
+    if (reg.musiqueAuto === true) {
+      // Musique automatique : le montage est construit une fois SANS musique (pur), Arko y choisit un morceau par
+      // groupe de séquences et ouvre les fichiers (tâche lente), puis la piste est posée dans la même opération.
+      const r0 = recette.peek();
+      const sans = r0 ? construire(r0, { sourcesAudio: [], bruitages: [], musique: null }) : null;
+      const gardees = scenes.filter((x) => x.garde && x.a > x.de);
+      const auto = sans && sans !== r0 ? await preparerMusiqueAuto(sans, gardees, a).catch((e: unknown) => (console.error(e), null)) : null;
+      const sourcesMusique = auto?.sources.map((x) => x.infos) ?? [];
+      const avec = sans && auto ? definirMusique(sans, auto.piste, sourcesMusique) : sans;
+      modifier((r) => (r === r0 && avec ? avec : construire(r, { sourcesAudio: sourcesMusique, bruitages: [], musique: auto?.piste ?? null })));
+    } else {
+      const ressources = await preparerRessources(reg);
+      modifier((r) => construire(r, ressources));
+    }
     fermerExpress();
     choixVisible.value = false;
     if (sourceMonteur.peek() === source) sourceMonteur.value = null;

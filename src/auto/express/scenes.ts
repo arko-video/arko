@@ -137,10 +137,16 @@ export function raisonDe(st: Stats): string {
   return parts.length > 0 ? parts.slice(0, 3).join(' · ') : 'De la parole';
 }
 
-/** Titre : la meilleure punchline de la scène (« ON A GAGNÉ » → « On a gagné »), sinon « Partie n ». */
-export function titreDe(mots: readonly Mot[], s: SignauxSource | null, n: number): string {
+/**
+ * Titre : la meilleure punchline de la scène (« ON A GAGNÉ » → « On a gagné »), sinon « Partie n ». `douteux`
+ * (facultatif, aligné sur `mots`) : les mots que Whisper a sans doute inventés, jamais dans un titre.
+ */
+export function titreDe(mots: readonly Mot[], s: SignauxSource | null, n: number, douteux?: ArrayLike<number>): string {
+  const sansInvente = (x: { k0: number; k1: number }) => !douteux || !Array.from({ length: x.k1 - x.k0 }, (_, k) => douteux[x.k0 + k]).some(Boolean);
   // La punchline la plus longue (un « Non! » seul ne fait pas un titre), la première à égalité.
-  const p = trouverPunchlines(mots, s).reduce<ReturnType<typeof trouverPunchlines>[number] | undefined>((m, x) => (!m || x.k1 - x.k0 > m.k1 - m.k0 ? x : m), undefined);
+  const p = trouverPunchlines(mots, s)
+    .filter(sansInvente)
+    .reduce<ReturnType<typeof trouverPunchlines>[number] | undefined>((m, x) => (!m || x.k1 - x.k0 > m.k1 - m.k0 ? x : m), undefined);
   const texte = p ? mots.slice(p.k0, p.k1).map((m) => m[0]).join(' ').replace(/\s+([!?…,.])/g, '$1').trim() : '';
   if (!texte) return `Partie ${n}`;
   const bas = texte.toLowerCase();

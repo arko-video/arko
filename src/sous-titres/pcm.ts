@@ -69,6 +69,70 @@ export function niveau(pcm: Float32Array, t0: number, t1: number): number {
 }
 
 /**
+ * Gain donné à chaque zone de parole AVANT Whisper (v4, dev-mots) : la voix faible (Romain ≈ −40 dBFS) est remontée
+ * vers −20 dBFS, +24 dB au plus, jamais d'écrêtage, jamais baissée. Seul Whisper l'entend : le son du montage ne
+ * change pas.
+ */
+export const GAIN_WHISPER = { cibleDb: -20, maxDb: 24, crete: 0.98, silenceDb: -60 } as const;
+
+/** Une zone collée dans une fenêtre (même forme que fenetres.ts → Piece). */
+interface PieceFenetre {
+  decalage: number;
+  de: number;
+  a: number;
+}
+
+/**
+ * Remonte chaque pièce de la fenêtre (une zone de parole) vers `cibleDb` (RMS des trames de 20 ms qui ne sont pas du
+ * silence numérique), sans dépasser `maxDb` ni la crête `crete`. Modifie `pcm` sur place ; rend le gain de chaque
+ * pièce (dB, ≥ 0).
+ */
+export function normaliserPieces(pcm: Float32Array, pieces: readonly PieceFenetre[], r: typeof GAIN_WHISPER = GAIN_WHISPER): number[] {
+  const trame = Math.round(0.02 * FREQUENCE);
+  const seuil = 10 ** (r.silenceDb / 20);
+  return pieces.map((p) => {
+    const k0 = Math.max(0, Math.round(p.decalage * FREQUENCE));
+    const k1 = Math.min(pcm.length, Math.round((p.decalage + p.a - p.de) * FREQUENCE));
+    let somme = 0;
+    let n = 0;
+    let crete = 0;
+    for (let k = k0; k < k1; k += trame) {
+      const fin = Math.min(k1, k + trame);
+      let s = 0;
+      for (let i = k; i < fin; i++) {
+        const x = pcm[i]!;
+        s += x * x;
+        if (Math.abs(x) > crete) crete = Math.abs(x);
+      }
+      if (Math.sqrt(s / (fin - k)) >= seuil) {
+        somme += s;
+        n += fin - k;
+      }
+    }
+    if (n === 0 || crete <= 0) return 0;
+    const rmsDb = 10 * Math.log10(somme / n);
+    let gain = 10 ** (Math.min(r.maxDb, Math.max(0, r.cibleDb - rmsDb)) / 20);
+    gain = Math.max(1, Math.min(gain, r.crete / crete));
+    if (gain > 1) for (let i = k0; i < k1; i++) pcm[i]! *= gain;
+    return Math.round(200 * Math.log10(gain)) / 10;
+  });
+}
+
+/** Secondes d'un tampon 16 kHz dont les trames de 20 ms dépassent `seuilDb` dBFS (ce qui n'est pas du silence numérique). */
+export function dureeActive(pcm: Float32Array, seuilDb: number = GAIN_WHISPER.silenceDb): number {
+  const trame = Math.round(0.02 * FREQUENCE);
+  const seuil2 = 10 ** (seuilDb / 10);
+  let n = 0;
+  for (let k = 0; k < pcm.length; k += trame) {
+    const fin = Math.min(pcm.length, k + trame);
+    let s = 0;
+    for (let i = k; i < fin; i++) s += pcm[i]! * pcm[i]!;
+    if (s / (fin - k) >= seuil2) n += fin - k;
+  }
+  return n / FREQUENCE;
+}
+
+/**
  * Cherche le moment le plus calme entre t0 et t1 (secondes) d'un tampon 16 kHz, par pas de 50 ms.
  * Sert à couper une longue plage dans un silence plutôt qu'au milieu d'un mot.
  */

@@ -14,6 +14,7 @@ import type { Calque } from '../MiniFrise';
 import { EntreeBlancs } from '../../auto/coupes/EntreeBlancs';
 import { EntreeInsertion } from '../../auto/insertion/EntreeInsertion'; // v3 (dev 2)
 import { EntreePassages } from '../../auto/derush/EntreePassages'; // v3 (dev 1)
+import { SequencesMontage } from '../../auto/derush/SequencesMontage'; // Best-of v4 (intégrateur)
 import { PanneauInsere } from '../../auto/insertion/PanneauInsere'; // v3 (dev 2)
 import { etiquetteInsere } from '../../auto/insertion/actions-insertion';
 
@@ -91,6 +92,7 @@ export function OutilCouper() {
       </div>
       <EntreeBlancs lieu="habiller" />
       <EntreeInsertion lieu="habiller" />
+      <SequencesMontage />
       <EntreePassages lieu="habiller" />
       {i !== null && r.plans[i]?.ins && <PanneauInsere i={i} plan={r.plans[i]!} />}
       <p class="petit doux outil-aide" data-testid="coupe-aide">

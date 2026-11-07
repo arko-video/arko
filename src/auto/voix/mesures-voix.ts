@@ -6,6 +6,7 @@ import { ErreurArko } from '../../moteur/erreurs';
 import { zonesDeVoix } from '../coupes/voix';
 import type { OptionsTache, PlageTemps } from '../types';
 import type { EmpreintesVoix, VoixDetectees } from '../types-v3';
+import type { DemandePasseSonV4, HauteurVoix, ProbasVad } from '../types-v4';
 import { separerVoix, voixDesPistes } from './qui-parle';
 import type { DemandeEmpreintes, DepuisWorkerEmpreintes } from './worker-voix';
 
@@ -20,11 +21,35 @@ function enMinutes(s: number): string {
 /** Empreintes d'une piste, avec le nom de la piste dans le fichier (« Micro », « Discord »…) s'il en a un. */
 export type EmpreintesNommees = EmpreintesVoix & { nom?: string };
 
-/** Empreintes de plusieurs pistes (null = principale), dans un Worker neuf, avec progression et annulation. */
-export function mesurerPistes(source: SourceOuverte, pistes: readonly (number | null)[], o: OptionsTache & { plage?: PlageTemps } = {}): Promise<EmpreintesNommees[]> {
+/** Ce que rend la passe du son v4 (dev-vad) : empreintes + VAD + hauteur, d'une seule lecture. */
+export interface ResultatPasseSon {
+  empreintes: EmpreintesNommees[];
+  /** Absent : pas demandée ; null : demandée mais impossible (voir `avertissement`). */
+  vad?: Omit<ProbasVad, 'src'> | null;
+  hauteur?: HauteurVoix | null;
+  avertissement?: string;
+}
+
+/**
+ * Passe du son dans un Worker neuf (« arko-qui-parle »), avec progression et annulation : empreintes de plusieurs
+ * pistes (null = principale) et, si demandé (v4), VAD et hauteur sur la même lecture.
+ */
+export function mesurerPasseSon(
+  source: SourceOuverte,
+  pistes: readonly (number | null)[],
+  o: OptionsTache & { plage?: PlageTemps } & DemandePasseSonV4 = {},
+): Promise<ResultatPasseSon> {
   const { signal, surProgression } = o;
   const duree = source.infos.duree;
-  const demande: DemandeEmpreintes = { fichier: source.fichier, duree, de: Math.max(0, o.plage?.de ?? 0), a: Math.min(duree, o.plage?.a ?? duree), pistes: [...pistes] };
+  const demande: DemandeEmpreintes = {
+    fichier: source.fichier,
+    duree,
+    de: Math.max(0, o.plage?.de ?? 0),
+    a: Math.min(duree, o.plage?.a ?? duree),
+    pistes: [...pistes],
+    ...(o.vad ? { vad: true } : {}),
+    ...(o.hauteur ? { hauteur: true } : {}),
+  };
   if (signal?.aborted) return Promise.reject(annule());
   return new Promise((resoudre, rejeter) => {
     let worker: Worker;
@@ -63,11 +88,22 @@ export function mesurerPistes(source: SourceOuverte, pistes: readonly (number | 
         rejeter(new ErreurArko(m.message, m.code));
       } else {
         finir();
-        resoudre(m.resultats.map((r) => ({ pas: r.pas, duree: r.duree, db: r.db, bandes: r.bandes, ...(r.piste !== null ? { piste: r.piste } : {}), ...(r.nom ? { nom: r.nom } : {}) })));
+        const empreintes = m.resultats.map((r) => ({ pas: r.pas, duree: r.duree, db: r.db, bandes: r.bandes, ...(r.piste !== null ? { piste: r.piste } : {}), ...(r.nom ? { nom: r.nom } : {}) }));
+        const res: ResultatPasseSon = { empreintes };
+        if ('vad' in m) res.vad = m.vad ?? null;
+        if ('hauteur' in m) res.hauteur = m.hauteur ?? null;
+        if (m.avertissement) res.avertissement = m.avertissement;
+        resoudre(res);
       }
     };
     worker.postMessage(demande);
   });
+}
+
+/** Empreintes de plusieurs pistes (null = principale), dans un Worker neuf, avec progression et annulation. */
+export async function mesurerPistes(source: SourceOuverte, pistes: readonly (number | null)[], o: OptionsTache & { plage?: PlageTemps } = {}): Promise<EmpreintesNommees[]> {
+  // Sans `vad` ni `hauteur` : la demande et la réponse d'avant, exactement.
+  return (await mesurerPasseSon(source, pistes, { signal: o.signal, surProgression: o.surProgression, ...(o.plage ? { plage: o.plage } : {}) })).empreintes;
 }
 
 /** Empreintes d'une piste (absent = piste principale), sur une plage (absent = toute la source). */

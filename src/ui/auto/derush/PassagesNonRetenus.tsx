@@ -1,8 +1,11 @@
 // Écran « Passages pas retenus » (C, dev 1) : les passages notés par le derush mais pas gardés, triés par note ;
 // Écouter (le son du passage dans la vidéo d'origine) et Ajouter d'un toucher (ajouterPassage : un seul Annuler).
+// Best-of v4 (dev-ui) : le passage ajouté est coupé COMME le Best-of quand morceauxDuPassage est branché
+// (branchements-v4.ts : mesures gardées + dev-coupes) ; sinon comme avant (Couper les blancs).
 
 import { horodatage } from '../../../auto/express/scenes';
-import { ajouterPassage } from '../../../recette/operations-derush';
+import { ajouterPassage, type ContextePassage } from '../../../recette/operations-derush';
+import { BRANCHEMENTS } from '../express/branchements-v4';
 import type { PassageNote } from '../../../recette/types';
 import { transcriptionGardee } from '../../../sous-titres/transcription-longue';
 import { TV } from '../../../textes-v3';
@@ -40,7 +43,13 @@ async function ajouter(p: PassageNote) {
   const v = videoDe(p);
   const t = v ? await transcriptionGardee(v).catch(() => null) : null;
   const mots = t?.mots.some((m) => m[0].trim()) ? t.mots : undefined;
-  const fait = modifier((r) => ajouterPassage(r, p, mots ? { mots } : {}).recette);
+  const contexte: ContextePassage = mots ? { mots } : {};
+  // Coupé comme le Best-of (sans réécouter) : `morceaux` est lu par ajouterPassage dès que l'intégrateur l'y ajoute
+  // (demande du rapport dev-ui) ; avant, il est ignoré et l'ajout coupe comme d'habitude.
+  const r0 = recette.peek();
+  const morceaux = BRANCHEMENTS.morceauxPassage && r0 ? await BRANCHEMENTS.morceauxPassage(r0, p, mots).catch(() => null) : null;
+  if (morceaux && morceaux.length > 0) Object.assign(contexte, { morceaux });
+  const fait = modifier((r) => ajouterPassage(r, p, contexte).recette);
   afficherToast(fait ? TV.derush.passages.ajoute(titre) : TV.derush.passages.dejaLa);
 }
 

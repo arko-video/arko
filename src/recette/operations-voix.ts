@@ -5,7 +5,7 @@ import { estPasEncoreFait } from '../auto/pas-encore-fait';
 import type { SignauxSource } from '../auto/types';
 import type { EmpreintesVoix, VoixDetectees } from '../auto/types-v3';
 import { personneDe } from '../auto/voix/attribution';
-import { completerTours } from '../chibis/bouche';
+import { completerTours, type ContexteTours } from '../chibis/bouche';
 import { normaliser } from './normaliser';
 import type { Mot, Personne, Recette, Sec, TourDeParole } from './types';
 
@@ -16,6 +16,11 @@ export interface OptionsQuiParle {
   empreintes?: readonly EmpreintesVoix[];
   mots?: readonly Mot[];
   signaux?: SignauxSource | null;
+  /**
+   * Comment compléter les tours (émotion, situation, bouche). Défaut : completerTours (v3, tous les montages) ; le
+   * Best-of v4 donne completerToursV4 (chibis/emotions-v4.ts : moments, seuils relatifs à chaque voix, bouche + VAD).
+   */
+  completer?: (tours: readonly TourDeParole[], c: ContexteTours) => TourDeParole[];
 }
 
 /** Pastilles des personnes, dans l'ordre (contrastées entre elles, lisibles sur fond sombre). */
@@ -56,7 +61,7 @@ export function definirQuiParle(recette: Recette, d: VoixDetectees, o: OptionsQu
     const enveloppe = (t: TourDeParole) => o.empreintes?.find((e) => e.piste === piste.get(t.p)) ?? o.empreintes?.[0] ?? null;
     // Seuil de la bouche = niveau habituel de la personne − 10 dB (dev 3 : plus juste que la médiane du tour).
     const niveaux = Object.fromEntries(personnes.filter((p) => p.niveauDb !== undefined).map((p) => [p.id, p.niveauDb!]));
-    paroles = completerTours(paroles, { enveloppe, mots: o.mots, signaux: o.signaux ?? null, niveaux });
+    paroles = (o.completer ?? completerTours)(paroles, { enveloppe, mots: o.mots, signaux: o.signaux ?? null, niveaux });
   } catch (e) {
     if (!estPasEncoreFait(e)) throw e;
   }

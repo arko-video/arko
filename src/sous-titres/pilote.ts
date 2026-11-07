@@ -2,11 +2,13 @@
 // et l'arrête (terminate) à la fin ou dès qu'on annule.
 
 import { ErreurArko } from '../moteur/erreurs';
-import type { DepuisWorker, MotBrut, VersWorker } from './messages';
+import type { DepuisWorker, FenetreSautee, MotBrut, VersWorker } from './messages';
 
 export interface OptionsPilote {
   surProgression?: (p: number, etape: string) => void;
   signal?: AbortSignal;
+  /** Reçoit les fenêtres que Whisper a sautées (il y plantait) : la tranche les garde « à refaire ». */
+  surSautees?: (s: readonly FenetreSautee[]) => void;
 }
 
 function erreurAnnule() {
@@ -53,6 +55,7 @@ export function executer(demande: VersWorker, options: OptionsPilote = {}): Prom
         rejeter(new ErreurArko(m.message, m.code));
       } else {
         finir();
+        if (m.sautees && m.sautees.length > 0) options.surSautees?.(m.sautees);
         resoudre(m.mots);
       }
     };

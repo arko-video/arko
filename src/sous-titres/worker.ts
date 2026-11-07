@@ -4,13 +4,13 @@
 
 import { env, pipeline, type AutomaticSpeechRecognitionPipeline } from '@huggingface/transformers';
 import { ErreurArko } from '../moteur/erreurs';
-import { corrigerTempsWhisper } from './correction-temps';
+import { corrigerTempsWhisper, reparerDecodageVide } from './correction-temps';
 import { fichiersManquants } from './cache-module';
 import { CLE_CACHE, MODELE, ORT_MJS, ORT_WASM } from './config';
-import { dureeTotale, motEnSource } from './fenetres';
-import { ouvrirSon, remplirFenetre } from './lecture-son';
-import type { DepuisWorker, MotBrut, Plage, VersWorker } from './messages';
-import { niveau } from './pcm';
+import { ecouterPlages } from './ecoute';
+import { dureeTotale } from './fenetres';
+import { ouvrirSon } from './lecture-son';
+import type { DepuisWorker, FenetreSautee, MotBrut, Plage, VersWorker } from './messages';
 
 /** Part de la barre réservée au chargement du modèle : 10 % s'il est en cache, 60 % s'il faut le télécharger. */
 const PART_PREPARATION = 0.1;
@@ -96,18 +96,19 @@ async function chargerModele(part: number, partSiTelechargement = part): Promise
     progress_callback: suivre as never,
   });
   corrigerTempsWhisper(asr);
+  reparerDecodageVide(asr);
   await oublierAnciensOrt();
   progression(fin, PREPARER);
   return asr;
 }
 
-interface MorceauWhisper {
-  text: string;
-  timestamp: [number, number | null];
-}
-
-/** Écoute les plages du fichier, fenêtre par fenêtre, et renvoie les mots bruts en temps source. */
-async function transcrire(fichier: File, plagesDemandees: Plage[], langue: string): Promise<MotBrut[]> {
+/**
+ * Écoute les plages du fichier, fenêtre par fenêtre (ecoute.ts, même code que le banc), et renvoie les mots bruts en
+ * temps source. Une fenêtre où Whisper plante est réessayée puis sautée (`sautees`) : l'écoute ne s'arrête plus.
+ * `gain` (Best-of v4) : chaque zone est remontée vers −20 dBFS avant Whisper ; le `niveau` des mots est alors mesuré
+ * sur ce son remonté (le test « son faible » de nettoyer devient relatif à la zone).
+ */
+async function transcrire(fichier: File, plagesDemandees: Plage[], langue: string, gain: boolean): Promise<{ mots: MotBrut[]; sautees: FenetreSautee[] }> {
   const son = await ouvrirSon(fichier);
   if (!son) throw new ErreurArko('Cette vidéo n\'a pas de son : il n\'y a rien à sous-titrer.', 'pas_de_son');
   try {
@@ -118,30 +119,16 @@ async function transcrire(fichier: File, plagesDemandees: Plage[], langue: strin
     if (total <= 0) throw new ErreurArko('Il n\'y a pas de son dans les morceaux gardés.', 'pas_de_son');
     const asr = await chargerModele(PART_PREPARATION, PART_TELECHARGEMENT);
     const debut = dernierP;
-    const mots: MotBrut[] = [];
-    let fait = 0;
-    let i = 0;
-    let curseur = plages[0]!.de;
-    while (i < plages.length) {
-      progression(debut + (1 - debut) * (fait / total), 'J\'écoute ta vidéo…');
-      const fenetre = await remplirFenetre(son, plages, i, curseur);
-      i = fenetre.i;
-      curseur = fenetre.curseur;
-      if (fenetre.pieces.length === 0) break;
-      fait += fenetre.pieces.reduce((s, x) => s + (x.a - x.de), 0);
-      // Langue « auto » : on ne donne pas `language`, Whisper la détecte.
-      const options = { return_timestamps: 'word' as const, chunk_length_s: 30, stride_length_s: 5 };
-      const sortie = await asr(fenetre.pcm, langue === 'auto' ? options : { ...options, language: langue });
-      const morceaux = ((Array.isArray(sortie) ? sortie[0] : sortie)?.chunks ?? []) as MorceauWhisper[];
-      for (const m of morceaux) {
-        const [t0, t1Brut] = m.timestamp;
-        const t1 = t1Brut ?? t0 + 0.3;
-        const temps = motEnSource(t0, t1, fenetre.pieces);
-        if (temps) mots.push({ txt: m.text, ...temps, niveau: niveau(fenetre.pcm, t0, t1) });
-      }
-    }
+    const sautees: FenetreSautee[] = [];
+    const mots = await ecouterPlages(son, plages, (pcm, options) => asr(pcm, options), {
+      langue,
+      gain,
+      sautees,
+      surAvancement: (fait, tout) => progression(debut + (1 - debut) * (fait / tout), 'J\'écoute ta vidéo…'),
+    });
+    if (sautees.length > 0) console.warn('[sous-titres] fenêtres sautées (Whisper a planté) :', sautees);
     progression(1, 'Sous-titres prêts.');
-    return mots;
+    return { mots, sautees };
   } finally {
     son.fermer();
   }
@@ -166,7 +153,8 @@ self.onmessage = async (ev: MessageEvent<VersWorker>) => {
       progression(1, 'Le module sous-titres est prêt.');
       envoyer({ type: 'fini', mots: [] });
     } else {
-      envoyer({ type: 'fini', mots: await transcrire(demande.fichier, demande.plages, demande.langue) });
+      const { mots, sautees } = await transcrire(demande.fichier, demande.plages, demande.langue, demande.gain === true);
+      envoyer({ type: 'fini', mots, ...(sautees.length > 0 ? { sautees } : {}) });
     }
   } catch (e) {
     console.warn('[sous-titres]', e);

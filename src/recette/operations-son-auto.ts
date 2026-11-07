@@ -4,7 +4,7 @@
 
 import { normaliser } from './normaliser';
 import { arrondir } from './temps';
-import type { PisteMusique, Recette, Sec, Son, Source, VolumeFinal } from './types';
+import type { MorceauMusique, PisteMusique, Recette, Sec, Son, Source, VolumeFinal } from './types';
 
 /** Un bruitage prêt à poser : `id` = son d'Arko (« impact.boom ») ou source audio de la recette (« a3 »). */
 export interface BruitagePose {
@@ -63,6 +63,22 @@ export function definirMusique(recette: Recette, piste: PisteMusique | null, sou
   }
   const musique: PisteMusique = { ...piste, morceaux: piste.morceaux.map((m) => ({ ...m })) };
   return finir(recette, { ...recette, sources: avecSources(recette, sources), musique });
+}
+
+/**
+ * Habiller → Sons → Musique, « Remplacer » : le morceau `i` prend le son `source` (ajoutée si elle manque), à la MÊME
+ * place (début, fin, boucle) ; il se lit depuis son début. Les réglages de la piste (volume, baisse) restent.
+ * Un seul Annuler. La recette d'origine si `i` n'existe pas.
+ */
+export function remplacerMorceauMusique(recette: Recette, i: number, source: Source): Recette {
+  const piste = recette.musique;
+  const ancien = piste?.morceaux[i];
+  if (!piste || !ancien) return recette;
+  const nouveau: MorceauMusique = { src: source.id, t: ancien.t };
+  if (ancien.fin !== undefined) nouveau.fin = ancien.fin;
+  if (ancien.boucle === false) nouveau.boucle = false;
+  const morceaux = piste.morceaux.map((m, k) => (k === i ? nouveau : { ...m }));
+  return finir(recette, { ...recette, sources: avecSources(recette, [source]), musique: { ...piste, morceaux } });
 }
 
 /** Règle (ou retire, null) le volume final de l'export. */

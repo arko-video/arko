@@ -1,6 +1,6 @@
 // Point d'entrée de « Couper les blancs » (A, dev 1), dans l'étape Couper et dans Habiller → Couper.
 // Le bouton ouvre le panneau (aperçu « 2 h 03 → 41 min · 312 coupes », Serré / Normal / Large, plage,
-// Appliquer = un seul Annuler).
+// Appliquer = un seul Annuler). Best-of v4 (dev-ui) : au-dessus, « Coupes du Best-of » (RecoupeBestOf).
 
 import { TA } from '../../../textes-auto';
 import { IconeCiseaux } from '../../composants/Icones';
@@ -8,12 +8,14 @@ import { mettreEnPause } from '../../lecture';
 import { BoutonAuto } from '../BoutonAuto';
 import { ouvertBlancs, ouvrirBlancs } from './etat-blancs';
 import { PanneauBlancs } from './PanneauBlancs';
+import { RecoupeBestOf } from './RecoupeBestOf';
 
 const PRETE = true;
 
 export function EntreeBlancs({ lieu }: { lieu: 'couper' | 'habiller' }) {
   return (
     <>
+      <RecoupeBestOf lieu={lieu} />
       <BoutonAuto
         drapeau="blancs"
         prete={PRETE}

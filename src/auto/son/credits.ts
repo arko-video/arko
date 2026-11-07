@@ -33,9 +33,12 @@ export function titreMorceau(nom: string): string {
   return sans || 'Sans titre';
 }
 
-/** Ligne de crédit officielle d'incompetech (CC BY 4.0), à copier telle quelle. */
+/**
+ * Crédit officiel d'incompetech (CC BY 4.0), à copier tel quel : les 3 lignes EXACTES de la page du morceau
+ * (« Attribution Code » ; intégrateur, relecture point 10 : avant, une seule ligne avec des « · »).
+ */
 export function ligneCredit(nom: string): string {
-  return `"${titreMorceau(nom)}" Kevin MacLeod (incompetech.com) · Licensed under Creative Commons: By Attribution 4.0 License · http://creativecommons.org/licenses/by/4.0/`;
+  return `"${titreMorceau(nom)}" Kevin MacLeod (incompetech.com)\nLicensed under Creative Commons: By Attribution 4.0 License\nhttp://creativecommons.org/licenses/by/4.0/`;
 }
 
 /** Le nom contient-il une musique de jeu connue ? */

@@ -18,12 +18,36 @@ export interface Timbre {
 
 export const VOIX_A: Timbre = { f0: 105, formants: 1, pente: 0.9 };
 export const VOIX_B: Timbre = { f0: 215, formants: 1.18, pente: 0.45 };
+/** Une 3ᵉ voix (qui parle v4 : trois personnes). */
+export const VOIX_C: Timbre = { f0: 150, formants: 1.08, pente: 0.7 };
 
 /** Un tour de la vérité : voix 0 ou 1, de `de` à `a` (s). */
 export interface TourVrai {
   v: 0 | 1;
   de: number;
   a: number;
+}
+
+/** Un tour de la vérité avec trois personnes (voix 0, 1 ou 2). */
+export interface TourVrai3 {
+  v: 0 | 1 | 2;
+  de: number;
+  a: number;
+}
+
+/** Tours de 3 personnes à tour de rôle (0, 1, 2, 0…), 2 à 4 s, 0,4 à 1 s de silence entre deux. */
+export function toursATrois(duree: number, graine = 4): TourVrai3[] {
+  const r = hasard(graine);
+  const res: TourVrai3[] = [];
+  let t = 0.5;
+  let v: 0 | 1 | 2 = 0;
+  while (t < duree - 2) {
+    const a = Math.min(duree - 0.5, t + 2 + 2 * r());
+    res.push({ v, de: Math.round(t * 100) / 100, a: Math.round(a * 100) / 100 });
+    t = a + 0.4 + 0.6 * r();
+    v = ((v + 1) % 3) as 0 | 1 | 2;
+  }
+  return res;
 }
 
 /** Tours qui alternent (2 à 4 s, 0,4 à 1 s de silence entre deux) sur `duree` s ; `seule` = toujours la voix 0. */

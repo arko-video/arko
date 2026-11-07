@@ -41,6 +41,11 @@ const NIVEAU_MIN = -70;
 /** Netteté de chaque tour (sert à choisir les extraits les plus nets). */
 const nettetes = new WeakMap<TourDeParole, number>();
 
+/** Note la netteté d'un tour fait ailleurs (qui parle v4) : extraitsDeVoix prend d'abord les plus nets. */
+export function noterNettete(t: TourDeParole, n: number): void {
+  nettetes.set(t, n);
+}
+
 function mediane(x: number[]): number {
   if (x.length === 0) return -100;
   const t = [...x].sort((a, b) => a - b);

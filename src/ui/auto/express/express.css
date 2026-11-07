@@ -122,3 +122,210 @@
 .express-resserree {
   color: var(--accent, #ffd23f);
 }
+
+/* ================================================================ Best-of v4 (dev-ui) : réglages déjà bons,
+   carte d'accord, étapes de l'analyse, revue « tout modifiable ». Au pouce : zones de toucher ≥ 44 px. */
+
+/* Petits boutons à texte (Écouter, Régler, ± 1 phrase) : 44 px de haut, largeur du texte. */
+.express .btn.express-mini {
+  min-height: 44px;
+  height: auto;
+  width: auto;
+  padding: 6px 14px;
+  font-size: 14px;
+}
+
+/* « Tout est prêt » + ce qu'Arko va faire. */
+.express-pret {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--accent);
+  background: var(--accent-voile);
+}
+.express-pret > strong {
+  font-family: var(--police-titre);
+  font-size: 18px;
+}
+.express-pastilles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.express-pastilles li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--bord);
+  font-size: 13px;
+}
+
+/* « Changer les réglages » : tout le détail, replié d'office. */
+.express-plus > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  cursor: pointer;
+}
+.express-plus > summary::-webkit-details-marker {
+  display: none;
+}
+.express-plus[open] > summary {
+  margin-bottom: 12px;
+}
+.express-plus-corps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Étapes de l'analyse (Best-of) : ✓ fait, ● en cours, ○ à venir, – sautée. */
+.express-etapes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.express-etapes li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--texte-doux);
+}
+.express-etapes li[data-etat='fait'],
+.express-etapes li[data-etat='encours'] {
+  color: var(--texte);
+}
+.express-etape-puce {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--bord-fort);
+}
+.express-etapes li[data-etat='fait'] .express-etape-puce {
+  border-color: var(--vert);
+  background: var(--vert);
+  box-shadow: inset 0 0 0 4px var(--surface);
+}
+.express-etapes li[data-etat='encours'] .express-etape-puce {
+  border-color: var(--accent);
+  animation: express-pulse 1.2s ease-in-out infinite;
+}
+.express-etapes li[data-etat='saute'] .express-etape-puce {
+  border-style: dashed;
+}
+@keyframes express-pulse {
+  50% {
+    background: var(--accent-voile);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .express-etapes li[data-etat='encours'] .express-etape-puce {
+    animation: none;
+    background: var(--accent-voile);
+  }
+}
+
+/* Revue : une séquence = la case + l'ordre, puis Écouter / Régler. */
+.express-scene {
+  flex-direction: column;
+  gap: 0;
+}
+.express-scene-haut {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+}
+.express-scene-outils {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px 12px 48px;
+}
+.express-scene-boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.express-regler {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--r-petit);
+  background: var(--surface-2);
+}
+.express-regler-ligne {
+  display: grid;
+  grid-template-columns: 44px 1fr 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.express-etoiles {
+  color: var(--accent);
+  letter-spacing: 1px;
+  margin-right: 4px;
+}
+.express-etoiles-vides {
+  color: var(--bord-fort);
+}
+
+/* Bandeaux des modules qui manquent, proposition de l'empreinte de voix. */
+.express-bandeau,
+.express-empreinte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+.express-bandeau > span {
+  flex: 1 1 200px;
+}
+.express-empreinte {
+  flex-direction: column;
+  align-items: stretch;
+}
+.express-empreinte-boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* PC (souris, grand écran) : les séquences à gauche, les voix à droite. */
+.express-revue-colonnes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (min-width: 1000px) {
+  .express-revue-colonnes {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
+  .express-revue-voix {
+    position: sticky;
+    top: 12px;
+  }
+  .express .btn.express-mini:hover,
+  .express-cocher:hover {
+    filter: brightness(1.12);
+  }
+  .express-plus-corps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}

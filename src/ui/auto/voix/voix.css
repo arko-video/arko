@@ -159,3 +159,16 @@
 .revue-qui-parle > .lien {
   min-height: 44px;
 }
+
+/* Best-of v4 (dev-ui) : Émotion et Situation côte à côte sous la phrase (au pouce : 44 px de haut). */
+.phrase-menus {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.phrase-menus .phrase-situation {
+  align-self: auto;
+  min-height: 44px;
+  max-width: 48%;
+}

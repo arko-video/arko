@@ -3,7 +3,7 @@
 
 import { morceauxDeParole, REGLAGES_BLANCS } from '../auto/coupes/blancs';
 import { premiereVideo } from '../auto/coupes/decoupe';
-import type { SignauxSource } from '../auto/types';
+import type { PlageTemps, SignauxSource } from '../auto/types';
 import { normaliser } from './normaliser';
 import type { Mot, PassageNote, Plan, Recette } from './types';
 
@@ -11,6 +11,12 @@ import type { Mot, PassageNote, Plan, Recette } from './types';
 export interface ContextePassage {
   mots?: readonly Mot[];
   signaux?: SignauxSource | null;
+  /**
+   * Best-of v4 : les morceaux du passage DÉJÀ coupés comme le Best-of (`morceauxDuPassage`, dev-coupes : VAD,
+   * creux, marges de la DA). Donnés : ils sont pris tels quels (bornés au passage) au lieu de Couper les blancs ;
+   * `[]` = garder le passage entier ; absents = comme avant.
+   */
+  morceaux?: readonly PlageTemps[];
 }
 
 function finir(origine: Recette, r: Recette): Recette {
@@ -57,7 +63,10 @@ export function ajouterPassage(recette: Recette, passage: PassageNote, c: Contex
   const motsSt = Array.isArray(recette.sousTitres?.mots) ? recette.sousTitres.mots : [];
   const mots = c.mots ?? motsSt;
   let morceaux: { de: number; a: number }[] = [{ de, a }];
-  if (recette.blancs) {
+  if (c.morceaux) {
+    const dedans = c.morceaux.map((m) => ({ de: Math.max(de, m.de), a: Math.min(a, m.a) })).filter((m) => m.a - m.de > 0.01).sort((x, y) => x.de - y.de);
+    if (dedans.length > 0) morceaux = dedans;
+  } else if (recette.blancs) {
     const reglages = REGLAGES_BLANCS[recette.blancs.niveau] ?? REGLAGES_BLANCS.normal;
     const parole = morceauxDeParole(mots, c.signaux ?? null, reglages, { de, a }).filter((m) => m.a - m.de >= reglages.morceauMin);
     if (parole.length > 0) morceaux = parole.map((m) => ({ de: m.de, a: m.a }));

@@ -1,20 +1,25 @@
 // Écran « Qui parle ? » (C, dev 1) : une carte par voix (nom, 3 extraits à écouter, son chibi via ChoixChibi du
 // dev 3), liste des phrases (un toucher = personne suivante, pointillés si incertain), Valider = le brouillon devient la
 // recette (un seul Annuler), « Oublier les voix ». Actions : actions-voix.ts.
+// Best-of v4 (dev-ui) : sous chaque phrase, à côté de la Situation, le menu Émotion (emotionDuPassage de dev-persos).
 
 import { useEffect, useState } from 'preact/hooks';
 import { horodatage } from '../../../auto/express/scenes';
 import { phrasesParPersonne } from '../../../auto/voix/attribution';
 import { COULEURS_VOIX } from '../../../recette/operations-voix';
-import { SITUATIONS, type Situation } from '../../../chibis/catalogue';
+import { EMOTIONS, SITUATIONS, type Emotion, type Situation } from '../../../chibis/catalogue';
 import { situationDe } from '../../../recette/operations-chibis';
 import type { Recette } from '../../../recette/types';
 import { TV } from '../../../textes-v3';
 import { IconeRetour } from '../../composants/Icones';
+import { TEXTES_V4 } from '../express/textes-v4';
 import {
   annulerQuiParle,
+  changerEmotion,
   choisirChibiVoix,
   changerSituation,
+  emotionDe,
+  emotionModifiable,
   corrigerPhrase,
   demarrerQuiParle,
   etatQuiParle,
@@ -142,6 +147,23 @@ function Pret({ limite, plus }: { limite: number; plus: () => void }) {
                     {!l.sur && ` · ${TV.voix.incertain}`}
                   </span>
                 </button>
+                <span class="phrase-menus">
+                {emotionModifiable() && (
+                  <select
+                    class="phrase-situation"
+                    aria-label={TEXTES_V4.habiller.emotion}
+                    title={TEXTES_V4.habiller.emotion}
+                    value={emotionDe(brouillon, l.ts, l.fin, detectees.src)}
+                    onChange={(ev) => changerEmotion(l.ts, l.fin, (ev.target as HTMLSelectElement).value as Emotion)}
+                    data-testid={`v3-qp-emotion-${k}`}
+                  >
+                    {EMOTIONS.map((x) => (
+                      <option key={x} value={x}>
+                        {TV.chibis.emotions[x]}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <select
                   class="phrase-situation"
                   aria-label={TV.situations.choisir}
@@ -155,6 +177,7 @@ function Pret({ limite, plus }: { limite: number; plus: () => void }) {
                     </option>
                   ))}
                 </select>
+                </span>
               </li>
             ))}
           </ul>

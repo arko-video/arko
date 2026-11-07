@@ -1,5 +1,9 @@
 // Montage express, écran 1 : Réglages. Destination, durée visée, ce qu'on garde, coupes, ce qu'Arko ajoute
-// (punchlines, bruitages, zooms, titres, accroche, bords), musique (1 à 6 morceaux de Mes sons), Sans IA / Avec l'IA.
+// (punchlines, bruitages, zooms, titres, accroche, bords), musique (automatique d'office, ou 1 à 6 morceaux de Mes
+// sons, ou aucune), Sans IA / Avec l'IA.
+// Best-of (v4, dev-ui) : « Tout est prêt » + ce qu'Arko va faire ; le détail est sous « Changer les réglages »
+// (le chemin d'office tient en 2 touchers : Analyser, puis Monter la vidéo). Si le module sous-titres manque, la
+// carte d'accord s'ouvre au toucher sur « Analyser » (CarteModules).
 
 import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
@@ -20,7 +24,13 @@ import { retour } from '../../navigation';
 import { tailleArrondie } from '../../sous-titres-ui';
 import { enBestOf, styleMontage } from './etat-best-of';
 import { ChoixStyle, InterrupteursBestOf } from './ReglagesStyle';
-import { basculerMorceau, choisirDestinationExpress, destinationExpress, DUREES_EXPRESS, fournisseurExpress, lancerExpress, reglagesExpress, reglerExpress, sourceExpress } from './etat-express';
+import { candidatsBibliotheque } from '../../../auto/son/musique-auto';
+import { basculerMorceau, choisirDestinationExpress, choisirMusiqueAuto, destinationExpress, DUREES_EXPRESS, fournisseurExpress, lancerExpress, reglagesExpress, reglerExpress, sourceExpress } from './etat-express';
+import { reglagesBestOf } from './etat-best-of';
+import { CarteModules } from './CarteModules';
+import { TEXTES_MUSIQUE_EXPRESS as TM } from './textes-musique';
+import { TEXTES_V4 } from './textes-v4';
+import type { ReglagesExpress } from '../../../auto/express/express';
 
 const TX = TA.express;
 
@@ -57,7 +67,7 @@ export function fourchette(d: { min: number; max: number }): string {
   return `${formatDuree(d.min)} à ${formatDuree(d.max)}`;
 }
 
-function Segments<V extends string>({ titre, valeurs, actif, nom, choisir, id }: { titre: string; valeurs: readonly V[]; actif: V; nom: (v: V) => string; choisir: (v: V) => void; id: string }) {
+export function Segments<V extends string>({ titre, valeurs, actif, nom, choisir, id, aide }: { titre: string; valeurs: readonly V[]; actif: V; nom: (v: V) => string; choisir: (v: V) => void; id: string; aide?: string }) {
   return (
     <section class="champ">
       <span class="champ-titre">{titre}</span>
@@ -68,6 +78,33 @@ function Segments<V extends string>({ titre, valeurs, actif, nom, choisir, id }:
           </button>
         ))}
       </div>
+      {aide && <span class="petit doux">{aide}</span>}
+    </section>
+  );
+}
+
+/** Best-of : ce qu'Arko va faire avec les réglages actuels (pastilles), sous « Tout est prêt ». */
+function CeQuArkoFait({ r, d, avecTextes }: { r: ReglagesExpress; d: { min: number; max: number }; avecTextes: boolean }) {
+  const F = TEXTES_V4.fait;
+  const b = reglagesBestOf.value;
+  const musique = r.musiqueAuto === true || r.musique.length > 0;
+  const pastilles = [
+    F.duree(fourchette(d)),
+    F.coupes(TX.niveaux[r.niveauBlancs]),
+    musique ? F.musique : F.sansMusique,
+    ...(b.avatars ? [F.persos] : []),
+    avecTextes ? F.sousTitres : F.sansTextes,
+    ...(r.accroche ? [F.accroche] : []),
+  ];
+  return (
+    <section class="express-pret" data-testid="express-pret">
+      <strong>{TEXTES_V4.pretTitre}</strong>
+      <span class="petit doux">{TEXTES_V4.pretAide}</span>
+      <ul class="express-pastilles">
+        {pastilles.map((x) => (
+          <li key={x}>{x}</li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -116,8 +153,75 @@ export function EcranReglagesExpress() {
   const musiques = mesSons.value.filter((x) => x.duree >= 8).sort((a, b) => Number(b.rayon === 'musiques') - Number(a.rayon === 'musiques'));
   const choisies = musiques.filter((x) => r.musique.includes(x.id));
   const avis = avisMusique(choisies.map((x) => x.nom));
+  const auto = r.musiqueAuto === true;
+  const nbBibliotheque = candidatsBibliotheque(mesSons.value).length;
   const durees = DUREES_EXPRESS[d];
   const iDuree = Math.max(0, durees.findIndex((x) => x.min === r.dureeVisee.min && x.max === r.dureeVisee.max));
+
+  const detail = (
+    <>
+        <Segments titre={TX.garder} id="garder" valeurs={['parole+forts', 'parole'] as const} actif={r.garder} nom={(v) => (v === 'parole' ? TX.paroleSeule : TX.parolesEtForts)} choisir={(v) => reglerExpress({ garder: v })} />
+        <Segments titre={TX.coupe} id="niveau" valeurs={['serre', 'normal', 'large'] as NiveauBlancs[]} actif={r.niveauBlancs} nom={(v) => TX.niveaux[v]} choisir={(v) => reglerExpress({ niveauBlancs: v })} {...(bestOf ? { aide: TEXTES_V4.coupeAide[r.niveauBlancs] } : {})} />
+
+        <div class="express-interrupteurs">
+          <Interrupteur titre={TX.transcrire} aide={TX.transcrireAide} coche={r.transcrire} changer={(v) => reglerExpress({ transcrire: v })} id="transcrire">
+            {module && !module.present && r.transcrire && <span class="petit">{bestOf ? TEXTES_V4.transcrireManque(module.taille) : TX.moduleManque(module.taille)}</span>}
+          </Interrupteur>
+          <Interrupteur titre={TX.punchlines} aide={TX.punchlinesAide} coche={r.punchlines} changer={(v) => reglerExpress({ punchlines: v })} id="punchlines" />
+          {!bestOf && <Interrupteur titre={TX.bruitages} aide={TX.bruitagesAide} coche={r.bruitages} changer={(v) => reglerExpress({ bruitages: v })} id="bruitages" />}
+          <Interrupteur titre={TX.zooms} aide={TX.zoomsAide} coche={r.zooms !== null} changer={(v) => reglerExpress({ zooms: v ? 'normal' : null })} id="zooms" />
+          {!bestOf && d === 'youtube' && <Interrupteur titre={TX.sections} aide={TX.sectionsAide} coche={r.sections} changer={(v) => reglerExpress({ sections: v })} id="sections" />}
+          <Interrupteur titre={TX.accroche} aide={TX.accrocheAide} coche={r.accroche} changer={(v) => reglerExpress({ accroche: v })} id="accroche" />
+          {bestOf && <InterrupteursBestOf />}
+          {!bestOf && <Interrupteur titre={TV.bestOf.avatars} aide={TV.bestOf.avatarsAide} coche={r.persos !== false} changer={(v) => reglerExpress({ persos: v })} id="persos" />}
+          <Interrupteur titre={TX.bords} aide={TX.bordsAide} coche={r.bords} changer={(v) => reglerExpress({ bords: v })} id="bords" />
+        </div>
+
+        <section class="champ" data-testid="express-musique">
+          <span class="champ-titre">{TX.musique}</span>
+          <Interrupteur titre={TM.auto} aide={TM.autoAide} coche={auto} changer={choisirMusiqueAuto} id="musique-auto" />
+          {auto && (
+            <>
+              <p class="petit doux" data-testid="express-musique-sources">
+                {nbBibliotheque > 0 ? TM.bibliotheque(nbBibliotheque) : TM.bibliothequeVide}
+              </p>
+              {nbBibliotheque === 0 && <p class="petit message message-info">{TM.credit}</p>}
+            </>
+          )}
+          {!auto && r.musique.length === 0 && <p class="petit" data-testid="express-musique-aucune">{TM.aucune}</p>}
+          <p class="petit doux">{TM.apres}</p>
+          {musiques.length > 0 && <p class="petit doux">{TM.aChoisir}</p>}
+          {musiques.length === 0 && !auto && <p class="petit">{TX.musiqueVide}</p>}
+          <ul class="express-musiques">
+            {musiques.map((m) => (
+              <li key={m.id}>
+                <label class="interrupteur">
+                  <span>
+                    <strong>{m.nom}</strong>
+                    <span class="petit doux">
+                      {m.etiquette ? `${m.etiquette} · ` : ''}
+                      {formatDuree(m.duree)}
+                    </span>
+                  </span>
+                  <input type="checkbox" checked={r.musique.includes(m.id)} onChange={() => basculerMorceau(m.id)} data-testid={`express-morceau-${m.nom}`} />
+                </label>
+              </li>
+            ))}
+          </ul>
+          {avis.credits.map((c) => (
+            <p key={c} class="petit message message-info" style={{ whiteSpace: 'pre-line' }}>
+              {c}
+            </p>
+          ))}
+          {avis.alertes.map((a) => (
+            <p key={a} class="petit message message-alerte">
+              {a}
+            </p>
+          ))}
+        </section>
+
+    </>
+  );
 
   async function lancer() {
     if (reglagesExpress.peek().avecIA && !(await cleGardee(f))) {
@@ -142,55 +246,22 @@ export function EcranReglagesExpress() {
         <Segments titre={TX.pour} id="pour" valeurs={['youtube', 'tiktok', 'short'] as Destination[]} actif={d} nom={(v) => TX.destinations[v]} choisir={choisirDestinationExpress} />
         <ChoixStyle />
         <Segments titre={TX.dureeVisee} id="duree" valeurs={['0', '1', '2']} actif={String(iDuree)} nom={(v) => fourchette(durees[Number(v)]!)} choisir={(v) => reglerExpress({ dureeVisee: durees[Number(v)]! })} />
-        <Segments titre={TX.garder} id="garder" valeurs={['parole+forts', 'parole'] as const} actif={r.garder} nom={(v) => (v === 'parole' ? TX.paroleSeule : TX.parolesEtForts)} choisir={(v) => reglerExpress({ garder: v })} />
-        <Segments titre={TX.coupe} id="niveau" valeurs={['serre', 'normal', 'large'] as NiveauBlancs[]} actif={r.niveauBlancs} nom={(v) => TX.niveaux[v]} choisir={(v) => reglerExpress({ niveauBlancs: v })} />
-
-        <div class="express-interrupteurs">
-          <Interrupteur titre={TX.transcrire} aide={TX.transcrireAide} coche={r.transcrire} changer={(v) => reglerExpress({ transcrire: v })} id="transcrire">
-            {module && !module.present && r.transcrire && <span class="petit">{TX.moduleManque(module.taille)}</span>}
-          </Interrupteur>
-          <Interrupteur titre={TX.punchlines} aide={TX.punchlinesAide} coche={r.punchlines} changer={(v) => reglerExpress({ punchlines: v })} id="punchlines" />
-          {!bestOf && <Interrupteur titre={TX.bruitages} aide={TX.bruitagesAide} coche={r.bruitages} changer={(v) => reglerExpress({ bruitages: v })} id="bruitages" />}
-          <Interrupteur titre={TX.zooms} aide={TX.zoomsAide} coche={r.zooms !== null} changer={(v) => reglerExpress({ zooms: v ? 'normal' : null })} id="zooms" />
-          {!bestOf && d === 'youtube' && <Interrupteur titre={TX.sections} aide={TX.sectionsAide} coche={r.sections} changer={(v) => reglerExpress({ sections: v })} id="sections" />}
-          <Interrupteur titre={TX.accroche} aide={TX.accrocheAide} coche={r.accroche} changer={(v) => reglerExpress({ accroche: v })} id="accroche" />
-          {bestOf && <InterrupteursBestOf />}
-          {!bestOf && <Interrupteur titre={TV.bestOf.avatars} aide={TV.bestOf.avatarsAide} coche={r.persos !== false} changer={(v) => reglerExpress({ persos: v })} id="persos" />}
-          <Interrupteur titre={TX.bords} aide={TX.bordsAide} coche={r.bords} changer={(v) => reglerExpress({ bords: v })} id="bords" />
-        </div>
-
-        <section class="champ" data-testid="express-musique">
-          <span class="champ-titre">{TX.musique}</span>
-          <p class="petit doux">{TX.musiqueAide}</p>
-          {musiques.length === 0 && <p class="petit">{TX.musiqueVide}</p>}
-          <ul class="express-musiques">
-            {musiques.map((m) => (
-              <li key={m.id}>
-                <label class="interrupteur">
-                  <span>
-                    <strong>{m.nom}</strong>
-                    <span class="petit doux">
-                      {m.etiquette ? `${m.etiquette} · ` : ''}
-                      {formatDuree(m.duree)}
-                    </span>
-                  </span>
-                  <input type="checkbox" checked={r.musique.includes(m.id)} onChange={() => basculerMorceau(m.id)} data-testid={`express-morceau-${m.nom}`} />
-                </label>
-              </li>
-            ))}
-          </ul>
-          {avis.credits.map((c) => (
-            <p key={c} class="petit message message-info">
-              {c}
-            </p>
-          ))}
-          {avis.alertes.map((a) => (
-            <p key={a} class="petit message message-alerte">
-              {a}
-            </p>
-          ))}
-        </section>
-
+        {bestOf ? (
+          <>
+            <CeQuArkoFait r={r} d={r.dureeVisee} avecTextes={r.transcrire && r.punchlines} />
+            {module && !module.present && r.transcrire && (
+              <p class="petit message message-info" data-testid="express-module-propose">
+                {TEXTES_V4.transcrireManque(module.taille)}
+              </p>
+            )}
+            <details class="express-plus" data-testid="express-plus-reglages">
+              <summary class="btn btn-contour">{TEXTES_V4.changerReglages}</summary>
+              <div class="express-plus-corps">{detail}</div>
+            </details>
+          </>
+        ) : (
+          detail
+        )}
         {!bestOf && (
         <section class="champ">
           <span class="champ-titre">{TX.mode}</span>
@@ -227,6 +298,7 @@ export function EcranReglagesExpress() {
           {TX.lancer}
         </button>
       </footer>
+      {bestOf && <CarteModules />}
     </div>
   );
 }

@@ -67,7 +67,7 @@ describe('étiquette du dossier', () => {
 describe('crédits de la musique', () => {
   it('Kevin MacLeod / incompetech → ligne CC BY 4.0, sans doublon', () => {
     const a = avisMusique(['Kevin_MacLeod_-_Sneaky_Snitch.mp3', 'Sneaky Snitch (incompetech).mp3', 'Kevin MacLeod - Sneaky Snitch.mp3', 'ma musique.mp3']);
-    expect(a.credits).toEqual(['"Sneaky Snitch" Kevin MacLeod (incompetech.com) · Licensed under Creative Commons: By Attribution 4.0 License · http://creativecommons.org/licenses/by/4.0/']);
+    expect(a.credits).toEqual(['"Sneaky Snitch" Kevin MacLeod (incompetech.com)\nLicensed under Creative Commons: By Attribution 4.0 License\nhttp://creativecommons.org/licenses/by/4.0/']);
     expect(a.alertes).toEqual([]);
     expect(titreMorceau('Kevin MacLeod - Monkeys Spinning Monkeys.mp3')).toBe('Monkeys Spinning Monkeys');
   });

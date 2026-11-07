@@ -5,7 +5,7 @@ export const TEXTES_BEST_OF = {
   express: 'Montage express',
   expressAide: 'Les séquences de parole, dans l\'ordre.',
   bestOf: 'Best-of serré',
-  bestOfAide: 'Seulement les meilleurs moments, avec leur contexte, montés serré.',
+  bestOfAide: 'Seulement les meilleurs moments, avec leur contexte. Arko fait presque tout.',
   titresSequence: 'Titres de séquence',
   titresAide: 'Un bandeau au début de chaque séquence, et « ATTENDS… » sur l\'accroche. Tu peux les retirer après.',
   avatars: 'Persos de qui parle',

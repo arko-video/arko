@@ -40,7 +40,12 @@ export interface SignauxSource {
   cris: PlageSignal[];
   rires: PlageSignal[];
   /** Longs passages sans son (fin d'enregistrement AFK…) : à ne jamais proposer. */
-  muets: PlageTemps[];
+  muets: PlageMuette[];
+}
+
+/** Un long passage sans son. `sonIsole` : secondes de bruits isolés comprises dedans (fin AFK), jamais proposées. */
+export interface PlageMuette extends PlageTemps {
+  sonIsole?: Sec;
 }
 
 /** Un morceau gardé par « Couper les blancs » : parole, son fort hors parole, ou voix détectée sans transcription. */

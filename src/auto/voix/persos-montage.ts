@@ -6,7 +6,8 @@
 
 import { chibiDe } from '../../moteur/couches/avatars';
 import { activerAvatars, definirQuiParle, donnerChibi } from '../../recette/operations';
-import type { DefinitionChibi, Mot, Recette, Sec, TourDeParole } from '../../recette/types';
+import type { OptionsQuiParle } from '../../recette/operations-voix';
+import type { DefinitionChibi, Mot, Recette, ReglagesAvatars, Sec, TourDeParole } from '../../recette/types';
 import type { PlageTemps, SignauxSource } from '../types';
 import type { EmpreintesVoix, VoixDetectees } from '../types-v3';
 
@@ -33,6 +34,10 @@ export interface OptionsPersos extends ChoixPersos {
   avatars?: boolean;
   /** Clip : ne garder que les tours de ce passage de la source (± 5 s). */
   plage?: PlageTemps;
+  /** Compléter les tours autrement (Best-of v4 : completerToursV4) ; défaut : completerTours. */
+  completer?: OptionsQuiParle['completer'];
+  /** Réglages des avatars (défaut : « parle » + rebond, tenue d'office) ; le Best-of v4 donne la tenue de la DA. */
+  reglagesAvatars?: ReglagesAvatars;
 }
 
 /** Perso par défaut d'une voix : le perso tout prêt de son numéro (Voix 1 → perso 1…), le même que les avatars. */
@@ -65,11 +70,11 @@ export function poserPersos(r: Recette, ecoute: VoixEcoutees, o: OptionsPersos =
   if (enTout < PERSOS.paroleMin) return r;
   const quiParle = new Set(tours.map((t) => t.p));
   const voix = v.voix.filter((x) => quiParle.has(x.id));
-  let res = definirQuiParle(r, { ...v, voix, tours }, { noms: o.noms, empreintes: ecoute.empreintes, ...(o.mots ? { mots: o.mots } : {}), signaux: o.signaux ?? null });
+  let res = definirQuiParle(r, { ...v, voix, tours }, { noms: o.noms, empreintes: ecoute.empreintes, ...(o.mots ? { mots: o.mots } : {}), signaux: o.signaux ?? null, ...(o.completer ? { completer: o.completer } : {}) });
   for (const p of res.personnes ?? []) {
     const c = o.chibis?.[p.id];
     res = donnerChibi(res, p.id, c?.def ?? p.chibi ?? chibiParDefaut(p.id), c?.bib ?? p.bib);
   }
-  if (o.avatars !== false) res = activerAvatars(res, { mode: 'parle', rebond: true });
+  if (o.avatars !== false) res = activerAvatars(res, o.reglagesAvatars ?? { mode: 'parle', rebond: true });
   return res;
 }

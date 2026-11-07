@@ -243,6 +243,13 @@
           "type": "boolean",
           "default": true
         },
+        "baisseSur": {
+          "type": "string",
+          "enum": [
+            "parole"
+          ],
+          "description": "v4 : la musique baisse pendant la parole (tours de parole, sinon mots des sous-titres), même si la voix est faible. Absent : selon le niveau de la voix (comme avant)."
+        },
         "fonduEntree": {
           "type": "number",
           "minimum": 0,

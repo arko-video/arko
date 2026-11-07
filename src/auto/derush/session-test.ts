@@ -1,11 +1,14 @@
 // Outils pour les tests du derush (dev 1) : une session de jeu FABRIQUÉE de 30 min dont on connaît les passages drôles.
 // Voix synthétiques (au niveau de l'enveloppe), bruit de jeu, rires en rafales à 5 Hz, cris, échanges rapides entre
 // deux personnes, mots transcrits. (Le nom ne finit pas par .test.ts : Vitest ne le lance pas seul.)
+// En plus (dev-scenes, Best-of v4) : sessionLongue(), une session de 2 h prête pour l'étape « séquences ».
 
 import { hasard } from '../../ia/synthese-test';
 import type { Mot, TourDeParole } from '../../recette/types';
+import { morceauxDans, ranger } from '../coupes/decoupe';
 import { signauxDepuisEnveloppe } from '../signaux-source';
-import type { SignauxSource } from '../types';
+import type { PlageTemps, SignauxSource } from '../types';
+import type { EntreeSequences, MomentV4, ParoleDetectee, SegmentParole, VoixDetecteesV4 } from '../types-v4';
 
 export const PAS = 0.02;
 export const DUREE_SESSION = 1800;
@@ -94,4 +97,133 @@ export function sessionFabriquee(): Session {
   rire(1505, 2, 0.15);
   mots.sort((x, y) => x[1] - y[1]);
   return { signaux: signauxDepuisEnveloppe('s1', DUREE_SESSION, PAS, env), mots, paroles, plantes: PLANTES, scenes: SCENES.map(([de, a]) => ({ de, a })) };
+}
+
+/* ------------------------------------------------------------------ Best-of v4 (dev-scenes) : une session de 2 h */
+
+const SYLLABES = ['ba', 'ko', 'di', 'mu', 'ze', 'ra', 'lo', 'ti', 'fe', 'nu'];
+
+/**
+ * Le i-ème mot inventé (« baba », « koba »…), tous différents : une même suite de mots répétée serait une BOUCLE de
+ * Whisper, que les séquences et les punchlines ne prennent pas (motsDouteux).
+ */
+export function motFictif(i: number): string {
+  return String(Math.max(0, Math.floor(i)))
+    .padStart(2, '0')
+    .split('')
+    .map((c) => SYLLABES[Number(c)]!)
+    .join('');
+}
+
+/** Un moment fort planté dans la session de 2 h : son sommet et son bloc de 20 min. */
+export interface MomentPlante {
+  t: number;
+  bloc: number;
+}
+
+export interface SessionLongue {
+  entree: EntreeSequences;
+  /** Les moments forts plantés (2 par bloc, au milieu d'un échange). */
+  plantes: MomentPlante[];
+  /** Les échanges de parole fabriqués : [début, fin]. */
+  echanges: [number, number][];
+  /** Morceaux gardés par les « coupes » de la session (paroles ± 0,25 / 0,35 s, fusionnés sous 0,5 s). */
+  morceaux: PlageTemps[];
+}
+
+export const DUREE_LONGUE = 7200;
+/** Passage muet planté (fin d'enregistrement AFK) : aucune histoire ne doit y tomber. */
+export const MUET_LONG: PlageTemps = { de: 6300, a: 6700 };
+
+/** Coupes simples (comme la DA) : chaque parole ± 0,25 s avant / 0,35 s après, fusion sous 0,5 s. */
+export function coupesSimples(paroles: readonly PlageTemps[]): PlageTemps[] {
+  const res: PlageTemps[] = [];
+  for (const p of [...paroles].sort((x, y) => x.de - y.de)) {
+    const m = { de: Math.max(0, p.de - 0.25), a: p.a + 0.35 };
+    const der = res[res.length - 1];
+    if (der && m.de - der.a < 0.5) der.a = Math.max(der.a, m.a);
+    else res.push(m);
+  }
+  return res;
+}
+
+/** dureeDe d'après des morceaux : la même découpe que le montage (decoupe.ts → morceauxDans, morceaux ≥ 0,35 s). */
+export function dureeDeMorceaux(morceaux: readonly PlageTemps[]): (plages: readonly PlageTemps[]) => number {
+  const r = ranger(morceaux);
+  return (plages) => Math.round(plages.reduce((t, p) => t + morceauxDans(p.de, p.a, r, 0.35).parts.reduce((s, x) => s + x.a - x.de, 0), 0) * 100) / 100;
+}
+
+/**
+ * Session de jeu FABRIQUÉE de 2 h (toujours la même) : des échanges de 20 à 45 s (phrases de 4 à 8 mots, 2 voix en
+ * alternance) séparés de 8 à 25 s de jeu, un passage muet, des moments faibles partout (force 0,1 à 0,3) et 2 moments
+ * forts (force 0,8 à 1) plantés dans CHAQUE bloc de 20 min. `forteEgale` : tous les forts à la même force (le
+ * départage ne doit pas suivre l'ordre chronologique).
+ */
+export function sessionLongue(o: { forteEgale?: boolean; dureeVisee?: number; voix?: boolean } = {}): SessionLongue {
+  const r = hasard(11);
+  const mots: Mot[] = [];
+  const segments: SegmentParole[] = [];
+  const tours: TourDeParole[] = [];
+  const echanges: [number, number][] = [];
+  let t = 15;
+  while (t < DUREE_LONGUE - 60) {
+    if (t >= MUET_LONG.de - 50 && t < MUET_LONG.a) {
+      t = MUET_LONG.a + 10;
+      continue;
+    }
+    const fin = t + 20 + 25 * r();
+    const debut = t;
+    let p = 0;
+    while (t < fin) {
+      const n = 4 + Math.floor(5 * r());
+      const d0 = t;
+      for (let i = 0; i < n; i++) {
+        mots.push([i === 0 ? 'alors' : motFictif(mots.length), Math.round(t * 100) / 100, Math.round((t + 0.3) * 100) / 100]);
+        t += 0.4;
+      }
+      segments.push({ de: Math.round(d0 * 100) / 100, a: Math.round((t - 0.1) * 100) / 100, p: 0.9 });
+      tours.push({ ts: Math.round(d0 * 100) / 100, fin: Math.round((t - 0.1) * 100) / 100, p: p === 0 ? 'p1' : 'p2' });
+      p = 1 - p;
+      t += 0.8 + 0.6 * r();
+    }
+    echanges.push([Math.round(debut * 100) / 100, Math.round(t * 100) / 100]);
+    t += 8 + 17 * r();
+  }
+  // Moments : faibles partout, 2 forts par bloc (au milieu d'un échange de chaque moitié du bloc).
+  const moments: MomentV4[] = [];
+  for (const [de, a] of echanges) {
+    const tm = de + (a - de) * 0.4;
+    moments.push({ de: tm, a: tm + 0.8, t: tm, genre: 'exclamation', force: Math.round((0.1 + 0.2 * r()) * 100) / 100, indices: ['test'] });
+  }
+  const plantes: MomentPlante[] = [];
+  const actif = (x: number) => (x < MUET_LONG.de ? x : x - (Math.min(x, MUET_LONG.a) - MUET_LONG.de));
+  for (let b = 0; b < 6; b++) {
+    for (const quart of [0.3, 0.75]) {
+      const cible = b * 1200 + quart * 1200;
+      const ex = echanges.find(([de]) => actif(de) >= cible) ?? echanges[echanges.length - 1]!;
+      const tm = Math.round((ex[0] + (ex[1] - ex[0]) * 0.6) * 100) / 100;
+      const genre = quart < 0.5 ? 'cri' : 'fouRire';
+      moments.push({ de: tm, a: tm + 1.5, t: tm, genre, force: o.forteEgale ? 0.9 : Math.round((0.8 + 0.2 * r()) * 100) / 100, indices: ['planté'] });
+      plantes.push({ t: tm, bloc: Math.min(5, Math.floor(actif(tm) / 1200)) });
+    }
+  }
+  moments.sort((x, y) => x.t - y.t);
+  const parole: ParoleDetectee = { src: 's1', methode: 'vad', segments, probas: null, part: segments.reduce((s, x) => s + x.a - x.de, 0) / DUREE_LONGUE };
+  const n = Math.round(DUREE_LONGUE / PAS);
+  const env = new Float32Array(n).fill(0.01);
+  for (let k = Math.round(MUET_LONG.de / PAS); k < Math.round(MUET_LONG.a / PAS); k++) env[k] = 0;
+  const signaux: SignauxSource = { src: 's1', duree: DUREE_LONGUE, pas: PAS, rms: env, pics: [], cris: [], rires: [], muets: [{ ...MUET_LONG }] };
+  const morceaux = coupesSimples(segments);
+  const voix: VoixDetecteesV4 | null = o.voix
+    ? {
+        src: 's1',
+        methode: 'niveau+timbre',
+        voix: [{ id: 'p1', niveauDb: -25, part: 0.5 }, { id: 'p2', niveauDb: -40, part: 0.5 }],
+        tours,
+        sure: 0.95,
+        separation: { par: 'niveau', seuilDb: -32, ecartDb: 15, cosinusCentres: null, ambigu: 0, morceaux: tours.length, proposerEmpreinte: null },
+      }
+    : null;
+  const entree: EntreeSequences = { src: 's1', duree: DUREE_LONGUE, mots, parole, moments, voix, signaux, dureeVisee: o.dureeVisee ?? 1044, dureeDe: dureeDeMorceaux(morceaux) };
+  return { entree, plantes, echanges, morceaux };
 }
