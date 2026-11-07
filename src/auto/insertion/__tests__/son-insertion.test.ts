@@ -1,5 +1,5 @@
 // E. Pistes audio (mixage, lecture d'un plan, fichier à 2 pistes fabriqué par ffmpeg) et gros mots (bips).
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -90,7 +90,10 @@ describe('lireSonDuPlan', () => {
   });
 });
 
-describe('pistesDuFichier (MP4 à 2 pistes fabriqué par ffmpeg)', () => {
+// ffmpeg n'est pas installé sur la machine de GitHub (publication) : ce test est alors sauté.
+const ffmpegPresent = spawnSync('ffmpeg', ['-version']).status === 0;
+
+describe.skipIf(!ffmpegPresent)('pistesDuFichier (MP4 à 2 pistes fabriqué par ffmpeg)', () => {
   it('2 pistes, noms écrits par OBS', async () => {
     const dossier = mkdtempSync(join(tmpdir(), 'arko-pistes-'));
     const f = join(dossier, 'obs.mp4');
