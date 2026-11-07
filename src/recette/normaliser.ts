@@ -9,6 +9,7 @@ import { migrer, VERSION_ACTUELLE, versionDuFormat } from './migrations';
 import { ajouterChampsAuto, CLES_RECETTE_AUTO, sourcesAudioAuto } from './normaliser-auto';
 import { normaliserAmelioration } from '../moteur/amelioration/normaliser-amelioration'; // Améliorer l'image
 import { CLES_RECETTE_BIBLIOTHEQUE, normaliserIncrustations } from './normaliser-bibliotheque'; // Ma bibliothèque
+import { ajouterChampsV3, CLES_RECETTE_V3, lireContexteV3 } from './normaliser-v3'; // v3 « Best-of »
 import {
   normaliserGuide,
   normaliserMarqueurs,
@@ -47,6 +48,7 @@ const CLES_RECETTE = [
   ...CLES_RECETTE_AUTO,
   'amelioration', // Améliorer l'image
   ...CLES_RECETTE_BIBLIOTHEQUE, // Ma bibliothèque
+  ...CLES_RECETTE_V3, // v3 « Best-of »
 ] as const;
 
 /**
@@ -72,7 +74,9 @@ export function normaliser(brut: unknown, infos?: InfosSources, options: Options
 
   const sources = normaliserSources(obj.sources, infos, journal);
   const videos = sources.filter((s) => s.type === 'video');
-  const plans = normaliserPlans(obj.plans, videos, journal);
+  // v3 : images et personnes lues AVANT les plans (un plan inséré peut les citer).
+  const contexteV3 = lireContexteV3(obj, journal);
+  const plans = normaliserPlans(obj.plans, videos, journal, contexteV3);
   const duree = arrondir(plans.reduce((s, p) => s + dureePlan(p), 0));
   const mise = normaliserMise(obj.mise, 'mise', journal);
   const destination = normaliserDestination(obj.destination, journal);
@@ -100,6 +104,8 @@ export function normaliser(brut: unknown, infos?: InfosSources, options: Options
   // Ma bibliothèque (facultatif) : fonds verts et mèmes posés par-dessus la vidéo.
   const incrustations = normaliserIncrustations(obj.incrustations, videos, duree, journal);
   if (incrustations) recette.incrustations = incrustations;
+  // v3 « Best-of » (facultatifs) : qui parle, avatars, derush, images insérées, pistes audio, bips.
+  ajouterChampsV3(recette, obj, contexteV3, sources, journal);
   if (options.retirerSourcesAudioInutiles) recette.sources = sourcesUtilisees(recette);
   if (typeof obj.titre === 'string' && obj.titre.trim()) recette.titre = obj.titre.trim().slice(0, 120);
   const marqueurs = normaliserMarqueurs(obj.marqueurs, journal);
@@ -179,7 +185,7 @@ function normaliserSources(brut: unknown, infos: InfosSources | undefined, journ
       journal.corrige(`sources[${i}]`, `La source "${b.id}" apparaît deux fois : doublon ignoré.`);
       return;
     }
-    verifierCles(b, ['id', 'nom', 'taille', 'emp', 'duree', 'type', 'l', 'h', 'bib'], `sources[${i}]`, journal);
+    verifierCles(b, ['id', 'nom', 'taille', 'emp', 'duree', 'type', 'l', 'h', 'bib', 'pistes'], `sources[${i}]`, journal);
     // Clip de Ma bibliothèque : son identifiant là-bas (gardé même si la source ouverte ne le connaît pas).
     const bib = typeof b.bib === 'string' && b.bib ? b.bib.slice(0, 80) : undefined;
     const vraie = ouvertes.find((s) => s.id === b.id);
@@ -198,6 +204,8 @@ function normaliserSources(brut: unknown, infos: InfosSources | undefined, journ
     if (typeof b.l === 'number' && b.l > 0) s.l = Math.round(b.l);
     if (typeof b.h === 'number' && b.h > 0) s.h = Math.round(b.h);
     if (bib) s.bib = bib;
+    // v3 (E) : nombre de pistes audio, gardé seulement s'il y en a au moins 2.
+    if (typeof b.pistes === 'number' && Number.isInteger(b.pistes) && b.pistes >= 2 && b.pistes <= 16) s.pistes = b.pistes;
     res.push(s);
   });
   // Sources ouvertes absentes de la recette (cas typique d'une recette écrite par une IA) : ajoutées.

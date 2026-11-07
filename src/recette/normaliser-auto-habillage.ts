@@ -10,7 +10,7 @@ export const ZOOM_FIXE = { forceMin: 1, forceMax: 2.5, x: 0.5, y: 0.45 };
 /** Titres de section : 2,2 s par défaut. */
 export const SECTIONS = { dur: 2.2, durMin: 0.5, durMax: 6 };
 /** Clés des sous-titres ajoutées par le Montage auto (à accepter dans normaliserSousTitres). */
-export const CLES_SOUS_TITRES_AUTO = ['mode', 'punchlines', 'couleurCle', 'jurons'] as const;
+export const CLES_SOUS_TITRES_AUTO = ['mode', 'punchlines', 'couleurCle', 'jurons', 'pour'] as const;
 
 /** Champs auto des sous-titres (seulement ceux présents et valides). */
 export function normaliserSousTitresAuto(brut: Objet, journal: Journal): Partial<SousTitres> {
@@ -28,6 +28,11 @@ export function normaliserSousTitresAuto(brut: Objet, journal: Journal): Partial
   if (brut.jurons !== undefined) {
     if (brut.jurons === 'masques' || brut.jurons === 'visibles') res.jurons = brut.jurons;
     else journal.corrige('sousTitres.jurons', 'Réglage des jurons inconnu : ils seront masqués.');
+  }
+  // Best-of : les phrases de cette personne sont sous-titrées en plus des punchlines (id de `personnes`).
+  if (brut.pour !== undefined) {
+    if (typeof brut.pour === 'string' && brut.pour.length > 0 && brut.pour.length <= 12) res.pour = brut.pour;
+    else journal.corrige('sousTitres.pour', 'Personne des sous-titres illisible : ignorée.');
   }
   return res;
 }

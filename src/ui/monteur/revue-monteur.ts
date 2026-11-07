@@ -11,7 +11,7 @@ import {
   sauverProjet,
   type SourceOuverte,
 } from '../../moteur/api';
-import type { Source } from '../../recette/types';
+import type { Recette, Source } from '../../recette/types';
 import { T } from '../../textes-fr';
 import { demarrerProjet, fermerSession, historique, sauverEnAttente, sources, vignetteProjet } from '../etat';
 import { idCourant, rafraichirMontages } from '../montages';
@@ -153,6 +153,13 @@ function noterEcrit(uid: string, id: string): Promise<void> {
 
 function attendre(ms: number): Promise<null> {
   return new Promise((r) => setTimeout(() => r(null), ms));
+}
+
+/** v3 (titres retirables) : change le brouillon `uid` encore à trier avec une opération de la recette. */
+export function modifierBrouillon(uid: string, operation: (r: Recette) => Recette): Promise<void> {
+  return majRevue((r) =>
+    r ? { ...r, restants: r.restants.map((b) => (b.uid === uid ? { ...b, recette: operation(b.recette) } : b)) } : r,
+  );
 }
 
 export function jeter(): Promise<void> {

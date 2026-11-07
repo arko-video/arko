@@ -13,7 +13,8 @@
 import { PUNCHLINES } from '../auto/habillage/punchlines';
 import type { PlanPlace } from './chronologie';
 import { SOUS_TITRES, ySousTitres } from './defauts';
-import type { MiseEnPage, Mot, PlagePunchline, Sec, SousTitres } from './types';
+import { avecLignesVoix, toursDeLaVideo } from './sous-titres-voix';
+import type { MiseEnPage, Mot, PlagePunchline, Sec, SousTitres, TourDeParole } from './types';
 
 /** Un trou plus long que ça entre deux mots coupe la ligne. */
 export const TROU_MAX: Sec = 0.6;
@@ -36,6 +37,9 @@ export interface LignePlacee {
   t0: Sec;
   t1: Sec;
   mots: MotPlace[];
+  /** Best-of (« Sous-titres pour : … ») : ligne d'une personne, avec son style et sa hauteur (sinon ceux du bloc). */
+  style?: string;
+  y?: number;
 }
 
 export interface SousTitresPlaces {
@@ -119,6 +123,9 @@ function tenir(lignes: LignePlacee[]): LignePlacee[] {
 /** Options de placement : `toutes` = toutes les phrases même en mode punchlines (liste de l'interface, pour en ajouter). */
 export interface OptionsPlacement {
   toutes?: boolean;
+  /** Best-of : tours de parole (pour `st.pour`) et hauteur des lignes de la personne. */
+  paroles?: readonly TourDeParole[];
+  yVoix?: number;
 }
 
 /** Sous-titres de la vidéo finale (null s'il n'y en a pas, ou s'ils sont encore à transcrire). */
@@ -136,6 +143,11 @@ export function placerSousTitres(st: SousTitres | null, plans: PlanPlace[], mise
     const plages = st.punchlines ?? [];
     const gardes = mots.filter((m) => punchlineDu(m.mot, plages) >= 0);
     res.lignes = tenir(decouperLignes(gardes, PUNCHLINES.motsMax, (m) => punchlineDu(m.mot, plages), TENUE_PUNCHLINE.max - TENUE_PUNCHLINE.apres));
+    if (st.pour && o.paroles && o.paroles.length > 0) {
+      const tours = toursDeLaVideo(o.paroles, st.src ?? premiere, premiere);
+      const dans = (m: Mot) => punchlineDu(m, plages) >= 0;
+      res.lignes = avecLignesVoix(res.lignes, mots, tours, st.pour, o.yVoix ?? res.y, dans, (ms, n, d) => decouperLignes(ms, n, undefined, d));
+    }
   } else res.lignes = decouperLignes(mots, parLigne);
   if (punch || style === 'punchline' || st.couleurCle) res.couleurCle = COULEURS_CLE[st.couleurCle ?? 'jaune'];
   const masquer = st.jurons ? st.jurons === 'masques' : punch || style === 'punchline';

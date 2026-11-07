@@ -13,6 +13,7 @@ import { FREQUENCE_SORTIE } from './audio/reechantillonner';
 import { rendre, type Rendu } from './rendre';
 import { mediasDe } from './sources';
 import { pcmSource } from '../sons/import';
+import { imagesDe } from './inserts/images-ouvertes'; // v3 (B) : images fixes insérées
 
 const BLOC = 12_000; // 0,25 s
 const AVANCE_SON_S = 0.6;
@@ -154,7 +155,7 @@ export function creerLecteur(canvas: HTMLCanvasElement): Lecteur {
       };
       // Même rendu que l'export : intro et outro comprises. On garde la position dans le MONTAGE.
       const tCorps = temps - (ancien?.debutCorps ?? 0);
-      rendu = rendre(recette, mediasDe(sources), cache, { lireImporte });
+      rendu = rendre(recette, mediasDe(sources), cache, { lireImporte }, { images: imagesDe(recette) });
       if (ancien) void ancien.fermer();
       temps = Math.min(Math.max(0, tCorps + debutCorps()), duree());
       if (enLecture) {

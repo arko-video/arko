@@ -25,6 +25,11 @@ import { imageRognee, rognagesParSource } from './rognage';
 import { assembler, segmentGenerique } from './rendre-generiques';
 import { preparerAmelioration } from './amelioration/image-amelioree'; // Améliorer l'image
 import { preparerIncrustations, type CalqueClip } from './incrustation/incruster'; // Ma bibliothèque
+// v3 « Best-of » (contrat : conception/contrat-wankil.md) : éléments insérés, avatars, pistes audio, bips.
+import { preparerInserts } from './inserts/inserts';
+import { preparerAvatars } from './couches/avatars';
+import { lireSonDuPlan } from './audio/pistes';
+import { preparerBips } from './audio/bips';
 
 /** Avance avec laquelle on prépare le plan suivant (pré-décodage avant une coupe). */
 const PRECHAUFFE_S: Sec = 0.5;
@@ -55,6 +60,8 @@ export function imageDeSample(s: VideoSample): ImageSource {
 export interface OptionsRendu {
   /** false = sans intro ni outro (miniature : une image du montage seul). Défaut : avec, aperçu comme export. */
   generiques?: boolean;
+  /** v3 (B) : images fixes insérées, déjà décodées (id d'image de la recette → image). */
+  images?: ReadonlyMap<string, ImageSource>;
 }
 
 /**
@@ -69,10 +76,10 @@ export function rendre(
   optionsEffets?: OptionsEffets,
   options: OptionsRendu = {},
 ): Rendu {
-  const corps = rendreMontage(recette, medias, cachePartage, optionsEffets);
+  const corps = rendreMontage(recette, medias, cachePartage, optionsEffets, options.images);
   if (options.generiques === false) return corps;
   // Aperçu : la vidéo d'une intro / outro partage les décodeurs de l'aperçu ; export : elle a les siens.
-  const mini = (r: Recette, m: ReadonlyMap<string, MediaOuvert>) => rendreMontage(r, m, cachePartage, optionsEffets);
+  const mini = (r: Recette, m: ReadonlyMap<string, MediaOuvert>) => rendreMontage(r, m, cachePartage, optionsEffets, options.images);
   const intro = segmentGenerique(recette, 'intro', medias, mini);
   const outro = segmentGenerique(recette, 'outro', medias, mini);
   return intro || outro ? assembler(corps, intro, outro) : corps;
@@ -84,6 +91,7 @@ function rendreMontage(
   medias: ReadonlyMap<string, MediaOuvert>,
   cachePartage?: CacheDecodage,
   optionsEffets?: OptionsEffets,
+  images?: ReadonlyMap<string, ImageSource>,
 ): Rendu {
   const scenario = compiler(recette);
   const fond = new FondFlou();
@@ -103,6 +111,10 @@ function rendreMontage(
   const fondus = fondusDesCoupes(recette);
   const musique = preparerMusique(recette, scenario, lireImporte);
   const incrustations = preparerIncrustations(recette); // fonds verts et mèmes (null s'il n'y en a pas)
+  // v3 : null sans les champs (rendu exactement celui d'avant).
+  const inserts = preparerInserts(recette, images); // images fixes, cartons, chibis plein écran
+  const avatars = preparerAvatars(recette, scenario); // chibi de la personne qui parle
+  const bips = preparerBips(recette, scenario); // gros mots
   const cles = clesDesPlans(scenario.plans);
   const fileImages = creerFile();
   const fileAudio = creerFile();
@@ -130,10 +142,13 @@ function rendreMontage(
       // Fonds verts et mèmes : décodés et détourés AVANT le dessin (chacun dans son canevas).
       const calques: CalqueClip[] = incrustations && !ferme ? await incrustations.calques(t, env, cache, imageDeSample) : [];
       if (ferme) return;
-      const c = curseur(i);
+      // v3 (B) : élément inséré sans vidéo (image, carton, chibi) : son image est fabriquée, pas décodée.
+      const insere = inserts?.image(etat.plan, env) ?? null;
+      const c = insere ? null : curseur(i);
       const dessin = (sample: VideoSample | null) => {
         // Améliorer l'image : sur la source entière, avant rognage, mise en page et zooms.
-        if (!ferme) dessinerImage(ctx, etat, sample ? imageRognee(ameliorer(imageDeSample(sample)), rognages.get(etat.src)) : null, env, fond, tampon, calques);
+        const image = insere ?? (sample ? imageRognee(ameliorer(imageDeSample(sample)), rognages.get(etat.src)) : null);
+        if (!ferme) dessinerImage(ctx, etat, image, env, fond, tampon, calques, avatars);
       };
       // Le dessin se fait SOUS le verrou du curseur : l'image ne peut pas être fermée entre-temps.
       if (c) await c.avecImage(etat.ts, dessin);
@@ -147,10 +162,8 @@ function rendreMontage(
     return fileAudio(async () => {
       const morceaux = morceauxDuBloc(scenario, t0, n);
       const pcmMorceaux: (Pcm | null)[] = [];
-      for (const m of morceaux) {
-        const lecteur = cache.lecteurAudio(m.plan.src);
-        pcmMorceaux.push(lecteur && !ferme ? await lecteur.lire(m.ts0, m.ts1) : null);
-      }
+      // v3 (E) : sans `pistesAudio`, la piste principale, comme avant.
+      for (const m of morceaux) pcmMorceaux.push(ferme ? null : await lireSonDuPlan(cache, recette, m.plan.src, m.ts0, m.ts1));
       const t1 = t0 + n / FREQUENCE_SORTIE;
       const sons = effetsDuBloc(await effets, t0, t1);
       if (!ferme) sons.push(...(await importesDuBloc(scenario, recette, t0, t1, lireImporte)));
@@ -158,7 +171,8 @@ function rendreMontage(
       // Son guide : seulement si demandé (aperçu). L'export passe guide: false, il n'est donc jamais exporté.
       const guide = options.guide === true && !ferme ? await morceauGuide(t0, t1) : null;
       const blocMusique = musique && !ferme ? await musique.bloc(t0, n) : null;
-      return mixerBloc({ scenario, t0, n, pcmMorceaux, sons, guide, avecGuide: guide !== null, frequence: FREQUENCE_SORTIE, fondus, musique: blocMusique });
+      const entree = { scenario, t0, n, pcmMorceaux, sons, guide, avecGuide: guide !== null, frequence: FREQUENCE_SORTIE, fondus, musique: blocMusique };
+      return mixerBloc(bips ? bips.appliquer(entree) : entree); // v3 (E) : gros mots
     });
   }
 

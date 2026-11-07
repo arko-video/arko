@@ -4,8 +4,9 @@
 import { TRANSITION } from './defauts';
 import { gabaritDe, type Gabarit } from './destination';
 import { placerSousTitres, type SousTitresPlaces } from './sous-titres-places';
+import { SOUS_TITRES_VOIX } from './sous-titres-voix';
 import { arrondir, dureePlan } from './temps';
-import type { MiseEnPage, Recette, Sec, Son, SonGuide, Texte, Transition, Zoom, ZoomFixe } from './types';
+import type { ElementInsere, MiseEnPage, Recette, Sec, Son, SonGuide, Texte, Transition, Zoom, ZoomFixe } from './types';
 
 /** Un plan placé sur la frise de sortie. */
 export interface PlanPlace {
@@ -26,6 +27,8 @@ export interface PlanPlace {
   trans: Required<Pick<Transition, 'type' | 'dur'>> & Pick<Transition, 'son'> | null;
   /** Zoom fixe tenu sur tout le plan (Montage auto, C). Absent = aucun. */
   zoomFixe?: ZoomFixe;
+  /** v3 (B) : élément inséré. Image, carton ou chibi : `src` vaut '' (aucune vidéo, aucun son ; moteur/inserts/). */
+  ins?: ElementInsere;
 }
 
 /** Un élément posé à un temps de sortie précis (sons, zooms). */
@@ -74,7 +77,8 @@ export function compiler(recette: Recette): Scenario {
     const dur = dureePlan(p);
     plans.push({
       i,
-      src: p.src ?? premiere,
+      // v3 (B) : un élément sans vidéo n'a pas de source (rien ne s'y attache en temps source).
+      src: p.ins && p.ins.type !== 'clip' ? '' : (p.src ?? premiere),
       de: p.de,
       a: p.a,
       vit,
@@ -84,11 +88,14 @@ export function compiler(recette: Recette): Scenario {
       mise: miseDuPlan(recette.mise, p.mise),
       trans: i === 0 ? null : lireTrans(p.trans),
       ...(p.zoomFixe ? { zoomFixe: p.zoomFixe } : {}),
+      ...(p.ins ? { ins: p.ins } : {}),
     });
     t += dur;
   });
-  const sousTitres = placerSousTitres(recette.sousTitres, plans, recette.mise, premiere);
-  const scenario: Scenario = { duree: t, plans, textes: recette.textes, sons: [], zooms: [], sousTitres, guide: recette.guide, gab: gabaritDe(recette) };
+  const gab = gabaritDe(recette);
+  const voix = recette.sousTitres?.pour ? { paroles: recette.paroles ?? [], yVoix: gab.paysage ? SOUS_TITRES_VOIX.yPaysage : undefined } : {};
+  const sousTitres = placerSousTitres(recette.sousTitres, plans, recette.mise, premiere, voix);
+  const scenario: Scenario = { duree: t, plans, textes: recette.textes, sons: [], zooms: [], sousTitres, guide: recette.guide, gab };
   scenario.sons = poser(scenario, recette.sons, premiere);
   scenario.zooms = poser(scenario, recette.zooms, premiere);
   return scenario;

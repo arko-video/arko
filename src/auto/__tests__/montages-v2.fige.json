@@ -1,0 +1,1605 @@
+{
+ "tiktokComplet": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [
+     {
+      "id": "s1",
+      "nom": "partie.mp4",
+      "taille": 123456789,
+      "emp": "abc",
+      "duree": 7200,
+      "type": "video",
+      "l": 1280,
+      "h": 720
+     },
+     {
+      "id": "a1",
+      "nom": "vine boom.mp3",
+      "taille": 20000,
+      "emp": "def",
+      "duree": 1.2,
+      "type": "audio"
+     }
+    ],
+    "plans": [
+     {
+      "de": 842.3,
+      "a": 851,
+      "vit": 1.5
+     },
+     {
+      "de": 855.2,
+      "a": 859.8,
+      "fige": 1,
+      "trans": {
+       "type": "glitch",
+       "dur": 0.4,
+       "son": false
+      },
+      "m": "m01"
+     },
+     {
+      "de": 900,
+      "a": 910,
+      "trans": "zoom",
+      "mise": {
+       "type": "recadre",
+       "x": 0.3
+      }
+     }
+    ],
+    "mise": {
+     "type": "jeuCam",
+     "cam": {
+      "x": 0.02,
+      "y": 0.62,
+      "l": 0.26,
+      "h": 0.34
+     },
+     "x": 0.5,
+     "camEnHaut": false,
+     "partCam": 0.4
+    },
+    "textes": [
+     {
+      "txt": "ATTENDS LA FIN…",
+      "style": "accroche",
+      "t": 0,
+      "dur": 2.5,
+      "x": 0.5,
+      "y": 0.2,
+      "role": "accroche"
+     },
+     {
+      "txt": "#1",
+      "style": "alerte",
+      "t": 5,
+      "dur": 1,
+      "x": 0.4,
+      "y": 0.3,
+      "role": "top3"
+     }
+    ],
+    "sousTitres": {
+     "style": "pop",
+     "y": 0.6,
+     "parLigne": 2,
+     "mots": [
+      [
+       "non",
+       843,
+       843.4,
+       1
+      ],
+      [
+       "attends",
+       843.5,
+       844
+      ],
+      [
+       "quoi",
+       856,
+       856.3
+      ]
+     ]
+    },
+    "sons": [
+     {
+      "id": "impact.boom",
+      "ts": 857.1,
+      "vol": 1.2
+     },
+     {
+      "id": "a1",
+      "t": 3,
+      "vol": 0.8
+     }
+    ],
+    "zooms": [
+     {
+      "ts": 857,
+      "dur": 0.8,
+      "x": 0.4,
+      "y": 0.6,
+      "force": 1.6,
+      "style": "doux",
+      "zone": "jeu"
+     }
+    ],
+    "guide": {
+     "src": "a1",
+     "t": 0,
+     "debut": 12,
+     "vol": 0.5
+    },
+    "boucle": true,
+    "export": {
+     "h": 1280,
+     "ips": 30,
+     "qualite": "normale"
+    },
+    "titre": "Le clutch",
+    "marqueurs": [
+     {
+      "ts": 857,
+      "type": "cri",
+      "label": "Gros cri"
+     }
+    ],
+    "statut": "garde"
+   },
+   "problemes": [],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 21.399999999999938,
+   "plans": [
+    {
+     "i": 0,
+     "src": "s1",
+     "de": 842.3,
+     "a": 851,
+     "vit": 1.5,
+     "t0": 0,
+     "t1": 5.80000000000003,
+     "tFige": 5.80000000000003,
+     "mise": {
+      "type": "jeuCam",
+      "cam": {
+       "x": 0.02,
+       "y": 0.62,
+       "l": 0.26,
+       "h": 0.34
+      },
+      "x": 0.5,
+      "camEnHaut": false,
+      "partCam": 0.4
+     },
+     "trans": null
+    },
+    {
+     "i": 1,
+     "src": "s1",
+     "de": 855.2,
+     "a": 859.8,
+     "vit": 1,
+     "t0": 5.80000000000003,
+     "t1": 11.399999999999938,
+     "tFige": 10.399999999999938,
+     "mise": {
+      "type": "jeuCam",
+      "cam": {
+       "x": 0.02,
+       "y": 0.62,
+       "l": 0.26,
+       "h": 0.34
+      },
+      "x": 0.5,
+      "camEnHaut": false,
+      "partCam": 0.4
+     },
+     "trans": {
+      "type": "glitch",
+      "dur": 0.4,
+      "son": false
+     }
+    },
+    {
+     "i": 2,
+     "src": "s1",
+     "de": 900,
+     "a": 910,
+     "vit": 1,
+     "t0": 11.399999999999938,
+     "t1": 21.399999999999938,
+     "tFige": 21.399999999999938,
+     "mise": {
+      "type": "recadre",
+      "x": 0.3
+     },
+     "trans": {
+      "type": "zoom",
+      "dur": 0.3
+     }
+    }
+   ],
+   "textes": [
+    {
+     "txt": "ATTENDS LA FIN…",
+     "style": "accroche",
+     "t": 0,
+     "dur": 2.5,
+     "x": 0.5,
+     "y": 0.2,
+     "role": "accroche"
+    },
+    {
+     "txt": "#1",
+     "style": "alerte",
+     "t": 5,
+     "dur": 1,
+     "x": 0.4,
+     "y": 0.3,
+     "role": "top3"
+    }
+   ],
+   "sons": [
+    {
+     "t": 3,
+     "element": {
+      "id": "a1",
+      "t": 3,
+      "vol": 0.8
+     }
+    },
+    {
+     "t": 7.7,
+     "element": {
+      "id": "impact.boom",
+      "ts": 857.1,
+      "vol": 1.2
+     }
+    }
+   ],
+   "zooms": [
+    {
+     "t": 7.6,
+     "element": {
+      "ts": 857,
+      "dur": 0.8,
+      "x": 0.4,
+      "y": 0.6,
+      "force": 1.6,
+      "style": "doux",
+      "zone": "jeu"
+     }
+    }
+   ],
+   "sousTitres": {
+    "style": "pop",
+    "y": 0.6,
+    "lignes": [
+     {
+      "k0": 0,
+      "k1": 2,
+      "t0": 0.466666666666697,
+      "t1": 1.1333333333333637,
+      "mots": [
+       {
+        "k": 0,
+        "mot": [
+         "non",
+         843,
+         843.4,
+         1
+        ],
+        "t0": 0.466666666666697,
+        "t1": 0.7333333333333485
+       },
+       {
+        "k": 1,
+        "mot": [
+         "attends",
+         843.5,
+         844
+        ],
+        "t0": 0.8000000000000304,
+        "t1": 1.1333333333333637
+       }
+      ]
+     },
+     {
+      "k0": 2,
+      "k1": 3,
+      "t0": 6.5999999999999845,
+      "t1": 6.899999999999939,
+      "mots": [
+       {
+        "k": 2,
+        "mot": [
+         "quoi",
+         856,
+         856.3
+        ],
+        "t0": 6.5999999999999845,
+        "t1": 6.899999999999939
+       }
+      ]
+     }
+    ]
+   },
+   "guide": {
+    "src": "a1",
+    "t": 0,
+    "debut": 12,
+    "vol": 0.5
+   },
+   "gab": {
+    "id": "tiktok",
+    "plateforme": "TikTok",
+    "l": 1080,
+    "h": 1920,
+    "paysage": false,
+    "zone": {
+     "haut": 0.125,
+     "bas": 0.34375,
+     "cote": 0.1111111111111111
+    },
+    "texteY": [
+     0.15,
+     0.62
+    ],
+    "sousTitresY": [
+     0.15,
+     0.72
+    ],
+    "basSousTitresMax": 0.72,
+    "largeurTexte": 840,
+    "largeurSousTitres": 900,
+    "dureeConseil": 180,
+    "dureeLimite": null,
+    "dureeMax": 600
+   }
+  }
+ },
+ "youtubeComplet": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [
+     {
+      "id": "s1",
+      "nom": "partie.mp4",
+      "taille": 123456789,
+      "emp": "abc",
+      "duree": 7200,
+      "type": "video",
+      "l": 1280,
+      "h": 720
+     },
+     {
+      "id": "g1",
+      "nom": "intro.mp4",
+      "taille": 5000,
+      "emp": "ghi",
+      "duree": 4,
+      "type": "video",
+      "l": 1920,
+      "h": 1080
+     }
+    ],
+    "plans": [
+     {
+      "de": 10,
+      "a": 70
+     },
+     {
+      "de": 100,
+      "a": 160
+     },
+     {
+      "de": 300,
+      "a": 400
+     }
+    ],
+    "mise": {
+     "type": "recadre",
+     "x": 0.5
+    },
+    "textes": [
+     {
+      "txt": "Salut",
+      "style": "accroche",
+      "t": 1,
+      "dur": 3,
+      "x": 0.5,
+      "y": 0.2
+     }
+    ],
+    "sousTitres": {
+     "style": "karaoke",
+     "y": 0.82,
+     "parLigne": 3,
+     "mots": "auto"
+    },
+    "sons": [],
+    "zooms": [],
+    "guide": null,
+    "boucle": false,
+    "export": {
+     "h": 1920,
+     "ips": 30,
+     "qualite": "haute"
+    },
+    "destination": "youtube",
+    "chapitres": [
+     {
+      "t": 0,
+      "nom": "Début"
+     },
+     {
+      "t": 60,
+      "nom": "Le château"
+     },
+     {
+      "t": 120,
+      "nom": "La fin"
+     }
+    ],
+    "intro": {
+     "src": "g1",
+     "dur": 3
+    },
+    "outro": {
+     "modele": "abonne",
+     "dur": 5,
+     "chaine": "Romain",
+     "texte": "Abonne-toi !"
+    }
+   },
+   "problemes": [],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 220,
+   "plans": [
+    {
+     "i": 0,
+     "src": "s1",
+     "de": 10,
+     "a": 70,
+     "vit": 1,
+     "t0": 0,
+     "t1": 60,
+     "tFige": 60,
+     "mise": {
+      "type": "recadre",
+      "x": 0.5
+     },
+     "trans": null
+    },
+    {
+     "i": 1,
+     "src": "s1",
+     "de": 100,
+     "a": 160,
+     "vit": 1,
+     "t0": 60,
+     "t1": 120,
+     "tFige": 120,
+     "mise": {
+      "type": "recadre",
+      "x": 0.5
+     },
+     "trans": null
+    },
+    {
+     "i": 2,
+     "src": "s1",
+     "de": 300,
+     "a": 400,
+     "vit": 1,
+     "t0": 120,
+     "t1": 220,
+     "tFige": 220,
+     "mise": {
+      "type": "recadre",
+      "x": 0.5
+     },
+     "trans": null
+    }
+   ],
+   "textes": [
+    {
+     "txt": "Salut",
+     "style": "accroche",
+     "t": 1,
+     "dur": 3,
+     "x": 0.5,
+     "y": 0.2
+    }
+   ],
+   "sons": [],
+   "zooms": [],
+   "sousTitres": null,
+   "guide": null,
+   "gab": {
+    "id": "youtube",
+    "plateforme": "YouTube",
+    "l": 1920,
+    "h": 1080,
+    "paysage": true,
+    "zone": {
+     "haut": 0.08,
+     "bas": 0.14,
+     "cote": 0.05
+    },
+    "texteY": [
+     0.1,
+     0.86
+    ],
+    "sousTitresY": [
+     0.12,
+     0.88
+    ],
+    "basSousTitresMax": 0.88,
+    "largeurTexte": 1500,
+    "largeurSousTitres": 1400,
+    "dureeConseil": null,
+    "dureeLimite": null,
+    "dureeMax": 3600
+   }
+  }
+ },
+ "short": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [
+     {
+      "id": "s1",
+      "nom": "partie.mp4",
+      "taille": 123456789,
+      "emp": "abc",
+      "duree": 7200,
+      "type": "video",
+      "l": 1280,
+      "h": 720
+     }
+    ],
+    "plans": [
+     {
+      "de": 0,
+      "a": 20
+     }
+    ],
+    "mise": {
+     "type": "flou",
+     "y": 0.45
+    },
+    "textes": [],
+    "sousTitres": null,
+    "sons": [],
+    "zooms": [],
+    "guide": null,
+    "boucle": false,
+    "export": {
+     "h": 1920,
+     "ips": 30,
+     "qualite": "normale"
+    },
+    "destination": "short"
+   },
+   "problemes": [],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 20,
+   "plans": [
+    {
+     "i": 0,
+     "src": "s1",
+     "de": 0,
+     "a": 20,
+     "vit": 1,
+     "t0": 0,
+     "t1": 20,
+     "tFige": 20,
+     "mise": {
+      "type": "flou",
+      "y": 0.45
+     },
+     "trans": null
+    }
+   ],
+   "textes": [],
+   "sons": [],
+   "zooms": [],
+   "sousTitres": null,
+   "guide": null,
+   "gab": {
+    "id": "short",
+    "plateforme": "YouTube",
+    "l": 1080,
+    "h": 1920,
+    "paysage": false,
+    "zone": {
+     "haut": 0.15,
+     "bas": 0.25,
+     "cote": 0.12962962962962962
+    },
+    "texteY": [
+     0.17,
+     0.7
+    ],
+    "sousTitresY": [
+     0.17,
+     0.75
+    ],
+    "basSousTitresMax": 0.75,
+    "largeurTexte": 800,
+    "largeurSousTitres": 800,
+    "dureeConseil": null,
+    "dureeLimite": 180,
+    "dureeMax": 600
+   }
+  }
+ },
+ "minimal": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [],
+    "plans": [
+     {
+      "de": 1,
+      "a": 4
+     }
+    ],
+    "mise": {
+     "type": "flou",
+     "y": 0.5
+    },
+    "textes": [],
+    "sousTitres": null,
+    "sons": [],
+    "zooms": [],
+    "guide": null,
+    "boucle": false,
+    "export": {
+     "h": 1920,
+     "ips": 30,
+     "qualite": "normale"
+    }
+   },
+   "problemes": [
+    {
+     "chemin": "format",
+     "niveau": "conseil",
+     "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+    }
+   ],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 3,
+   "plans": [
+    {
+     "i": 0,
+     "src": "",
+     "de": 1,
+     "a": 4,
+     "vit": 1,
+     "t0": 0,
+     "t1": 3,
+     "tFige": 3,
+     "mise": {
+      "type": "flou",
+      "y": 0.5
+     },
+     "trans": null
+    }
+   ],
+   "textes": [],
+   "sons": [],
+   "zooms": [],
+   "sousTitres": null,
+   "guide": null,
+   "gab": {
+    "id": "tiktok",
+    "plateforme": "TikTok",
+    "l": 1080,
+    "h": 1920,
+    "paysage": false,
+    "zone": {
+     "haut": 0.125,
+     "bas": 0.34375,
+     "cote": 0.1111111111111111
+    },
+    "texteY": [
+     0.15,
+     0.62
+    ],
+    "sousTitresY": [
+     0.15,
+     0.72
+    ],
+    "basSousTitresMax": 0.72,
+    "largeurTexte": 840,
+    "largeurSousTitres": 900,
+    "dureeConseil": 180,
+    "dureeLimite": null,
+    "dureeMax": 600
+   }
+  }
+ },
+ "montageAuto": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [
+     {
+      "id": "s1",
+      "nom": "obs.mp4",
+      "taille": 1,
+      "emp": "e1",
+      "duree": 7200,
+      "type": "video",
+      "l": 1280,
+      "h": 720
+     },
+     {
+      "id": "a1",
+      "nom": "Kevin MacLeod - Monkeys.mp3",
+      "taille": 1,
+      "emp": "e2",
+      "duree": 120,
+      "type": "audio"
+     },
+     {
+      "id": "a2",
+      "nom": "bruh.mp3",
+      "taille": 1,
+      "emp": "e3",
+      "duree": 1,
+      "type": "audio"
+     }
+    ],
+    "plans": [
+     {
+      "de": 10,
+      "a": 20,
+      "zoomFixe": {
+       "force": 1.32,
+       "y": 0.45
+      }
+     },
+     {
+      "de": 30,
+      "a": 40,
+      "trans": "glitch"
+     },
+     {
+      "de": 50,
+      "a": 70,
+      "fige": 1
+     }
+    ],
+    "mise": {
+     "type": "recadre",
+     "x": 0.5
+    },
+    "textes": [
+     {
+      "txt": "ATTENDS…",
+      "style": "accroche",
+      "t": 0,
+      "dur": 6,
+      "x": 0.5,
+      "y": 0.2,
+      "role": "accroche"
+     },
+     {
+      "txt": "LE CHÂTEAU",
+      "style": "bandeau",
+      "t": 6,
+      "dur": 2.2,
+      "x": 0.5,
+      "y": 0.2,
+      "role": "section"
+     }
+    ],
+    "sousTitres": {
+     "style": "punchline",
+     "y": 0.82,
+     "parLigne": 3,
+     "mots": [
+      [
+       "putain",
+       12,
+       12.4,
+       1
+      ],
+      [
+       "non",
+       31,
+       31.3
+      ]
+     ],
+     "mode": "punchlines",
+     "punchlines": [
+      {
+       "ts": 12,
+       "fin": 13.5
+      }
+     ],
+     "couleurCle": "rouge",
+     "jurons": "masques"
+    },
+    "sons": [
+     {
+      "id": "a2",
+      "ts": 12.1,
+      "vol": 0.63,
+      "role": "bruitage",
+      "dur": 3,
+      "fondu": 0.3
+     },
+     {
+      "id": "whoosh.rapide",
+      "t": 6,
+      "vol": 0.8,
+      "role": "section"
+     }
+    ],
+    "zooms": [
+     {
+      "ts": 35,
+      "dur": 0.6,
+      "x": 0.5,
+      "y": 0.5,
+      "force": 1.3,
+      "style": "punch",
+      "zone": "tout"
+     }
+    ],
+    "guide": null,
+    "boucle": false,
+    "export": {
+     "h": 1920,
+     "ips": 30,
+     "qualite": "haute"
+    },
+    "blancs": {
+     "niveau": "serre",
+     "fonduEntree": 0.02,
+     "fonduSortie": 0.04
+    },
+    "rognages": [
+     {
+      "src": "s1",
+      "x": 0.0414,
+      "y": 0.0278,
+      "l": 0.9164,
+      "h": 0.9167
+     }
+    ],
+    "musique": {
+     "morceaux": [
+      {
+       "src": "a1",
+       "t": 0
+      },
+      {
+       "src": "a1",
+       "t": 25,
+       "debut": 10,
+       "boucle": false
+      }
+     ],
+     "vol": 0.14,
+     "baisse": true
+    },
+    "volumeFinal": {
+     "lufs": -14,
+     "crete": -1.5
+    },
+    "sections": {
+     "source": "chapitres",
+     "son": true,
+     "dur": 2.2
+    },
+    "destination": "youtube",
+    "chapitres": [
+     {
+      "t": 0,
+      "nom": "Début"
+     },
+     {
+      "t": 12,
+      "nom": "Le château"
+     },
+     {
+      "t": 25,
+      "nom": "La fin"
+     }
+    ]
+   },
+   "problemes": [],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 41,
+   "plans": [
+    {
+     "i": 0,
+     "src": "s1",
+     "de": 10,
+     "a": 20,
+     "vit": 1,
+     "t0": 0,
+     "t1": 10,
+     "tFige": 10,
+     "mise": {
+      "type": "recadre",
+      "x": 0.5
+     },
+     "trans": null,
+     "zoomFixe": {
+      "force": 1.32,
+      "y": 0.45
+     }
+    },
+    {
+     "i": 1,
+     "src": "s1",
+     "de": 30,
+     "a": 40,
+     "vit": 1,
+     "t0": 10,
+     "t1": 20,
+     "tFige": 20,
+     "mise": {
+      "type": "recadre",
+      "x": 0.5
+     },
+     "trans": {
+      "type": "glitch",
+      "dur": 0.3
+     }
+    },
+    {
+     "i": 2,
+     "src": "s1",
+     "de": 50,
+     "a": 70,
+     "vit": 1,
+     "t0": 20,
+     "t1": 41,
+     "tFige": 40,
+     "mise": {
+      "type": "recadre",
+      "x": 0.5
+     },
+     "trans": null
+    }
+   ],
+   "textes": [
+    {
+     "txt": "ATTENDS…",
+     "style": "accroche",
+     "t": 0,
+     "dur": 6,
+     "x": 0.5,
+     "y": 0.2,
+     "role": "accroche"
+    },
+    {
+     "txt": "LE CHÂTEAU",
+     "style": "bandeau",
+     "t": 6,
+     "dur": 2.2,
+     "x": 0.5,
+     "y": 0.2,
+     "role": "section"
+    }
+   ],
+   "sons": [
+    {
+     "t": 2.1,
+     "element": {
+      "id": "a2",
+      "ts": 12.1,
+      "vol": 0.63,
+      "role": "bruitage",
+      "dur": 3,
+      "fondu": 0.3
+     }
+    },
+    {
+     "t": 6,
+     "element": {
+      "id": "whoosh.rapide",
+      "t": 6,
+      "vol": 0.8,
+      "role": "section"
+     }
+    }
+   ],
+   "zooms": [
+    {
+     "t": 15,
+     "element": {
+      "ts": 35,
+      "dur": 0.6,
+      "x": 0.5,
+      "y": 0.5,
+      "force": 1.3,
+      "style": "punch",
+      "zone": "tout"
+     }
+    }
+   ],
+   "sousTitres": {
+    "style": "punchline",
+    "y": 0.82,
+    "lignes": [
+     {
+      "k0": 0,
+      "k1": 1,
+      "t0": 2,
+      "t1": 2.6000000000000005,
+      "mots": [
+       {
+        "k": 0,
+        "mot": [
+         "putain",
+         12,
+         12.4,
+         1
+        ],
+        "t0": 2,
+        "t1": 2.4000000000000004
+       }
+      ]
+     }
+    ],
+    "couleurCle": "#FF3030",
+    "masquer": true
+   },
+   "guide": null,
+   "gab": {
+    "id": "youtube",
+    "plateforme": "YouTube",
+    "l": 1920,
+    "h": 1080,
+    "paysage": true,
+    "zone": {
+     "haut": 0.08,
+     "bas": 0.14,
+     "cote": 0.05
+    },
+    "texteY": [
+     0.1,
+     0.86
+    ],
+    "sousTitresY": [
+     0.12,
+     0.88
+    ],
+    "basSousTitresMax": 0.88,
+    "largeurTexte": 1500,
+    "largeurSousTitres": 1400,
+    "dureeConseil": null,
+    "dureeLimite": null,
+    "dureeMax": 3600
+   }
+  }
+ },
+ "bibliotheque": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [
+     {
+      "id": "s1",
+      "nom": "obs.mp4",
+      "taille": 1,
+      "emp": "e1",
+      "duree": 7200,
+      "type": "video",
+      "l": 1280,
+      "h": 720
+     },
+     {
+      "id": "b1",
+      "nom": "chat qui crie.mp4",
+      "taille": 1,
+      "emp": "e4",
+      "duree": 6,
+      "type": "video",
+      "l": 1280,
+      "h": 720,
+      "bib": "clip-12"
+     },
+     {
+      "id": "b2",
+      "nom": "explosion fond vert.mp4",
+      "taille": 1,
+      "emp": "e5",
+      "duree": 4,
+      "type": "video",
+      "l": 1920,
+      "h": 1080,
+      "bib": "clip-13"
+     }
+    ],
+    "plans": [
+     {
+      "de": 100,
+      "a": 104
+     },
+     {
+      "de": 0.5,
+      "a": 4,
+      "src": "b1",
+      "mise": {
+       "type": "flou",
+       "y": 0.5
+      }
+     },
+     {
+      "de": 104,
+      "a": 110
+     }
+    ],
+    "mise": {
+     "type": "flou",
+     "y": 0.45
+    },
+    "textes": [
+     {
+      "txt": "Regarde",
+      "style": "bulle",
+      "t": 1,
+      "dur": 3,
+      "x": 0.4,
+      "y": 0.3
+     }
+    ],
+    "sousTitres": null,
+    "sons": [
+     {
+      "id": "impact.boom",
+      "ts": 105,
+      "vol": 0.8
+     }
+    ],
+    "zooms": [],
+    "guide": null,
+    "boucle": false,
+    "export": {
+     "h": 1920,
+     "ips": 30,
+     "qualite": "normale"
+    },
+    "amelioration": {
+     "niveau": "fort",
+     "nettoyer": true,
+     "agrandir": false
+    },
+    "incrustations": [
+     {
+      "src": "b2",
+      "t": 2,
+      "de": 0,
+      "a": 3,
+      "plein": true,
+      "cle": {
+       "couleur": [
+        0,
+        177,
+        64
+       ],
+       "tolerance": 0.42,
+       "douceur": 0.25,
+       "debordement": 0.7
+      },
+      "vol": 0.8,
+      "genre": "fondVert"
+     },
+     {
+      "src": "b1",
+      "t": 9,
+      "de": 1,
+      "a": 3,
+      "x": 0.75,
+      "y": 0.25,
+      "taille": 0.42,
+      "son": false,
+      "genre": "meme"
+     }
+    ]
+   },
+   "problemes": [],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 13.5,
+   "plans": [
+    {
+     "i": 0,
+     "src": "s1",
+     "de": 100,
+     "a": 104,
+     "vit": 1,
+     "t0": 0,
+     "t1": 4,
+     "tFige": 4,
+     "mise": {
+      "type": "flou",
+      "y": 0.45
+     },
+     "trans": null
+    },
+    {
+     "i": 1,
+     "src": "b1",
+     "de": 0.5,
+     "a": 4,
+     "vit": 1,
+     "t0": 4,
+     "t1": 7.5,
+     "tFige": 7.5,
+     "mise": {
+      "type": "flou",
+      "y": 0.5
+     },
+     "trans": null
+    },
+    {
+     "i": 2,
+     "src": "s1",
+     "de": 104,
+     "a": 110,
+     "vit": 1,
+     "t0": 7.5,
+     "t1": 13.5,
+     "tFige": 13.5,
+     "mise": {
+      "type": "flou",
+      "y": 0.45
+     },
+     "trans": null
+    }
+   ],
+   "textes": [
+    {
+     "txt": "Regarde",
+     "style": "bulle",
+     "t": 1,
+     "dur": 3,
+     "x": 0.4,
+     "y": 0.3
+    }
+   ],
+   "sons": [
+    {
+     "t": 8.5,
+     "element": {
+      "id": "impact.boom",
+      "ts": 105,
+      "vol": 0.8
+     }
+    }
+   ],
+   "zooms": [],
+   "sousTitres": null,
+   "guide": null,
+   "gab": {
+    "id": "tiktok",
+    "plateforme": "TikTok",
+    "l": 1080,
+    "h": 1920,
+    "paysage": false,
+    "zone": {
+     "haut": 0.125,
+     "bas": 0.34375,
+     "cote": 0.1111111111111111
+    },
+    "texteY": [
+     0.15,
+     0.62
+    ],
+    "sousTitresY": [
+     0.15,
+     0.72
+    ],
+    "basSousTitresMax": 0.72,
+    "largeurTexte": 840,
+    "largeurSousTitres": 900,
+    "dureeConseil": 180,
+    "dureeLimite": null,
+    "dureeMax": 600
+   }
+  }
+ },
+ "ameliorationSeule": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [
+     {
+      "id": "s1",
+      "nom": "obs.mp4",
+      "taille": 1,
+      "emp": "e1",
+      "duree": 7200,
+      "type": "video",
+      "l": 1280,
+      "h": 720
+     }
+    ],
+    "plans": [
+     {
+      "de": 1,
+      "a": 9
+     }
+    ],
+    "mise": {
+     "type": "flou",
+     "y": 0.5
+    },
+    "textes": [],
+    "sousTitres": null,
+    "sons": [],
+    "zooms": [],
+    "guide": null,
+    "boucle": false,
+    "export": {
+     "h": 1920,
+     "ips": 30,
+     "qualite": "normale"
+    },
+    "amelioration": {
+     "niveau": "leger",
+     "nettoyer": true,
+     "agrandir": true
+    }
+   },
+   "problemes": [
+    {
+     "chemin": "format",
+     "niveau": "conseil",
+     "message": "Le champ \"format\" manquait : je suppose \"arko.recette/1\"."
+    }
+   ],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 8,
+   "plans": [
+    {
+     "i": 0,
+     "src": "s1",
+     "de": 1,
+     "a": 9,
+     "vit": 1,
+     "t0": 0,
+     "t1": 8,
+     "tFige": 8,
+     "mise": {
+      "type": "flou",
+      "y": 0.5
+     },
+     "trans": null
+    }
+   ],
+   "textes": [],
+   "sons": [],
+   "zooms": [],
+   "sousTitres": null,
+   "guide": null,
+   "gab": {
+    "id": "tiktok",
+    "plateforme": "TikTok",
+    "l": 1080,
+    "h": 1920,
+    "paysage": false,
+    "zone": {
+     "haut": 0.125,
+     "bas": 0.34375,
+     "cote": 0.1111111111111111
+    },
+    "texteY": [
+     0.15,
+     0.62
+    ],
+    "sousTitresY": [
+     0.15,
+     0.72
+    ],
+    "basSousTitresMax": 0.72,
+    "largeurTexte": 840,
+    "largeurSousTitres": 900,
+    "dureeConseil": 180,
+    "dureeLimite": null,
+    "dureeMax": 600
+   }
+  }
+ },
+ "monteurSansIA": {
+  "normalise": {
+   "recette": {
+    "format": "arko.recette/1",
+    "sources": [
+     {
+      "id": "s1",
+      "nom": "obs.mp4",
+      "taille": 1,
+      "emp": "e1",
+      "duree": 7200,
+      "type": "video",
+      "l": 1280,
+      "h": 720
+     }
+    ],
+    "plans": [
+     {
+      "de": 5013.5,
+      "a": 5031,
+      "src": "s1",
+      "m": "m07"
+     }
+    ],
+    "mise": {
+     "type": "flou",
+     "y": 0.5
+    },
+    "textes": [
+     {
+      "txt": "MORT DE RIRE",
+      "style": "accroche",
+      "t": 0,
+      "dur": 2.5,
+      "x": 0.5,
+      "y": 0.2,
+      "role": "accroche"
+     }
+    ],
+    "sousTitres": {
+     "style": "karaoke",
+     "y": 0.66,
+     "parLigne": 3,
+     "mots": "auto"
+    },
+    "sons": [
+     {
+      "id": "impact.boom",
+      "ts": 5020,
+      "src": "s1",
+      "vol": 0.8
+     }
+    ],
+    "zooms": [
+     {
+      "ts": 5020,
+      "src": "s1",
+      "dur": 0.6,
+      "x": 0.5,
+      "y": 0.5,
+      "force": 1.3,
+      "style": "punch",
+      "zone": "tout"
+     }
+    ],
+    "guide": null,
+    "boucle": false,
+    "export": {
+     "h": 1920,
+     "ips": 30,
+     "qualite": "normale"
+    },
+    "titre": "Fou rire à 1:23:45",
+    "marqueurs": [
+     {
+      "ts": 5020,
+      "type": "rire",
+      "src": "s1",
+      "label": "Rires"
+     }
+    ],
+    "statut": "brouillon"
+   },
+   "problemes": [],
+   "bloquant": false
+  },
+  "scenario": {
+   "duree": 17.5,
+   "plans": [
+    {
+     "i": 0,
+     "src": "s1",
+     "de": 5013.5,
+     "a": 5031,
+     "vit": 1,
+     "t0": 0,
+     "t1": 17.5,
+     "tFige": 17.5,
+     "mise": {
+      "type": "flou",
+      "y": 0.5
+     },
+     "trans": null
+    }
+   ],
+   "textes": [
+    {
+     "txt": "MORT DE RIRE",
+     "style": "accroche",
+     "t": 0,
+     "dur": 2.5,
+     "x": 0.5,
+     "y": 0.2,
+     "role": "accroche"
+    }
+   ],
+   "sons": [
+    {
+     "t": 6.5,
+     "element": {
+      "id": "impact.boom",
+      "ts": 5020,
+      "src": "s1",
+      "vol": 0.8
+     }
+    }
+   ],
+   "zooms": [
+    {
+     "t": 6.5,
+     "element": {
+      "ts": 5020,
+      "src": "s1",
+      "dur": 0.6,
+      "x": 0.5,
+      "y": 0.5,
+      "force": 1.3,
+      "style": "punch",
+      "zone": "tout"
+     }
+    }
+   ],
+   "sousTitres": null,
+   "guide": null,
+   "gab": {
+    "id": "tiktok",
+    "plateforme": "TikTok",
+    "l": 1080,
+    "h": 1920,
+    "paysage": false,
+    "zone": {
+     "haut": 0.125,
+     "bas": 0.34375,
+     "cote": 0.1111111111111111
+    },
+    "texteY": [
+     0.15,
+     0.62
+    ],
+    "sousTitresY": [
+     0.15,
+     0.72
+    ],
+    "basSousTitresMax": 0.72,
+    "largeurTexte": 840,
+    "largeurSousTitres": 900,
+    "dureeConseil": 180,
+    "dureeLimite": null,
+    "dureeMax": 600
+   }
+  }
+ }
+}

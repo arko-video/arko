@@ -10,6 +10,7 @@ import { gabaritDe } from '../../recette/destination';
 import { annonceOk, cascadePour, choisirEncodage, essaiPermis, type EssaiEncodage } from './cascade';
 import { erreurEncodeur, erreurReserve, exporterUneFois } from './exporter';
 import type { DemandeExport, DepuisWorker, VersWorker } from './messages';
+import { garderImagesDe, ouvrirImage } from '../inserts/images-ouvertes'; // v3 (B)
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -112,6 +113,8 @@ async function exporter(d: DemandeExport) {
       if (id === d.recette.guide?.src && !autreUsage) continue;
       medias.set(id, await ouvrirMedia(fichier, source?.type === 'audio' ? 'audio' : 'video'));
     }
+    // v3 (B) : images fixes insérées, décodées ici (createImageBitmap marche dans le Worker).
+    for (const [emp, f] of Object.entries(d.images ?? {})) await ouvrirImage(emp, f);
     await Promise.all([preparerAac(), policesPretes()]); // polices prêtes avant la 1re image
     const seul720 = d.recette.export.h === 1280;
     // YouTube 16:9 : cascade 16:9 ; « qualité haute » = 1440p si l'appareil sait l'encoder.
@@ -163,5 +166,6 @@ async function exporter(d: DemandeExport) {
     }
   } finally {
     for (const m of medias.values()) fermerMedia(m);
+    garderImagesDe({ ...d.recette, images: [] });
   }
 }

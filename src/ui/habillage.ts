@@ -17,8 +17,8 @@ import { modifier, recette, recetteTemporaire, teteLecture } from './etat';
 import { auCentieme } from './format';
 import { ajouterTexteLibre } from './placement';
 
-export type Outil = 'couper' | 'accroche' | 'texte' | 'sousTitres' | 'sons' | 'transitions' | 'zoom' | 'combos' | 'modeles' | 'chapitres' | 'generiques' | 'fondVert' | 'memes';
-export const OUTILS: Outil[] = ['couper', 'accroche', 'texte', 'sousTitres', 'sons', 'transitions', 'zoom', 'combos', 'modeles', 'chapitres', 'generiques', 'fondVert', 'memes'];
+export type Outil = 'couper' | 'accroche' | 'texte' | 'sousTitres' | 'sons' | 'transitions' | 'zoom' | 'combos' | 'modeles' | 'chapitres' | 'generiques' | 'fondVert' | 'memes' | 'avatars';
+export const OUTILS: Outil[] = ['couper', 'accroche', 'texte', 'sousTitres', 'sons', 'transitions', 'zoom', 'combos', 'modeles', 'chapitres', 'generiques', 'fondVert', 'memes', 'avatars'];
 /** Outils réservés à YouTube 16:9. */
 export const OUTILS_YOUTUBE: readonly Outil[] = ['chapitres', 'generiques'];
 

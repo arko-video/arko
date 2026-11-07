@@ -1,0 +1,180 @@
+/* Chibis (v3, dev 3) : atelier, rayon de Ma bibliothèque, outil Avatars. Mobile d'abord (360 px), cibles ≥ 44 px. */
+
+.chibi-apercu {
+  display: block;
+  flex-shrink: 0;
+}
+.chibi-scene {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  border-radius: var(--r-grand);
+  background: repeating-conic-gradient(#20242c 0% 25%, #191c23 0% 50%) 50% / 24px 24px;
+}
+.chibi-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chibi-section > summary {
+  list-style: none;
+  justify-content: center;
+}
+.chibi-section > summary::-webkit-details-marker {
+  display: none;
+}
+.chibi-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chibi-actions .btn {
+  flex: 1 1 140px;
+  min-height: 48px;
+}
+.chibi-grille,
+.chibi-vignettes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 6px;
+}
+.chibi-vignette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 4px 2px 6px;
+  border-radius: var(--r-petit);
+  border: 2px solid var(--bord);
+  background: var(--surface);
+  color: var(--texte);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.chibi-vignette[data-actif='1'] {
+  border-color: var(--accent);
+  background: var(--accent-voile);
+}
+.chibi-vignette .petit {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chibi-traits {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+.chibi-trait {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chibi-couleurs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chibi-couleur {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  border: 3px solid var(--bord-fort);
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+.chibi-couleur[data-actif='1'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--fond) inset;
+}
+.chibi-couleur-autre {
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+}
+.chibi-couleur-autre input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.chibi-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chibi-ligne {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: var(--r);
+  border: 1px solid var(--bord);
+  background: var(--surface);
+}
+.chibi-ligne-nom {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chibi-ligne .btn {
+  min-height: 44px;
+  padding: 0 10px;
+}
+.choix-chibi {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.avatar-personne {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-radius: var(--r);
+  border: 1px solid var(--bord);
+  background: var(--surface);
+}
+.avatar-personne-tete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.avatar-pastille {
+  width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+.calque-avatars {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+.cadre-avatar {
+  position: absolute;
+  border: 2px dashed var(--accent);
+  border-radius: 10px;
+  cursor: grab;
+}
+.cadre-avatar span {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-texte);
+  font-size: 12px;
+  white-space: nowrap;
+}

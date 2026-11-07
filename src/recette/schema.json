@@ -333,6 +333,141 @@
       "items": {
         "$ref": "#/$defs/incrustation"
       }
+    },
+    "personnes": {
+      "type": "array",
+      "maxItems": 8,
+      "description": "v3 (facultatif) : les personnes qui parlent et leur chibi.",
+      "items": {
+        "$ref": "#/$defs/personne"
+      }
+    },
+    "paroles": {
+      "type": "array",
+      "maxItems": 20000,
+      "description": "v3 (facultatif) : qui parle quand.",
+      "items": {
+        "$ref": "#/$defs/tourDeParole"
+      }
+    },
+    "avatars": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "v3 (facultatif) : avatar de la personne qui parle.",
+      "properties": {
+        "mode": {
+          "enum": [
+            "parle",
+            "toujours"
+          ]
+        },
+        "rebond": {
+          "type": "boolean"
+        },
+        "tenue": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "style": {
+          "enum": [
+            "feutre",
+            "crayon",
+            "paint",
+            "bd",
+            "cartoon",
+            "rate",
+            "mascotte",
+            "pixel",
+            "papier"
+          ]
+        }
+      }
+    },
+    "derush": {
+      "type": "object",
+      "required": [
+        "passages"
+      ],
+      "additionalProperties": false,
+      "description": "v3 (facultatif) : passages notés mais pas gardés.",
+      "properties": {
+        "passages": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/passage"
+          }
+        }
+      }
+    },
+    "images": {
+      "type": "array",
+      "maxItems": 50,
+      "description": "v3 (facultatif) : images fixes insérées (le fichier reste sur l'appareil).",
+      "items": {
+        "$ref": "#/$defs/image"
+      }
+    },
+    "pistesAudio": {
+      "type": "array",
+      "description": "v3 (facultatif) : pistes audio mixées d'une vidéo à plusieurs pistes.",
+      "items": {
+        "type": "object",
+        "required": [
+          "src",
+          "pistes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "src": {
+            "type": "string"
+          },
+          "pistes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "items": {
+              "type": "object",
+              "required": [
+                "n"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "n": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "vol": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1.5
+                },
+                "nom": {
+                  "type": "string",
+                  "maxLength": 24
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "bips": {
+      "type": "object",
+      "required": [
+        "son"
+      ],
+      "additionalProperties": false,
+      "description": "v3 (facultatif) : bip ou silence sur les gros mots.",
+      "properties": {
+        "son": {
+          "enum": [
+            "bip",
+            "muet"
+          ]
+        }
+      }
     }
   },
   "$defs": {
@@ -393,6 +528,12 @@
         "bib": {
           "type": "string",
           "description": "Clip de Ma bibliothèque (fond vert, mème) : son identifiant sur l'appareil. Le fichier n'est jamais copié dans le montage."
+        },
+        "pistes": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 16,
+          "description": "v3 : nombre de pistes audio (seulement s'il y en a au moins 2)."
         }
       }
     },
@@ -471,6 +612,9 @@
               "default": 0.45
             }
           }
+        },
+        "ins": {
+          "$ref": "#/$defs/elementInsere"
         }
       }
     },
@@ -784,6 +928,11 @@
             "visibles"
           ],
           "default": "masques"
+        },
+        "pour": {
+          "type": "string",
+          "maxLength": 12,
+          "description": "Best-of : id d'une personne dont toutes les phrases sont sous-titrées (boîte, en bas) en plus des punchlines."
         }
       }
     },
@@ -1114,6 +1263,420 @@
             "meme"
           ],
           "description": "Outil qui l'a posé."
+        }
+      }
+    },
+    "emotion": {
+      "enum": [
+        "parle",
+        "rit",
+        "mortDeRire",
+        "crie",
+        "hurle",
+        "enerve",
+        "rage",
+        "choque",
+        "surpris",
+        "frime",
+        "moqueur",
+        "panique",
+        "triste",
+        "pleure",
+        "gene",
+        "reflechit",
+        "confus",
+        "dort",
+        "content",
+        "amoureux",
+        "malade",
+        "determine",
+        "victoire",
+        "defaite"
+      ],
+      "description": "Émotion du chibi (24 variantes, chacune bouche ouverte / fermée)."
+    },
+    "situation": {
+      "enum": [
+        "aucune",
+        "epee",
+        "arc",
+        "bouclier",
+        "pioche",
+        "marteau",
+        "bombe",
+        "feu",
+        "peche",
+        "mange",
+        "potion",
+        "mort",
+        "trophee",
+        "coffre",
+        "gemme",
+        "manette",
+        "lag",
+        "peur",
+        "afk",
+        "micro",
+        "soin",
+        "chute",
+        "court",
+        "frime"
+      ],
+      "description": "Situation de jeu du perso (papier découpé) : objet en main, pose des bras. Facultative ; « aucune » = juste l'émotion."
+    },
+    "chibi": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "v3 : un chibi ORIGINAL dessiné par le code d'Arko (CC0) à partir de ces valeurs ; aucun fichier.",
+      "properties": {
+        "style": {
+          "enum": [
+            "feutre",
+            "crayon",
+            "paint",
+            "bd",
+            "cartoon",
+            "rate",
+            "mascotte",
+            "pixel",
+            "papier"
+          ]
+        },
+        "graine": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "peau": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "coiffure": {
+          "enum": [
+            "courts",
+            "herisses",
+            "meche",
+            "longs",
+            "queue",
+            "chignon",
+            "afro",
+            "rase",
+            "bol",
+            "crete"
+          ]
+        },
+        "cheveux": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "tenue": {
+          "enum": [
+            "sweat",
+            "tshirt",
+            "armure",
+            "astronaute",
+            "cowboy",
+            "pyjama",
+            "costume",
+            "ninja",
+            "sorcier",
+            "pirate",
+            "chemise"
+          ]
+        },
+        "accessoire": {
+          "enum": [
+            "aucun",
+            "casquette",
+            "casqueAudio",
+            "lunettes",
+            "lunettesSoleil",
+            "bandeau",
+            "couronne",
+            "bonnet",
+            "masque",
+            "echarpe",
+            "barbe",
+            "casquetteEnvers",
+            "capuche"
+          ]
+        },
+        "couleur": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "yeux": {
+          "enum": [
+            "ronds",
+            "points",
+            "fatigues",
+            "grands"
+          ]
+        }
+      }
+    },
+    "placeAvatar": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "(x, y) = milieu du bas du chibi, en part de l'image ; taille = hauteur / hauteur de l'image.",
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "taille": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 0.6
+        }
+      }
+    },
+    "personne": {
+      "type": "object",
+      "required": [
+        "id",
+        "nom"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 12,
+          "description": "« p1 »…"
+        },
+        "nom": {
+          "type": "string",
+          "maxLength": 24
+        },
+        "couleur": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "piste": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15,
+          "description": "Piste audio séparée qui porte sa voix (0 = la 1re)."
+        },
+        "niveauDb": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 0
+        },
+        "chibi": {
+          "$ref": "#/$defs/chibi"
+        },
+        "bib": {
+          "type": "string"
+        },
+        "place": {
+          "$ref": "#/$defs/placeAvatar"
+        },
+        "avatar": {
+          "const": false
+        }
+      }
+    },
+    "tourDeParole": {
+      "type": "object",
+      "required": [
+        "ts",
+        "fin",
+        "p"
+      ],
+      "additionalProperties": false,
+      "description": "La personne p parle de ts à fin (temps SOURCE : suit les coupes).",
+      "properties": {
+        "ts": {
+          "$ref": "#/$defs/temps"
+        },
+        "fin": {
+          "$ref": "#/$defs/temps"
+        },
+        "p": {
+          "type": "string"
+        },
+        "src": {
+          "type": "string"
+        },
+        "emo": {
+          "$ref": "#/$defs/emotion"
+        },
+        "sit": {
+          "$ref": "#/$defs/situation"
+        },
+        "b": {
+          "type": "string",
+          "description": "Bouche ouverte / fermée toutes les 0,04 s depuis ts : bits en base64."
+        },
+        "sur": {
+          "const": false
+        }
+      }
+    },
+    "passage": {
+      "type": "object",
+      "required": [
+        "de",
+        "a",
+        "note",
+        "raison"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "src": {
+          "type": "string"
+        },
+        "de": {
+          "$ref": "#/$defs/temps"
+        },
+        "a": {
+          "$ref": "#/$defs/temps"
+        },
+        "note": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "raison": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "titre": {
+          "type": "string",
+          "maxLength": 60
+        }
+      }
+    },
+    "elementInsere": {
+      "description": "v3 : élément inséré entre deux parties. Image, carton, chibi : de = 0, a = durée (0,3 à 30 s), pas de src.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "clip"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "img"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "image"
+            },
+            "img": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "txt"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "carton"
+            },
+            "txt": {
+              "type": "string",
+              "maxLength": 120
+            },
+            "fond": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "couleur": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "style": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "emo"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "chibi"
+            },
+            "emo": {
+              "$ref": "#/$defs/emotion"
+            },
+            "sit": {
+              "$ref": "#/$defs/situation"
+            },
+            "p": {
+              "type": "string"
+            },
+            "chibi": {
+              "$ref": "#/$defs/chibi"
+            },
+            "txt": {
+              "type": "string",
+              "maxLength": 60
+            },
+            "fond": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          }
+        }
+      ]
+    },
+    "image": {
+      "type": "object",
+      "required": [
+        "id",
+        "l",
+        "h"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "nom": {
+          "type": "string"
+        },
+        "emp": {
+          "type": "string"
+        },
+        "taille": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "l": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "h": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     }

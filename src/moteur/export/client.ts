@@ -7,8 +7,9 @@ import type { Recette } from '../../recette/types';
 import type { EstimationExport, ExportEnCours, ResultatExport, SourceOuverte } from '../api';
 import { ErreurArko } from '../erreurs';
 import { cascadePour } from './cascade';
-import type { DepuisWorker, VersWorker } from './messages';
+import type { DemandeExport, DepuisWorker } from './messages';
 import { effacerExport, nomExport } from './sortie-opfs';
+import { fichiersImagesDe } from '../inserts/images-ouvertes'; // v3 (B)
 
 const CLE_ENCODAGE = 'arko.encodage';
 const DEBIT_AUDIO = 128_000;
@@ -109,10 +110,15 @@ export function lancerExport(recette: Recette, sources: SourceOuverte[]): Export
   const generiqueAbsent = [recette.intro?.src, recette.outro?.src].some((id) => id && !fichiers[id]);
   // Fonds verts et mèmes (Ma bibliothèque) : leur clip doit être ouvert.
   const clipAbsent = (recette.incrustations ?? []).some((x) => !fichiers[x.src]);
+  // v3 (B) : images fixes insérées (ouvertes dans la page, envoyées au Worker).
+  const images = fichiersImagesDe(recette);
+  const imageAbsente = (recette.images ?? []).some((i) => !images[i.emp]);
   if (sources.length === 0 || manquante) {
     rejeter(new ErreurArko('La vidéo d\'origine n\'est plus ouverte. Choisis-la à nouveau.', 'source'));
   } else if (clipAbsent) {
     rejeter(new ErreurArko('Un fond vert ou un mème n\'est plus dans Ma bibliothèque. Retire-le dans Habiller, puis réessaie.', 'source'));
+  } else if (imageAbsente) {
+    rejeter(new ErreurArko('Une image insérée n\'est plus sur l\'appareil. Retire-la dans Couper, puis réessaie.', 'source'));
   } else if (generiqueAbsent) {
     rejeter(new ErreurArko('La vidéo de ton intro ou de ton outro n\'est plus sur l\'appareil. Choisis-la à nouveau dans Habiller → Intro / outro.', 'source'));
   } else {
@@ -151,7 +157,8 @@ export function lancerExport(recette: Recette, sources: SourceOuverte[]): Export
         resoudre(r);
       }
     };
-    const demande: VersWorker = { type: 'exporter', recette, fichiers, rangConnu: lireEncodageConnu(paysage), nom };
+    const demande: DemandeExport = { type: 'exporter', recette, fichiers, rangConnu: lireEncodageConnu(paysage), nom };
+    if (recette.images?.length) demande.images = images;
     worker.postMessage(demande);
   }
 

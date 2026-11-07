@@ -11,6 +11,11 @@ import type { Incrustation } from './types-bibliotheque';
 export type * from './types-bibliotheque';
 // Améliorer l'image
 import type { ReglagesAmelioration } from '../moteur/amelioration/reglages';
+// v3 « Best-of » (contrat : conception/contrat-wankil.md) : qui parle, avatars, derush, insertion, pistes, bips.
+import type { Personne, ReglagesAvatars, ReglagesDerush, TourDeParole } from './types-voix';
+import type { ElementInsere, ImageRecette, ReglagePistes, ReglagesBips } from './types-insertion';
+export type * from './types-voix';
+export type * from './types-insertion';
 
 export const FORMAT_RECETTE = 'arko.recette/1';
 
@@ -60,6 +65,21 @@ export interface Recette {
   amelioration?: ReglagesAmelioration;
   // Ma bibliothèque (facultatif) : fonds verts et mèmes posés par-dessus la vidéo, voir types-bibliotheque.ts.
   incrustations?: Incrustation[];
+  // v3 « Best-of », tous facultatifs : voir types-voix.ts et types-insertion.ts.
+  /** C. Les personnes qui parlent (Qui parle ?) et leur chibi. */
+  personnes?: Personne[];
+  /** C. Qui parle quand (temps source, suit les coupes). */
+  paroles?: TourDeParole[];
+  /** C. Avatars à l'écran (le chibi de la personne qui parle). */
+  avatars?: ReglagesAvatars;
+  /** C. Passages notés par le derush mais pas gardés (« Passages pas retenus »). */
+  derush?: ReglagesDerush;
+  /** B. Images fixes insérées (le fichier reste sur l'appareil). */
+  images?: ImageRecette[];
+  /** E. Pistes audio mixées, par source (vidéo à plusieurs pistes). */
+  pistesAudio?: ReglagePistes[];
+  /** E. Bip ou silence sur les gros mots. */
+  bips?: ReglagesBips;
 }
 
 export interface Chapitre {
@@ -94,6 +114,8 @@ export interface Source {
   h?: number;
   /** Clip de Ma bibliothèque (fond vert, mème) : son identifiant là-bas (le fichier n'est pas copié dans le montage). */
   bib?: string;
+  /** v3 (E) : nombre de pistes audio du fichier, seulement s'il y en a au moins 2 (information). */
+  pistes?: number;
 }
 
 export interface Plan {
@@ -114,6 +136,8 @@ export interface Plan {
   fige?: Sec;
   /** C. Zoom fixe tenu sur tout le plan (« punch-in » des jump cuts). Montage auto. */
   zoomFixe?: ZoomFixe;
+  /** v3 (B) : élément inséré entre deux parties (clip, image fixe, carton texte, chibi plein écran). */
+  ins?: ElementInsere;
 }
 
 export interface Transition {
@@ -172,6 +196,11 @@ export interface SousTitres {
   couleurCle?: 'jaune' | 'rouge';
   /** B. Jurons masqués à l'affichage (« P*TAIN ») : défaut oui. */
   jurons?: 'masques' | 'visibles';
+  /**
+   * Best-of : id d'une personne (`recette.personnes`) dont TOUTES les phrases sont sous-titrées (style boîte, en bas),
+   * en plus des punchlines (mode 'punchlines') : la voix qu'on entend mal. Absent = personne.
+   */
+  pour?: string;
 }
 
 export interface Son {

@@ -9,6 +9,7 @@ import type { Destination } from '../../../recette/destination';
 import type { NiveauBlancs } from '../../../recette/types';
 import { TA } from '../../../textes-auto';
 import { T } from '../../../textes-fr';
+import { TV } from '../../../textes-v3';
 import { IconeRetour } from '../../composants/Icones';
 import { nomCourt } from '../../composants/monteur/ReglagesIA';
 import { afficherToast } from '../../etat';
@@ -17,6 +18,8 @@ import { mesSons } from '../../mes-sons';
 import { cleGardee, clesSaisies, garderCle, saisie, saisir } from '../../monteur/cles-monteur';
 import { retour } from '../../navigation';
 import { tailleArrondie } from '../../sous-titres-ui';
+import { enBestOf, styleMontage } from './etat-best-of';
+import { ChoixStyle, InterrupteursBestOf } from './ReglagesStyle';
 import { basculerMorceau, choisirDestinationExpress, destinationExpress, DUREES_EXPRESS, fournisseurExpress, lancerExpress, reglagesExpress, reglerExpress, sourceExpress } from './etat-express';
 
 const TX = TA.express;
@@ -69,7 +72,7 @@ function Segments<V extends string>({ titre, valeurs, actif, nom, choisir, id }:
   );
 }
 
-function Interrupteur({ titre, aide, coche, changer, id, children }: { titre: string; aide: string; coche: boolean; changer: (v: boolean) => void; id: string; children?: ComponentChildren }) {
+export function Interrupteur({ titre, aide, coche, changer, id, children }: { titre: string; aide: string; coche: boolean; changer: (v: boolean) => void; id: string; children?: ComponentChildren }) {
   return (
     <label class="interrupteur">
       <span>
@@ -87,6 +90,8 @@ export function EcranReglagesExpress() {
   const r = reglagesExpress.value;
   const d = destinationExpress.value;
   const f = fournisseurExpress.value;
+  void styleMontage.value; // relu à chaque changement de style
+  const bestOf = enBestOf();
   const [module, setModule] = useState<{ present: boolean; taille: string } | null>(null);
   const [gardee, setGardee] = useState<string | null>(null);
 
@@ -135,6 +140,7 @@ export function EcranReglagesExpress() {
         </div>
 
         <Segments titre={TX.pour} id="pour" valeurs={['youtube', 'tiktok', 'short'] as Destination[]} actif={d} nom={(v) => TX.destinations[v]} choisir={choisirDestinationExpress} />
+        <ChoixStyle />
         <Segments titre={TX.dureeVisee} id="duree" valeurs={['0', '1', '2']} actif={String(iDuree)} nom={(v) => fourchette(durees[Number(v)]!)} choisir={(v) => reglerExpress({ dureeVisee: durees[Number(v)]! })} />
         <Segments titre={TX.garder} id="garder" valeurs={['parole+forts', 'parole'] as const} actif={r.garder} nom={(v) => (v === 'parole' ? TX.paroleSeule : TX.parolesEtForts)} choisir={(v) => reglerExpress({ garder: v })} />
         <Segments titre={TX.coupe} id="niveau" valeurs={['serre', 'normal', 'large'] as NiveauBlancs[]} actif={r.niveauBlancs} nom={(v) => TX.niveaux[v]} choisir={(v) => reglerExpress({ niveauBlancs: v })} />
@@ -144,10 +150,12 @@ export function EcranReglagesExpress() {
             {module && !module.present && r.transcrire && <span class="petit">{TX.moduleManque(module.taille)}</span>}
           </Interrupteur>
           <Interrupteur titre={TX.punchlines} aide={TX.punchlinesAide} coche={r.punchlines} changer={(v) => reglerExpress({ punchlines: v })} id="punchlines" />
-          <Interrupteur titre={TX.bruitages} aide={TX.bruitagesAide} coche={r.bruitages} changer={(v) => reglerExpress({ bruitages: v })} id="bruitages" />
+          {!bestOf && <Interrupteur titre={TX.bruitages} aide={TX.bruitagesAide} coche={r.bruitages} changer={(v) => reglerExpress({ bruitages: v })} id="bruitages" />}
           <Interrupteur titre={TX.zooms} aide={TX.zoomsAide} coche={r.zooms !== null} changer={(v) => reglerExpress({ zooms: v ? 'normal' : null })} id="zooms" />
-          {d === 'youtube' && <Interrupteur titre={TX.sections} aide={TX.sectionsAide} coche={r.sections} changer={(v) => reglerExpress({ sections: v })} id="sections" />}
+          {!bestOf && d === 'youtube' && <Interrupteur titre={TX.sections} aide={TX.sectionsAide} coche={r.sections} changer={(v) => reglerExpress({ sections: v })} id="sections" />}
           <Interrupteur titre={TX.accroche} aide={TX.accrocheAide} coche={r.accroche} changer={(v) => reglerExpress({ accroche: v })} id="accroche" />
+          {bestOf && <InterrupteursBestOf />}
+          {!bestOf && <Interrupteur titre={TV.bestOf.avatars} aide={TV.bestOf.avatarsAide} coche={r.persos !== false} changer={(v) => reglerExpress({ persos: v })} id="persos" />}
           <Interrupteur titre={TX.bords} aide={TX.bordsAide} coche={r.bords} changer={(v) => reglerExpress({ bords: v })} id="bords" />
         </div>
 
@@ -183,6 +191,7 @@ export function EcranReglagesExpress() {
           ))}
         </section>
 
+        {!bestOf && (
         <section class="champ">
           <span class="champ-titre">{TX.mode}</span>
           <div class="modes" role="radiogroup" aria-label={TX.mode}>
@@ -194,7 +203,8 @@ export function EcranReglagesExpress() {
             ))}
           </div>
         </section>
-        {r.avecIA && (
+        )}
+        {!bestOf && r.avecIA && (
           <div class="reglages-ia">
             <div class="segments" role="radiogroup" aria-label={T.monteur.fournisseur}>
               {FOURNISSEURS.map((x) => (

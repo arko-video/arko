@@ -304,3 +304,4 @@ export { fichierGenerique, garderGenerique, listerGeneriques, supprimerGenerique
 
 /** Clips vidéo gardés sur l'appareil (rayons Fonds verts et Mèmes). */
 export { ficheClip, listerClips, lireClip, modifierClip, placeLibre, supprimerClip, type MonClip } from '../stockage/clips';
+export * from './api-v3'; // v3 « Best-of » : images insérées, pistes audio, chibis (contrat-wankil.md)

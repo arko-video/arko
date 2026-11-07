@@ -32,6 +32,9 @@ import { destinationChoisie } from './destination';
 import { rouvrirGeneriques } from './generiques';
 import { rouvrirSons } from './sons-gardes';
 import { rouvrirClips } from './clips-montage';
+import { garderImagesDe } from '../moteur/api';
+import { rouvrirImages } from './auto/insertion/actions-insertion'; // v3 (B)
+import { pistesAChoisir } from './auto/insertion/etat-insertion'; // v3 (E)
 
 /** Projets, du plus récent au plus ancien (null : pas encore lus). */
 export const montages = signal<ResumeProjet[] | null>(null);
@@ -68,8 +71,12 @@ export async function nouveauMontage(fichier: File, progression: (etape: string)
 export async function demarrerMontage(source: SourceOuverte) {
   await sauverEnAttente();
   await nouveauProjet();
-  demarrerProjet(source, recetteInitiale(source, destinationChoisie.peek() ?? 'tiktok'));
+  const r = recetteInitiale(source, destinationChoisie.peek() ?? 'tiktok');
+  garderImagesDe(r); // v3 (B) : les images d'un autre montage sont refermées
+  demarrerProjet(source, r);
   idCourant.value = null;
+  // v3 (E) : vidéo à plusieurs pistes de son (OBS : micro + Discord) → choisir les pistes gardées.
+  if ((source.infos.pistes ?? 0) >= 2) pistesAChoisir.value = source.infos.id;
   derniereEtape.value = 'couper';
   allerA('couper');
 }
@@ -107,7 +114,11 @@ export async function ouvrirMontage(
     // Fonds verts et mèmes : rouverts depuis Ma bibliothèque (retirés proprement s'ils n'y sont plus).
     const clips = await rouvrirClips(gen.recette);
     sons.messages.push(...clips.messages);
-    demarrerProjet(source, clips.recette, [...sons.audio, ...gen.ouvertes, ...clips.ouvertes]);
+    // v3 (B) : images fixes insérées, rouvertes depuis l'appareil (retirées proprement si elles n'y sont plus).
+    const images = await rouvrirImages(clips.recette);
+    sons.messages.push(...images.messages);
+    garderImagesDe(images.recette);
+    demarrerProjet(source, images.recette, [...sons.audio, ...gen.ouvertes, ...clips.ouvertes]);
     idCourant.value = id;
     vignetteProjet.value = p.vignette;
     reprendreA(p.etape);

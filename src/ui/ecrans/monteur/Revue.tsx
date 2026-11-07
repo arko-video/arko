@@ -13,6 +13,8 @@ import { gardesEcrits, garder, jeter, retoucherPremier } from '../../monteur/rev
 import { compilerGardes } from '../../monteur/compilation-monteur';
 import { destinationChoisie } from '../../destination';
 import { TY } from '../../../textes-youtube';
+import { BarreTitre } from '../../auto/derush/BarreTitre'; // v3 (dev 1) : titre retirable / modifiable
+import { QuiParleClips } from '../../auto/voix/QuiParleClips'; // persos de qui parle : noms et persos des voix
 
 /** Part de la largeur à balayer pour garder ou jeter. */
 const SEUIL = 0.28;
@@ -151,6 +153,8 @@ export function Revue() {
             <p class="revue-raison" data-testid="revue-raison">
               {b.raison || T.monteur.raisonParDefaut}
             </p>
+            <BarreTitre uid={b.uid} recette={b.recette} />
+            <QuiParleClips recette={b.recette} source={source} />
           </div>
         </div>
       </div>

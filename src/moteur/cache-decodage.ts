@@ -14,6 +14,8 @@ interface ParSource {
   media: MediaOuvert;
   sinkVideo: SinkImages | null;
   audio: LecteurAudio | null;
+  /** v3 (E) : un lecteur par piste audio, créé à la demande (vidéo à plusieurs pistes). */
+  pistes?: Map<number, LecteurAudio | null>;
 }
 
 /** Clé d'un plan : (src, de, a, vit), plus son rang parmi les plans identiques (passage réutilisé). */
@@ -36,6 +38,8 @@ export class CacheDecodage {
     private readonly fabrique: {
       video(m: MediaOuvert): SinkImages | null;
       audio(m: MediaOuvert): LecteurAudio | null;
+      /** v3 (E) : lecteur de la piste audio n (facultatif ; défaut : celle du fichier). */
+      piste?(m: MediaOuvert, n: number): LecteurAudio | null;
     } = {
       video: (m) => (m.video ? new VideoSampleSink(m.video) : null),
       audio: (m) => (m.sinkAudio && m.audio ? new LecteurAudio(new AudioSampleSink(m.audio)) : null),
@@ -54,6 +58,23 @@ export class CacheDecodage {
 
   lecteurAudio(src: string): LecteurAudio | null {
     return this.sources.get(src)?.audio ?? null;
+  }
+
+  /**
+   * v3 (E) : lecteur de la piste audio n (0 = la 1re) de la source, créé à la demande et fermé avec elle.
+   * La piste principale réutilise le lecteur habituel. null si la piste n'existe pas.
+   */
+  lecteurPiste(src: string, n: number): LecteurAudio | null {
+    const s = this.sources.get(src);
+    if (!s) return null;
+    const piste = s.media.pistesAudio?.[n];
+    if ((piste && piste === s.media.audio) || (!s.media.pistesAudio && n === 0 && !this.fabrique.piste)) return s.audio;
+    s.pistes ??= new Map();
+    if (!s.pistes.has(n)) {
+      const fab = this.fabrique.piste ?? ((m: MediaOuvert, k: number) => (m.pistesAudio?.[k] ? new LecteurAudio(new AudioSampleSink(m.pistesAudio[k]!)) : null));
+      s.pistes.set(n, fab(s.media, n));
+    }
+    return s.pistes.get(n) ?? null;
   }
 
   /** Curseur du plan de clé `cle` (créé au besoin), ou null si la source n'a pas de vidéo. */
@@ -86,6 +107,7 @@ export class CacheDecodage {
     const s = this.sources.get(id);
     this.sources.delete(id);
     void s?.audio?.fermer();
+    for (const l of s?.pistes?.values() ?? []) void l?.fermer();
     for (const [cle, c] of this.curseurs) {
       if (c.src === id) {
         void c.curseur.fermer();
@@ -97,7 +119,10 @@ export class CacheDecodage {
   async fermer() {
     const attentes: Promise<void>[] = [];
     for (const c of this.curseurs.values()) attentes.push(c.curseur.fermer());
-    for (const s of this.sources.values()) if (s.audio) attentes.push(s.audio.fermer());
+    for (const s of this.sources.values()) {
+      if (s.audio) attentes.push(s.audio.fermer());
+      for (const l of s.pistes?.values() ?? []) if (l) attentes.push(l.fermer());
+    }
     this.curseurs.clear();
     this.sources.clear();
     await Promise.all(attentes);

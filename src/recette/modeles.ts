@@ -54,11 +54,12 @@ function dureeSource(r: Recette, p: Plan): Sec {
 /**
  * Modèle « Le meilleur d'abord » : copie `duree` s (1,5 s par défaut, 6 s pour le Montage express) autour de `t`
  * (temps de sortie, même source, même vitesse)
- * au tout début, avec le texte « ATTENDS… » et une transition glitch vers la suite.
+ * au tout début, avec le texte « ATTENDS… » (ou `o.texte` ; null = aucun texte : Best-of sans titres) et une
+ * transition glitch vers la suite.
  * Les textes, sons, zooms et le son guide posés en TEMPS DE SORTIE sont décalés de la durée ajoutée ;
  * ceux posés en temps source (ts) et les sous-titres suivent tout seuls.
  */
-export function modeleMeilleurDAbord(recette: Recette, t: Sec, duree: Sec = MEILLEUR.duree): Recette {
+export function modeleMeilleurDAbord(recette: Recette, t: Sec, duree: Sec = MEILLEUR.duree, o: { texte?: string | null } = {}): Recette {
   if (recette.plans.length === 0 || !Number.isFinite(t)) return recette;
   const sc = compiler(recette);
   const pos = sourceA(sc, Math.min(Math.max(t, 0), sc.duree));
@@ -80,9 +81,12 @@ export function modeleMeilleurDAbord(recette: Recette, t: Sec, duree: Sec = MEIL
   const decaler = <T extends { t?: Sec; ts?: Sec }>(e: T): T =>
     e.ts === undefined && e.t !== undefined ? { ...e, t: arrondir(e.t + d) } : e;
   const textes: Texte[] = recette.textes.map((x) => ({ ...x, t: arrondir(x.t + d) }));
-  const attends: Texte = { txt: MEILLEUR.texte, style: 'accroche', t: 0, dur: d };
-  if (!aUneAccroche(recette)) attends.role = 'accroche';
-  textes.unshift(attends);
+  const texte = o.texte === undefined ? MEILLEUR.texte : o.texte;
+  if (texte !== null && texte.trim()) {
+    const attends: Texte = { txt: texte, style: 'accroche', t: 0, dur: d };
+    if (!aUneAccroche(recette)) attends.role = 'accroche';
+    textes.unshift(attends);
+  }
   const guide = recette.guide ? { ...recette.guide, t: arrondir((recette.guide.t ?? 0) + d) } : null;
   return finir({
     ...recette,

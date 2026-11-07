@@ -13,6 +13,7 @@ import { CITRON } from './couches/styles-texte';
 import { GROTESK } from './polices';
 import { rendre } from './rendre';
 import { mediasDe } from './sources';
+import { imagesDe } from './inserts/images-ouvertes'; // v3 (B)
 
 export const MINIATURE = { l: 1280, h: 720, maxOctets: 2 * 1024 * 1024 } as const;
 export const MINIATURE_SHORT = { l: 1080, h: 1920 } as const;
@@ -59,7 +60,7 @@ export async function encoderSousLimite(
 /** Dessine l'image t du MONTAGE (sans ses textes ni ses sous-titres) : même rendu que l'export. */
 export async function imageDuMontage(recette: Recette, sources: SourceOuverte[], t: Sec, ctx: Ctx2D, l: number, h: number) {
   const r: Recette = { ...recette, textes: [], sousTitres: null };
-  const rendu = rendre(r, mediasDe(sources), undefined, undefined, { generiques: false });
+  const rendu = rendre(r, mediasDe(sources), undefined, undefined, { generiques: false, images: imagesDe(r) });
   try {
     await rendu.image(t, ctx, envPour(l, h));
   } finally {

@@ -21,6 +21,14 @@ export * from './operations-youtube';
 export * from './operations-coupes-auto';
 export * from './operations-habillage-auto';
 export * from './operations-son-auto';
+// v3 « Best-of » (contrat : conception/contrat-wankil.md) : un fichier par dev.
+export * from './operations-titres'; // dev 1
+export * from './operations-derush'; // dev 1
+export * from './operations-voix'; // dev 1
+export * from './operations-insertion'; // dev 2
+export * from './operations-pistes'; // dev 2
+export * from './operations-chibis'; // dev 3
+export * from './operations-best-of'; // intégrateur
 
 const EPS = 1e-6;
 const FIGE_MIN = FIGE.min;

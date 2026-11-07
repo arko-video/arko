@@ -1,0 +1,71 @@
+/* v3 (dev 1) : titres retirables sur la carte de la Revue, écran « Passages pas retenus ».
+   Mobile d'abord (360 px), cibles tactiles ≥ 44 px. */
+
+.revue-titre-actions {
+  /* La légende de la carte laisse passer les gestes (balayage) : ces boutons, eux, se touchent. */
+  pointer-events: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.revue-titre-actions .btn {
+  width: auto;
+  flex: 1 1 140px;
+  min-height: 44px;
+}
+.revue-titre-actions .champ-saisie {
+  flex: 1 1 180px;
+  min-height: 44px;
+}
+.revue-titre-texte {
+  flex: 1 1 100%;
+  overflow-wrap: anywhere;
+  color: var(--texte-doux);
+}
+
+.liste-passages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.passage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: var(--r);
+  border: 1px solid var(--bord);
+  background: var(--surface);
+}
+.passage-haut {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.passage-titre {
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.passage-note {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-voile);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}
+.passage-boutons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.passage-boutons .btn {
+  min-height: 44px;
+}

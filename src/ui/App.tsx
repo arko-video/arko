@@ -48,6 +48,7 @@ import { EcranReglagesExpress } from './auto/express/EcranReglagesExpress';
 import { EcranAnalyseExpress } from './auto/express/EcranAnalyseExpress';
 import { EcranRevueExpress } from './auto/express/EcranRevueExpress';
 import { suivrePics } from './rythme';
+import { SurcouchesV3 } from './auto/SurcouchesV3'; // v3 « Best-of »
 
 export function App() {
   useEffect(() => suivrePics(), []);
@@ -107,6 +108,7 @@ export function App() {
         </div>
       )}
       {bibliothequeOuverte.value && <MaBibliotheque />}
+      <SurcouchesV3 />
       <BandeauMaj />
       <RecevoirSons />
     </>

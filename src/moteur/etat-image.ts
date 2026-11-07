@@ -109,7 +109,7 @@ function sousTitreActif(s: Scenario, t: Sec): SousTitreActif | null {
   ligne.mots.forEach((m, j) => {
     if (m.t0 <= t) actif = j;
   });
-  return avecAuto({ ligne, style: st.style, y: st.y, actif, ageMot: t - ligne.mots[actif]!.t0, ageLigne: t - ligne.t0 }, st);
+  return avecAuto({ ligne, style: ligne.style ?? st.style, y: ligne.y ?? st.y, actif, ageMot: t - ligne.mots[actif]!.t0, ageLigne: t - ligne.t0 }, st);
 }
 
 /** Ajoute les réglages du Montage auto (couleur du mot clé, jurons) quand ils existent. */
@@ -130,7 +130,7 @@ function sousTitreFige(s: Scenario, plan: PlanPlace): SousTitreActif | null {
   ligne.mots.forEach((m, j) => {
     if (m.t0 <= t) actif = j;
   });
-  return avecAuto({ ligne, style: st.style, y: st.y, actif, ageMot: Math.max(0, t - ligne.mots[actif]!.t0), ageLigne: Math.max(0, t - ligne.t0) }, st);
+  return avecAuto({ ligne, style: ligne.style ?? st.style, y: ligne.y ?? st.y, actif, ageMot: Math.max(0, t - ligne.mots[actif]!.t0), ageLigne: Math.max(0, t - ligne.t0) }, st);
 }
 
 function zoomActif(s: Scenario, t: Sec): ZoomActif | null {

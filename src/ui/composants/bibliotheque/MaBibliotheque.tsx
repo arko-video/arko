@@ -20,6 +20,11 @@ import { arreterLecture } from '../../ecoute-sons';
 import { IconeAlerte, IconeImporter, IconeRetour } from '../Icones';
 import { Onglets } from '../outils/Reglages';
 import { ListeRayon } from './ListeRayon';
+// v3 (dev 3) : rayon « Chibis », caché derrière le drapeau « chibis » tant que pas prêt.
+import { visible } from '../../auto/drapeaux';
+import { rayonChibisActif } from '../../auto/chibis/etat-chibis';
+import { PRETE_CHIBIS, RayonChibis } from '../../auto/chibis/RayonChibis';
+import { TV } from '../../../textes-v3';
 
 /** Types acceptés par « Importer des fichiers ». */
 export const ACCEPTE_BIBLIOTHEQUE = 'audio/*,video/*,.mp3,.wav,.ogg,.oga,.opus,.m4a,.aac,.flac,.mp4,.m4v,.webm,.mov,.mkv,.wmv,.avi,.zip,application/zip';
@@ -32,6 +37,7 @@ export function MaBibliotheque() {
   }, []);
   if (!bibliothequeOuverte.value) return null;
   const rayon = rayonActif.value;
+  const chibis = rayonChibisActif.value && visible('chibis', PRETE_CHIBIS);
   return (
     <div class="bibliotheque-fond" data-testid="bibliotheque">
       <div class="ecran bibliotheque">
@@ -49,14 +55,26 @@ export function MaBibliotheque() {
           <Bilan />
           <Onglets
             label={TB.titre}
-            onglets={RAYONS.map((r) => ({ id: r, nom: TB.rayons[r] }))}
-            actif={rayon}
-            onChoisir={(id) => (rayonActif.value = id as Rayon)}
+            onglets={[
+              ...RAYONS.map((r) => ({ id: r, nom: TB.rayons[r] })),
+              ...(visible('chibis', PRETE_CHIBIS) ? [{ id: 'chibis', nom: TV.chibis.rayon }] : []),
+            ]}
+            actif={chibis ? 'chibis' : rayon}
+            onChoisir={(id) => {
+              rayonChibisActif.value = id === 'chibis';
+              if (id !== 'chibis') rayonActif.value = id as Rayon;
+            }}
             prefixe="rayon"
             panneau="liste-rayon"
           />
-          <p class="petit doux">{TB.rayonsAide[rayon]}</p>
-          <ListeRayon rayon={rayon} />
+          {chibis ? (
+            <RayonChibis />
+          ) : (
+            <>
+              <p class="petit doux">{TB.rayonsAide[rayon]}</p>
+              <ListeRayon rayon={rayon} />
+            </>
+          )}
           <p class="petit droits-sons">
             <IconeAlerte taille={14} />
             {TB.rappel}

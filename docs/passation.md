@@ -1,6 +1,6 @@
 # Passation — Arko (éditeur vidéo TikTok et YouTube open source)
 
-Mise à jour : 6 novembre 2026, la nuit (Ma bibliothèque, Fond vert, Mèmes). Toutes les phases (1 à 6), le Montage auto, « Améliorer l'image » et Ma bibliothèque sont construits et testés automatiquement.
+Mise à jour : 7 novembre 2026 (« Façon Wankil » : Best-of serré, Qui parle ?, avatars, chibis, Insérer ici, derush ; puis persos en papier découpé goofy et situations de jeu, voir « Persos : 6 styles non-chibi »). Toutes les phases (1 à 6), le Montage auto, « Améliorer l'image », Ma bibliothèque et la version « façon Wankil » sont construits et testés automatiquement.
 
 ## En une phrase
 Arko est une appli web gratuite et open source (licence MIT), qui s'installe comme une appli (PWA). Elle sert à transformer une vidéo de jeu en TikTok vertical, directement sur le téléphone. Il n'y a pas de compte, et la vidéo n'est jamais envoyée sur un serveur.
@@ -324,6 +324,316 @@ n'a été utilisé : tous les tests fabriquent leurs images, sons et vidéos (co
   objets transparents ; les clips sur fond bleu ; temps par image et fluidité de l'aperçu sur le Xiaomi.
 - Mèmes : position par défaut en incrustation (haut à droite, 42 %) ; « Coupure » qui coupe le son du jeu.
 - La place accordée par Chrome sur le Xiaomi pour 154 vidéos (fonds verts + mèmes).
+
+## Façon Wankil (7/11/2026)
+Demande de Romain (7/11, 1 h 37) : un monteur sans IA meilleur avec un titre qu'on peut retirer, insérer un élément
+entre deux parties de la vidéo, un montage auto « façon Wankil Studio » (best-of serré, avatars des voix), des chibis
+« dessin un peu raté » déclinables selon qui parle, et un meilleur derush. Conception : `conception/brief-wankil.md`,
+`conception/contrat-wankil.md`. Construit par 3 devs puis assemblé par l'intégrateur. Toujours : 100 % gratuit, tout
+sur l'appareil, aucune dépendance npm ajoutée, recette `arko.recette/1` (champs facultatifs : les anciens montages
+s'ouvrent pareil, vérifié sur 24 recettes figées), une seule voie de rendu (aperçu = export).
+**Droits** : aucun dessin, nom ni fichier de Wankil Studio (Wankuls, cartes) ni de Pepe. Les chibis sont NOS
+personnages, dessinés par le code (CC0).
+
+### Ce que fait chaque partie, et où la trouver
+- **A. Monteur sans IA (clips) bien meilleur** (Monteur IA → mode sans IA) — `src/ia/recit.ts`, `src/ia/sans-ia.ts`,
+  notation partagée `src/auto/derush/notation.ts`.
+  - Chaque moment est noté comme une scène (rires, fous rires, cris, jurons, mots forts, échanges rapides, pic après
+    calme, densité de parole, réactions), pas seulement par le pic.
+  - **Mise en place** : le clip commence au début de la phrase (ou de l'échange) qui précède le moment fort, 5 à 15 s
+    avant ; **chute** : fin du rire / cri / réaction + 1 s, jusqu'à la fin de la phrase, 6 s au plus. Pour tenir la
+    durée maximale, on raccourcit d'abord la chute, puis la mise en place ; jamais le moment ni la réaction.
+  - **Pas de doublons** : deux clips qui se recouvrent à plus de 30 % → le mieux noté reste.
+  - **Titre retirable** : sur la carte de la revue, « Changer le titre » et « Retirer le titre » d'un toucher
+    (`ui/auto/derush/BarreTitre.tsx`, opérations `src/recette/operations-titres.ts`) ; réglage « Mettre un titre sur
+    les clips » sur l'écran Demande (mémorisé) ; dans Habiller, toucher un titre sur l'aperçu le choisit (Retirer).
+  - Plus de « boum » automatique dans les clips (option `bruitage: true` dans le code seulement).
+- **B. Insérer un élément entre deux parties** (Couper, et Habiller → Couper → « Insérer ici ») —
+  `src/recette/operations-insertion.ts`, `src/auto/insertion/point.ts`, rendu `src/moteur/inserts/`,
+  écrans `src/ui/auto/insertion/`.
+  - La tête de lecture coupe le plan (aimant 0,15 s sur une coupe proche) et place entre les deux parties : une autre
+    vidéo (fichier ou Ma bibliothèque, début / fin au choix), un mème, une **image fixe** (2 s, fond flou), un **carton
+    texte** (fond noir, texte blanc, 2 s), ou un **chibi plein écran** (émotion, texte, 1,5 s). Durées 0,3 à 30 s.
+  - La suite est **décalée** (textes, incrustations, chapitres, musique, sons et zooms posés en temps de sortie) ; ce
+    qui suit les images (sous-titres, punchlines, sons « au moment de la vidéo », voix) suit tout seul. **Insérer puis
+    retirer redonne exactement le montage d'avant** (testé). Toucher l'élément : durée, texte, couleurs, émotion,
+    « Déplacer ici », « Retirer » ; un seul Annuler par geste. Tuile à part sur les frises (« Carton », « Image »…).
+  - Une vidéo insérée depuis un fichier est gardée dans Ma bibliothèque → Mèmes (pour la rouvrir à la reprise) ; une
+    image est gardée sur l'appareil (IndexedDB) et rouverte à la reprise.
+- **E. Vidéo à plusieurs pistes de son** (à l'import) — `src/moteur/audio/pistes.ts`, `ui/auto/insertion/ChoixPistes.tsx`.
+  « Cette vidéo a 2 pistes de son » (nom de chaque piste, Garder, volume 0 à 150 %) ; fermer sans choisir = toutes à
+  100 %. L'aperçu, l'export et « Qui parle ? » lisent les pistes gardées.
+- **E. Gros mots** (Habiller → Sous-titres : Laisser / Bip / Silence) — `src/moteur/audio/bips.ts`. Chaque juron des
+  sous-titres : le son des plans est coupé (fondus 10 ms) et, en « Bip », un bip 1 kHz à −12 dBFS ; musique et sons
+  posés intacts.
+- **C. Qui parle ?** (Habiller → Avatars → « Qui parle ? », et la revue du Best-of) — `src/auto/voix/`,
+  `src/recette/operations-voix.ts`, écrans `src/ui/auto/voix/`.
+  - Pistes séparées (OBS : micro et Discord) : une voix par piste, exact. Sinon niveau + timbre (comme sur la session
+    de Romain : sa voix à −40 dB, celle de son pote à −25 dB) ; même niveau : timbre seul ; une seule voix : « une ».
+  - Écran : 3 extraits à écouter par voix, nom, chibi ; la liste des phrases avec une pastille par personne (un toucher
+    = la personne suivante) ; Valider (un seul Annuler) ; « Oublier les voix ». Résultat gardé par vidéo (pas de
+    réanalyse).
+- **D. Chibis** (Ma bibliothèque → onglet **Chibis** → atelier ; aussi depuis « Qui parle ? » et « Insérer ici ») —
+  `src/chibis/`, `src/stockage/chibis.ts`, écrans `src/ui/auto/chibis/`.
+  - Dessinés par le code (Canvas 2D, même dessin dans la page et dans le Worker d'export), « dessin vite fait » : grosse
+    tête, trait noir épais tremblé, aplats qui débordent un peu. **3 styles** : Feutre raté, Crayon, Paint (pixels).
+  - Base déclinable : peau, 10 coiffures, couleur des cheveux, 10 tenues (sweat, t-shirt, armure, astronaute, cow-boy,
+    pyjama…), accessoire (aucun + 9 : casquette, casque audio, lunettes…), couleur, yeux. « Au hasard » et
+    « Ressemble à… ».
+  - **48 variantes par style** : 24 émotions (parle, rit, mort de rire, crie, hurle, énervé, rage, choqué, surpris,
+    frime, moqueur, panique, triste, pleure, gêné, réfléchit, confus, dort, content, amoureux, malade, déterminé,
+    victoire, défaite) × bouche fermée / ouverte ; soit 3 × 48 = 144 dessins par personnage.
+  - Gardés dans Ma bibliothèque (200 au plus, base `arko-chibis`), export PNG transparent ou .zip des 48 PNG d'un style.
+  - Sans chibi choisi, chaque voix a un chibi **par défaut** tiré de son identifiant (toujours le même) : il est montré
+    sur les cartes des voix (bouton « Choisir un chibi »), sur l'avatar et sur le chibi plein écran.
+- **C. Avatars** (Habiller → **Avatars**) — `src/moteur/couches/avatars.ts`, `ui/auto/chibis/OutilAvatars.tsx`.
+  Le chibi de la personne apparaît quand elle parle (pop 0,12 s, reste 0,5 s, part en 0,15 s), change selon l'émotion
+  de la phrase, bouche ouverte / fermée selon le volume (façon PNGtuber), petit rebond. Défaut : **en bas à gauche,
+  taille moyenne** (16:9 : 30 % de la hauteur ; vertical : 16 %, pieds au-dessus de la zone cachée) ; 2ᵉ personne en
+  bas à droite. Glisser = placer, pincer / molette = taille. Dessinés juste après la vidéo (sous les textes).
+- **C. Derush meilleur** — `src/auto/derush/` (notation, resserrer, choix), écran `ui/auto/derush/PassagesNonRetenus.tsx`.
+  - Note par minute gardée (rires 8, fous rires 12, cris 6, pics 4, pic après calme 10, jurons 3, mots forts 3,
+    échanges 2, réactions 5) ; une scène avec un **fou rire** ou ≥ 6 **échanges rapides** par minute est
+    **protégée** : jamais jetée parce qu'elle est longue, elle est **resserrée** à 60–90 s (chaque moment fort avec sa
+    mise en place et sa chute).
+  - Écran **« Passages pas retenus »** (Couper, et Habiller → Couper, quand le montage en a) : titre, « de 1:02:10 à
+    1:02:48 », raison, note sur 100, **Écouter**, **Ajouter** d'un toucher (à sa place dans l'ordre, coupé comme le
+    reste avec les mots déjà transcrits, un seul Annuler).
+- **C. Best-of serré** (intégrateur) — Montage express → **Style du montage : Best-of serré** —
+  `src/auto/express/best-of.ts` (pur), `src/ui/auto/express/{etat-best-of,ReglagesStyle,RevueBestOf}.ts(x)`.
+  1. **Réglages** : coupe **Serrée** d'office ; **Titres de séquence** (décochés d'office : facultatifs, et retirables
+     ensuite comme n'importe quel texte), Reconnaître qui parle (coché), Avatars des voix (coché), Bip sur les gros mots
+     (décoché). **Jamais de bruitages** dans un Best-of (retour de Romain), ni de mode IA.
+  2. **Analyse** : celle du Montage express (son, transcription reprise, bords), puis « Qui parle ? » (pistes gardées
+     de la vidéo si elle en a, sinon niveau + timbre, sur les zones où il y a des mots), puis le derush : scènes notées,
+     les protégées longues resserrées, choix jusqu'à la durée visée, passages pas retenus.
+  3. **Revue** : les séquences (+ « resserrée · n morceaux gardés »), le nombre de passages pas retenus, les **voix**
+     (cartes : nom, 3 extraits, chibi par défaut ou choisi) et **« Sous-titres pour : Personne / Voix 1 / Voix 2 »**
+     (choisi d'office : la voix la plus faible si elle est au moins 6 dB sous la plus forte).
+  4. **« Monter la vidéo »** : un **nouveau montage « Best-of — <nom> »** (dans Mes montages, supprimable), construit
+     en **une seule opération** (un seul Annuler revient à la vidéo brute), dans l'ordre du contrat §6 : les étapes du
+     Montage express (plans = morceaux des scènes gardées, un chapitre par scène : Couper les blancs → bords →
+     punchlines calées sur les mots → zooms → accroche de 6 s **sans texte si les titres sont décochés** → chapitres →
+     titres de section **seulement si cochés** → musique qui baisse quand on parle + −14 LUFS) → passages pas retenus
+     → qui parle (noms) → un chibi par personne + avatars (mode « parle », rebond) → sous-titres pour la voix faible
+     → bips si cochés.
+  - **Sous-titres pour une personne** (nouveau champ facultatif `sousTitres.pour`, `src/recette/sous-titres-voix.ts`) :
+    en mode punchlines, toutes les phrases de cette personne sont aussi sous-titrées (style boîte, en bas : y = 0,88 en
+    16:9 ; 7 mots, 0,7 à 2,8 s par ligne), jamais en même temps qu'une punchline (la punchline gagne). Opération
+    `sousTitresPour(r, p | null)`. Le normaliseur l'oublie si la personne n'existe plus.
+  - L'option « arrêt sur image + zoom sur un fail » (contrat §6, « si le temps le permet ») n'est pas faite.
+
+### Mesures des devs et de l'intégrateur (VM, Chrome headless)
+| Partie | Mesure | Avant | Après |
+|---|---|---|---|
+| A. Monteur sans IA | moments connus du signal fabriqué dans un clip entier ([moment − 5 s, fin de l'action + 1 s]) | — | 4/4, 0 doublon |
+| A. Monteur sans IA | avec des mots : le clip commence au début de la phrase de mise en place | — | 11 s avant le pic |
+| Derush | session fabriquée de 30 min, 10 passages drôles plantés retrouvés (gardés ou dans les passages, note ≥ 20) | 4/10 | 10/10 |
+| Qui parle | 2 voix fabriquées à −40 / −25 dB : trames bien attribuées | — | 100 % |
+| Qui parle | même niveau, timbres différents | — | 93,3 % |
+| Qui parle | une seule voix → « une » ; pistes séparées → exact | — | oui |
+| Qui parle | temps de calcul | — | ~1 s pour 10 min de son (≈ 11 s pour 2 h, + décodage) |
+| Chibis | dessin d'un chibi de 300 px sans cache (feutre / crayon / paint) | — | 3,1 / 3,7 / 0,6 ms (visé : 2 ms) |
+| Chibis | avec le cache d'images (aperçu et export) | — | 0,03 ms par image |
+| Avatars | export 12 s en 1080p avec 2 avatars | — | 7,5 s |
+| Best-of (e2e) | session de 3 min 25 à 2 voix (−40 / −25 dB) + fou rire + musique | — | analyse 2,4 s (transcription déjà gardée) ; 2 voix trouvées (−40 / −25 dB), la faible sous-titrée d'office ; la scène de 150 s resserrée, 1 passage pas retenu ; montage de 1 min 27 ; export 1920 × 1080 en 61 s ; −14,0 LUFS (Arko et ffmpeg) ; avatar de la bonne voix sur 40/40 images vérifiées ; boîte de la voix faible 8 fois sur 9 mots, 0 sur la voix forte ; aperçu / export PSNR 42 dB |
+
+### Tests
+- `tsc` : 0 erreur. Vitest : 96 fichiers, 968 verts, 0 « à faire » (avant la v3 : 81 fichiers, 760 verts ; à la livraison des devs : 95 fichiers, 955 verts + 17 `it.todo` ;
+  les 17 `it.todo` de l'échafaudage sont retirés, les tests sont dans les fichiers des devs). `vite build` passe. E2e (`ARKO_PORT` libre) :
+  43 verts + 8 sautés (bancs Whisper, lancés à part) ; banc sous-titres (vrai Whisper) 8 verts ; dev 1 3 verts ;
+  Améliorer l'image 2 verts ; banc chroma 1 vert. Aucun test instable sur ce passage.
+- Nouvel e2e `tests/e2e/best-of.spec.ts` (+ `tests/e2e/outils-best-of.ts`) : session fabriquée à 2 voix dans un seul
+  mélange (−40 / −25 dB, voix synthétiques de `src/auto/voix/voix-test.ts`), un fou rire, une musique → Best-of serré →
+  2 voix reconnues, chibis par défaut affichés, noms, « Sous-titres pour : Romain » choisi d'office → montage sans
+  aucun texte de titre, avatars, sous-titres de la voix faible, passages pas retenus, pas de bruitage → un seul Annuler
+  → « Passages pas retenus » → Ajouter (puis Annuler) → export 1920 × 1080 : −14 LUFS ± 1, l'avatar de la voix 1 en bas
+  à gauche seulement quand elle parle (celui de la voix 2 à droite), la boîte des sous-titres seulement sur la voix
+  faible, aperçu = export (PSNR).
+- e2e du dev 1 (monteur sans IA + Qui parle ?) : `npx vite build --outDir dist-dev1 && ARKO_PORT=xxxx npx playwright
+  test --config playwright.dev1.config.ts`.
+- **Banc des planches de chibis** (3 styles × 48 variantes, catalogue, temps de dessin) :
+  `node tests/harness-chibis/planches.mjs <dossier> [port]` (ou `ARKO_PORT_BANC=xxxx`). Les planches du 7/11 sont dans
+  le dossier de travail de Claude (`scratchpad/chibis/`) : à regarder pour juger le goût.
+
+### Intégration : ce qui a été corrigé ou branché
+- `definirQuiParle` passe le niveau de chaque personne à `completerTours` : seuil de la bouche exact (niveau − 10 dB).
+- Cartes des voix : le chibi par défaut est affiché (plus « Aucun ») et le bouton dit « Choisir un chibi ».
+- Chibi plein écran d'une personne sans chibi : son chibi par défaut (comme son avatar), plus un carton avec son nom.
+  Il est dessiné par `dessinerChibi` dans l'image du plan gardée en cache (par plan et par taille) : pas besoin de
+  `dessinerChibiCentre`, la mise en page du dev 2 (62 % de la hauteur) est gardée.
+- « Passages pas retenus » → Ajouter : les mots déjà transcrits de la vidéo sont donnés à `ajouterPassage` (le passage
+  est coupé comme le reste et ses phrases rejoignent les sous-titres).
+- `construireMontageExpress` est découpé en `etapesMontage` (réutilisé par le Best-of) ; `modeleMeilleurDAbord` accepte
+  `{ texte: null }` (accroche sans texte).
+- Aucun code de débogage (`__dbg`) n'est resté ; `tsc` est à 0.
+- Prettier avait reformaté tout `Frise.tsx` (dev 2) : sans effet sur le code, le diff Git sera juste plus gros.
+
+### À valider par Romain (sur sa vraie session, idéalement sur le Xiaomi)
+- **Best-of serré** : les scènes gardées et resserrées sont-elles les bonnes sur 2 h ? La durée visée (15–20 min) ;
+  le seuil « voix qu'on entend mal » (6 dB) et la place de ses sous-titres (boîte en bas, y = 0,88 en 16:9) ; titres
+  décochés d'office ; l'accroche de 6 s sans texte.
+- **Monteur sans IA** : plus de « boum » automatique ; rires acceptés jusqu'à 10 s ; transcription ~23 s par moment
+  (2 passes de Whisper) ; « Retirer le titre » retire tous les titres du clip.
+- **Derush** : la parole seule vaut ~26/100, donc beaucoup de passages dans la liste (seuil 20) ; « Passages pas
+  retenus » accessible depuis Couper.
+- **Qui parle** : sur sa session (−40 / −25 dB) et sur une session OBS à 2 pistes ; le timbre seul (même niveau) n'est
+  testé que sur des voix fabriquées.
+- **Chibis** : le goût de chaque style (Paint un peu gris en petit) ; taille par défaut 0,30 en 16:9, 0,16 en vertical
+  (pieds à 0,64) ; lunettes relevées, casque d'astronaute, flammes de « déterminé » ; le temps de dessin sans cache
+  sur le Xiaomi.
+- **Insertion** : vidéo insérée gardée dans Ma bibliothèque → Mèmes (place prise) ; défauts du carton / chibi / image ;
+  chibi plein écran fixe (pas animé) ; recollage des morceaux au retrait ; « Insérer » sur un élément inséré → coupe la
+  plus proche ; images, export et place sur le Xiaomi.
+- **Pistes et gros mots** : bip 1 kHz à −12 dBFS (la musique remonte un peu pendant le bip) ; fermer le choix des
+  pistes = toutes à 100 %.
+
+### Persos : 6 styles non-chibi (7/11/2026)
+Romain trouvait le look chibi (grosse tête, petit corps) « pas beau ». 6 styles NON-chibi ont été faits, chacun avec
+ses proportions : BD, Dessin animé, Bonhomme raté, Mascotte ronde, Pixel, Papier découpé. Romain a choisi
+**« Papier découpé »**, à finir seul, **en buste « goofy »** et décliné en **situations de jeu**. Dans les textes de
+l'appli, « chibi » devient **« perso »** (rayon « Persos », « Choisir un perso », « Perso plein écran »…) ; les noms
+dans le code restent `chibi`. Tout est dessiné par le code (Canvas 2D, même dessin dans la page et dans le Worker
+d'export), CC0, sans aucun dessin ni objet d'un jeu, d'une série ou d'un studio (rien de Wankil, rien de Minecraft).
+- **Où** : `src/chibis/persos/` — `fiches.ts` (proportions de chaque style), `postures.ts` + `squelette.ts` (pose du
+  corps par émotion, coudes et genoux par cinématique inverse), `corps-perso.ts`, `tete-perso.ts` (les coiffures,
+  visages, chapeaux et tenues des chibis sont reposés sur la tête et le torse du perso par des sous-repères du
+  pinceau : rien n'est dupliqué), `rendus-persos.ts` (encre BD, contour dessin animé, trait raté, mascotte, papier),
+  `pixel.ts` (grille de 56 cases, sans canevas), `papier.ts` (goofy, bord déchiré), `situations.ts` +
+  `objets-armes.ts` + `objets-vie.ts`, `prets.ts` (6 persos tout prêts), `dessin-perso.ts` (assemblage, effets lag
+  et chute). Le pinceau délègue maintenant remplissage et trait à un « rendu » par style (`rendus.ts`,
+  `rendu-classique.ts` = le code d'origine du feutre, du crayon et de Paint, déplacé sans rien changer).
+- **Papier découpé** (le style par défaut d'un nouveau perso et des persos tout prêts) : buste coupé sous la ceinture
+  par un bord de papier **déchiré** (une bande de fibre blanche dessous) ; tête ≈ 1/3 du buste ; pièces de papier
+  aux bords un peu irréguliers, **un peu mal collées** (± 2,5°, ½ trait), petite ombre portée sous chaque pièce,
+  bras articulés par pièces (attaches dorées) ; **goofy** : yeux de tailles différentes (le petit un peu de
+  travers), bouche × 1,5 (× 1,75 pour les cris), tête penchée d'office (3 à 6°, côté tiré de la graine) qui **se
+  balance** en rythme (6 images/s, ± 3,5°), yeux en spirale pour « mort de rire » et « confus », langue qui pend pour
+  « moqueur » (le troll), larmes en jets pour « pleure ». Les traits du visage ont un liseré clair et les pièces
+  sombres un bord clair : lisibles sur une peau foncée (vérifié à la taille d'un avatar 1080p).
+- **6 persos tout prêts** (`PERSOS_PRETS`) : 1 casque audio + sweat rouge, 2 casquette à l'envers + t-shirt,
+  3 lunettes + chemise, 4 cheveux longs + bonnet, 5 chauve + barbe + costume, 6 capuche relevée. Voix 1 → perso 1,
+  Voix 2 → perso 2… (id « p7 » → perso 1 ; un id sans numéro → tiré de l'id). Ajouts au catalogue (en fin de liste) :
+  tenue `chemise`, accessoires `barbe`, `casquetteEnvers`, `capuche`.
+- **23 situations de jeu** (`SITUATIONS`, + « aucune ») : épée, arc, bouclier, pioche (+ pierre précieuse), marteau,
+  bombe à mèche, en feu, pêche, mange (cuisse de poulet), potion, mort (petit fantôme), trophée, coffre, pierre
+  précieuse, rage manette, lag (perso coupé en 4 bandes décalées), peur d'un monstre d'ombre, AFK, micro, se soigne,
+  tombe dans le vide, court, frime (lunettes de soleil). Une situation = pose des bras + objet ou décor + émotion par
+  défaut ; elle se combine avec les 24 émotions × bouche ouverte / fermée. Règle : l'émotion « parle » (le défaut
+  d'un tour) laisse la situation choisir la sienne ; toute autre émotion est gardée.
+- **Choix automatique** (Best-of, Qui parle ?) : `completerTours` écrit `sit` d'après les mots dits pendant le tour
+  et à ± 1,5 s. **La table des mots clés est dans `src/chibis/situations-mots.ts`, et seulement là** (une ligne par
+  situation, la première qui correspond gagne ; « mort de rire », « mdr »… ne comptent pas). Sans mot clé : aucune
+  situation. **À la main** : « Qui parle ? » → sous chaque phrase, un menu « Situation » (opération
+  `situationDuPassage`, un seul Annuler).
+- **Recette** : champs FACULTATIFS `tour.sit` et `ins.sit` (perso plein écran) ; normaliseur (`normaliserSituation`) :
+  inconnue ou « aucune » → retirée avec un message ; `schema.json` (`$defs.situation`, nouveaux styles, tenue,
+  accessoires). Les anciens montages s'ouvrent pareil (24 recettes figées vertes). Un style inconnu → feutre.
+- **Avatars** : un buste se pose sur le bas de l'image en 16:9 (`PLACES_BUSTES`, y = 1) ; à la même taille de calque
+  (0,30), le perso est plus gros que le chibi entier. 9:16 : inchangé (0,64, au-dessus de la zone cachée). Le
+  balancement de la tête suit le temps (cache : 6 images par seconde).
+- **Perso plein écran** (Insérer ici) : perso + **situation** + émotion ; un buste est posé sur le bas de l'image
+  (66 % de la hauteur). **Atelier** : styles proposés = Papier découpé, puis les 3 chibis d'origine ; rangées
+  « Persos tout prêts » et « Situations » ; l'export PNG transparent prend la situation montrée.
+- **Les 5 autres styles** (BD, Dessin animé, Bonhomme raté, Mascotte ronde, Pixel) restent dans le code, dessinés et
+  testés (coût nul), mais ne sont plus proposés dans l'atelier. Les 3 chibis d'origine sont **identiques au trait
+  près** (`src/chibis/anciens-styles.test.ts` compare les empreintes de 4 persos × 48 variantes).
+- **Mesures** (Chrome, VM) : papier 1,5 ms par perso de 300 px sans cache (feutre : 3,5 ms) ; avec le cache
+  0,02 ms par image (2 avatars de 324 px).
+- **Tests (7/11, persos)** : `tsc` 0 erreur ; Vitest 99 fichiers, 1011 verts (nouveaux : `src/chibis/persos/persos.test.ts`,
+  `src/chibis/persos/situations.test.ts`, `src/chibis/anciens-styles.test.ts`) ; `vite build` passe ; e2e chibis (1),
+  insertion (4), best-of (1) : 6 verts en 2,9 min, aucun instable. L'e2e des persos crée « Moi » en papier découpé.
+- **Banc** : `node tests/harness-chibis/planches.mjs <dossier> [port]` ; `PLANCHES=persos6,situations,emotions,avatar`
+  pour les planches du papier (`tests/harness-chibis/banc-papier.ts`). Planches du 7/11 :
+  `scratchpad/persos-v2/` (dossier de travail de Claude).
+- **À valider par Romain** : le goût du papier goofy (taille des yeux, bouche × 1,5, penche, balancement ± 3,5°) ;
+  la coupe du buste (sous la ceinture, bord déchiré) et sa place en bas de l'image ; les 6 persos tout prêts (le
+  perso 6 n'a pas d'écharpe : un seul accessoire par perso) ; les 23 objets et leurs émotions par défaut ; la table
+  des mots clés (ex. « tue » → épée, « vide » → chute, « gg » → trophée) ; la règle « parle » = émotion de la
+  situation ; le monteur choisit la situation d'après ± 1,5 s de mots ; le menu « Situation » sous chaque phrase de
+  « Qui parle ? » ; garder cachés (et non supprimés) les 5 autres styles.
+
+### Persos partout + yeux (7/11/2026)
+Deux demandes de Romain : « un œil plus petit que l'autre oui, mais là c'est trop », et « apprendre aux modèles de
+montage sans IA à placer correctement, selon qui parle, un perso qui correspond ».
+- **Yeux du papier goofy** (`src/chibis/persos/papier.ts`, `GOOFY`, papier SEULEMENT) : avant gros 1,26 / petit 0,82
+  (le gros 54 % plus grand), petit œil tourné de 11° et décalé de 1,6 ; maintenant **1,07 / 0,94 (14 %)**, **4°**,
+  **0,5**. Test : `persos.test.ts` (rapport 1,10 à 1,15). Les 3 chibis d'origine sont identiques au trait près
+  (`anciens-styles.test.ts`) ; les 5 autres styles n'utilisent pas `GOOFY`.
+- **Une seule étape « qui parle + persos », partagée** (plus de copier-coller) :
+  - `src/auto/voix/voix-montage.ts` (navigateur) : `ecouterVoix` — pistes séparées si la vidéo en a, sinon niveau +
+    timbre, sur les zones où il y a des mots ; une écoute ratée → le montage se fait sans persos, avec un message.
+  - `src/auto/voix/persos-montage.ts` (pur) : `poserPersos` — une personne par voix qui parle dans le montage (ou dans
+    le passage d'un clip, ± 5 s), son perso (celui choisi, sinon perso tout prêt 1, 2, 3… dans l'ordre des voix),
+    émotion et situation d'après les mots (`completerTours`), avatars « parle » + rebond. Moins de 1,5 s de parole
+    → aucun perso ; une seule voix → un seul perso.
+- **Modes sans IA qui ont maintenant les persos** (réglage **« Persos de qui parle »** coché d'office, décochable) :
+  1. Montage express, style « Montage express » (`etapePersos` dans `express.ts`, écoute dans
+     `ui/auto/express/voix-express.ts`, réglage `ReglagesExpress.persos`) ; l'IA facultative ne choisit que les scènes.
+  2. Montage express, style « Best-of serré » (refait sur l'étape partagée ; l'interrupteur s'appelle maintenant
+     « Persos de qui parle »).
+  3. Monteur IA en mode **Sans IA** (clips TikTok, Shorts, YouTube) et « Continuer sans IA » après une erreur de l'IA :
+     `ui/monteur/persos-monteur.ts` (une écoute pour tous les clips, réglage mémorisé `arko.monteur.persos`). Les mots
+     déjà transcrits sur l'appareil (Montage express, Couper les blancs) sont repris : sous-titres et qui parle sans
+     2ᵉ passage de Whisper.
+  4. « Faire une compilation 16:9 » des clips gardés (`recette/compilation.ts` réunit voix, tours et avatars).
+  5. Hérités tout seuls (tours en temps source) : « Passages pas retenus → Ajouter », modèles Top 3 et « Le meilleur
+     d'abord ». Les modes AVEC IA ne sont pas touchés.
+- **Revue** : lien **« Qui parle ? »** (nommer les voix, changer leur perso) — Montage express (les deux styles : il
+  descend jusqu'aux cartes des voix) et carte de chaque clip du monteur (un nom ou un perso changé vaut pour tous les
+  clips pas encore triés). Après le montage : Habiller → Avatars → « Qui parle ? » comme avant.
+- **Placement** (`src/moteur/couches/places-persos.ts`, pur, calculé AU RENDU : aperçu = export, et l'outil Avatars
+  montre les mêmes places) :
+  - **16:9** : en bas, collés au bord (buste à y = 1). Voix 1 à gauche (x = 0,12), voix 2 à droite (0,88), voix 3 à
+    côté de la 1, voix 4 à côté de la 2… sans chevauchement (plus petits s'il le faut) ; taille 0,30.
+  - **9:16** : taille 0,12 ; pieds **au-dessus des sous-titres / punchlines** (centre des sous-titres − 0,045 − 0,012,
+    soit 0,603 pour le fond flou), jamais dans les **20 % du bas** ; tous entre le bord gauche (4 %) et la **bande de
+    droite de TikTok (15 %)** : voix 1 à gauche, voix 2 plus à droite (x ≈ 0,11 et 0,77), les autres entre les deux.
+  - **1:1** : comme le 16:9, taille 0,22 (Arko n'a pas encore de destination carrée : la règle est prête).
+  - Une voix garde sa place et son perso dans tout le montage (son rang dans `recette.personnes`) ; une place
+    choisie à la main est gardée.
+  - **Punchline qui toucherait un perso** : il rétrécit (jusqu'à 78 %) et se décale (vers le bord en 16:9 / 1:1, vers
+    le haut en 9:16, jamais dans la bande de droite), avec un fondu de 0,15 s (`eviterTextes`, boîte de la ligne
+    mesurée comme son dessin : `boites-textes.ts`).
+  - **Aucun perso pendant un plan inséré plein écran** (carton, image, perso plein écran, mème, vidéo insérée).
+- **Retours des 6 agents persos** (`conception/demandes-persos.md`, papier seulement) traités : trophée 4 unités plus
+  haut ; couronne de flammes « En feu » 4 unités plus haut ; cuisse de « mange » à hauteur de la bouche ; signes
+  « ? », « … », « zzz », « ! » et nuage gris 4 unités plus haut (9 avec la casquette à l'envers : le nuage ne se pose
+  plus sur la visière) ; micro tenu sur le côté du visage (pose `microCote`, plus sur le micro du casque) ; mains sur
+  les côtés du coffre (pose `coffre`) — via `SITUATIONS_PAPIER` / `situationDe` (les autres styles gardent
+  `DEF_SITUATIONS`) ; teintes rage / malade / choqué dessinées APRÈS la barbe du perso 5 ; trou de la barbe plus grand
+  pour une grande bouche ouverte. **Pas faits** : cheveux qui réagissent à l'émotion (facultatif) ; « capuche +
+  écharpe » (à Romain de décider).
+- **Travail des 6 agents persos** (un par perso tout prêt, chacun sur ses éléments, en papier seulement ; les
+  anciens styles gardent leurs dessins) : perso 1 `persos/perso-1-papier.ts` (hérissés à 7 pointes + épi et reflet,
+  casque audio, détails du sweat ; plus de capuche baissée derrière le cou quand l'accessoire est `capuche`) ;
+  perso 2 `persos/casquette-envers.ts` (visière vive derrière la tête, ouverture et sangle devant ; elle saute
+  — surpris, choqué, hurle, victoire — ou part de travers) ; perso 4 `persos/longs.ts` (cheveux longs derrière les
+  épaules en pointes, 2 mèches devant) et `persos/bonnet.ts` (bonnet mou, pointe et pompon sur le côté, rayure,
+  revers ; pointe dressée de surprise, bonnet de nuit pour « dort ») ; perso 5 `persos/perso-5-papier.ts` (crâne rasé
+  qui brille, barbe à touffes avec trou autour de la bouche, moustache en guidon, costume à revers, cravate de
+  travers) ; perso 6 : la capuche relevée dans `chapeaux.ts` (rabattue pour « dort » / « malade », cordons qui
+  s'affolent, elle se soulève de surprise) ; perso 3 : chemise, lunettes et mèche affinées dans les fichiers partagés.
+- **Tests** : `tsc` 0 erreur ; Vitest **101 fichiers, 1027 verts** (nouveaux : `src/moteur/couches/places-persos.test.ts`
+  — 16:9, 9:16, 1:1, 1 à 4 voix, punchline, plan inséré, même place ; `src/auto/voix/persos-montage.test.ts` — persos
+  dans le Montage express, le Best-of, les clips sans IA et leur compilation, une voix, pas de parole ; test des yeux
+  dans `persos.test.ts`) ; les 24 recettes figées restent vertes ; `vite build` passe. E2e (`ARKO_PORT` libre) :
+  best-of, chibis, insertion (4), montage express, monteur (6) et le **nouvel e2e `tests/e2e/clips-persos.spec.ts`**
+  (clip 9:16 sans IA sur une session fabriquée à 2 voix −40 / −25 dB, mots repris de la transcription gardée) :
+  **14 verts en 4,5 min**. Clip : 20 images sur 22 avec le bon perso à la bonne place (les 2 autres : changement de
+  voix), sous-titres vus 19 fois, toujours sous les pieds des persos, 0 perso hors de sa place, export 1080 × 1920
+  sans erreur. Best-of : export 54 s, −14,0 LUFS, avatar de la bonne voix sur toutes les images vérifiées, aperçu /
+  export PSNR 42,1 dB.
+- **Planches et captures** : `scratchpad/persos-v3/` (dossier de travail de Claude) : `persos-6.png`, `emotions.png`,
+  `emotions-6-persos.png` (24 émotions × 6 persos), `situations.png`, `situations-6-persos.png` (6 persos × 8
+  situations clés), `taille-avatar.png` (324 px), `placement-16-9.png` et `placement-9-16.png` (vrais montages à 2
+  voix). Banc : `PLANCHES=persos6,situations,emotions,avatar,situations6,emotions6 node tests/harness-chibis/planches.mjs <dossier> [port]`.
+- **À valider par Romain** : l'écart des yeux (14 %, 4°) ; en 9:16 la taille 0,12 et les pieds au-dessus des
+  sous-titres (le perso couvre le bas de la vidéo de jeu en fond flou) ; la bande de droite 15 % et le bas 20 %
+  (le gabarit TikTok d'Arko compte 34 % en bas pour la description : à trancher) ; les voix 3 et 4 en bas à côté des
+  voix 1 et 2 ; le rétrécissement / décalage pendant une punchline ; « Persos de qui parle » coché d'office partout ;
+  aucun perso sous 1,5 s de parole ; les anciens montages verticaux voient leurs avatars (sans place choisie) passer
+  à la nouvelle place ; les retouches des situations (trophée, flammes, cuisse, micro, coffre) et les 6 persos.
 
 ## Décisions prises cette nuit (à valider par Romain)
 - **Sous-titres sur fond flou** : placés juste sous la vidéo (y = 0,66). Un avertissement apparaît s'ils descendent dans la zone cachée par la description TikTok. À juger sur une vraie vidéo.

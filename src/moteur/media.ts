@@ -28,6 +28,8 @@ export interface MediaOuvert {
   largeur: number;
   hauteur: number;
   codecVideo: string | null;
+  /** v3 (E) : toutes les pistes audio du fichier (OBS : micro, Discord…), dans l'ordre. Absent dans les anciens tests. */
+  pistesAudio?: InputAudioTrack[];
 }
 
 /** Ouvre un fichier. Lève ErreurArko ("format", "pas_de_video", "codec_video", "lecture"). */
@@ -62,7 +64,9 @@ export async function ouvrirMedia(fichier: Blob, attendu: 'video' | 'audio' = 'v
     const audio = await input.getPrimaryAudioTrack();
     const audioOk = audio ? await audio.canDecode() : false;
     const duree = await input.computeDuration();
+    const pistesAudio = await input.getAudioTracks().catch(() => (audio ? [audio] : []));
     return {
+      pistesAudio,
       input,
       video,
       audio,

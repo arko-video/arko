@@ -17,6 +17,7 @@ import { IconeAlerte, IconePoubelle, IconeSousTitres } from '../Icones';
 import { Pastilles } from './Commun';
 import { DialogueModule, MotsRetenus, PanneauMot } from './PanneauMot';
 import { EntreePunchlines } from '../../auto/habillage/EntreePunchlines';
+import { EntreeBips } from '../../auto/insertion/EntreeBips'; // v3 (dev 2)
 
 export function OutilSousTitres() {
   const [mot, setMot] = useState<number | null>(null);
@@ -100,6 +101,7 @@ export function OutilSousTitres() {
         )}
       />
       <EntreePunchlines />
+      <EntreeBips />
       <p class="petit doux outil-aide">{T.sousTitres.aideMots}</p>
       <ol class="lignes" data-testid="lignes-sous-titres">
         {lignes.map((l, n) => (

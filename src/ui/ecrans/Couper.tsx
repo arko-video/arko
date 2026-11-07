@@ -22,6 +22,9 @@ import { PanneauPlan } from '../composants/PanneauPlan';
 import { SonGuide } from '../composants/SonGuide';
 import { EntreeBlancs } from '../auto/coupes/EntreeBlancs';
 import { EntreeRognage } from '../auto/coupes/EntreeRognage';
+import { EntreeInsertion } from '../auto/insertion/EntreeInsertion'; // v3 (dev 2)
+import { EntreePassages } from '../auto/derush/EntreePassages'; // v3 (dev 1)
+import { PanneauInsere } from '../auto/insertion/PanneauInsere'; // v3 (dev 2)
 import { agirCoupe, scinderIci, supprimerPlan } from '../coupes';
 import { recette, recetteAffichee, selection, sources, teteLecture } from '../etat';
 import { gabaritProjet } from '../destination';
@@ -173,8 +176,13 @@ export function Couper() {
         {/* Montage auto (dev 1) : cachés tant que pas prêts (ui/auto/drapeaux.ts). */}
         <EntreeBlancs lieu="couper" />
         <EntreeRognage lieu="couper" />
+        {/* v3 « Best-of » : cachés tant que pas prêts (ui/auto/drapeaux.ts, DRAPEAUX_V3). */}
+        <EntreeInsertion lieu="couper" />
+        <EntreePassages lieu="couper" />
 
-        {iPlan !== null && planChoisi && <PanneauPlan i={iPlan} plan={planChoisi} />}
+        {/* v3 (B) : un élément inséré sans vidéo n'a ni vitesse ni arrêt sur image ; il a son propre panneau. */}
+        {iPlan !== null && planChoisi && (!planChoisi.ins || planChoisi.ins.type === 'clip') && <PanneauPlan i={iPlan} plan={planChoisi} />}
+        {iPlan !== null && planChoisi?.ins && <PanneauInsere i={iPlan} plan={planChoisi} />}
 
         <SonGuide />
       </main>

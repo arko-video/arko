@@ -1,0 +1,40 @@
+// Textes de la v3 « Qui parle ? » (dev 1). Réunis dans TV par src/textes-v3.ts : TV.voix.…
+
+const NBSP = ' ';
+
+export const TEXTES_VOIX = {
+  bouton: `Qui parle${NBSP}?`,
+  titre: `Qui parle${NBSP}?`,
+  aide: 'Arko reconnaît les voix. Donne un nom à chacune et choisis son perso.',
+  analyse: 'J\'écoute les voix…',
+  methode: {
+    pistes: 'Pistes séparées : chaque voix a sa piste, c\'est exact.',
+    'niveau+timbre': 'Une seule piste : voix reconnues au volume et au timbre.',
+    timbre: 'Une seule piste : voix reconnues au timbre (moins sûr).',
+    une: 'Une seule voix trouvée.',
+  },
+  voix: (n: number) => `Voix ${n}`,
+  nom: 'Nom',
+  extrait: (n: number) => `Extrait ${n}`,
+  chibi: 'Son perso',
+  phrases: 'Phrases',
+  phrasesAide: 'Une phrase mal attribuée ? Touche-la pour changer de personne.',
+  incertain: 'Pas sûr',
+  valider: 'Valider',
+  annuler: 'Annuler',
+  retirer: 'Oublier les voix',
+  aucuneVoix: 'Aucune voix trouvée dans cette vidéo.',
+  sure: (pc: number) => `${pc}${NBSP}% des phrases attribuées avec certitude.`,
+  infoVoix: (db: number, pc: number) => `${Math.round(db).toString().replace('-', '−')}${NBSP}dB · ${pc}${NBSP}% du temps de parole`,
+  ecouter: 'Écouter',
+  arreter: 'Arrêter',
+  reecouter: 'Réécouter les voix',
+  annulerAnalyse: 'Arrêter l\'écoute',
+  attente: 'Je prépare l\'écoute…',
+  plus: (n: number) => `Afficher ${n} phrases de plus`,
+  sansMots: 'Pas de sous-titres : voici les tours de parole. Touche-en un pour changer de personne.',
+  pasDeVideo: 'Ouvre d\'abord ta vidéo dans un montage.',
+  valide: 'Voix enregistrées.',
+  oubliees: 'Voix oubliées.',
+  piste: (n: number) => `Piste ${n + 1}`,
+} as const;

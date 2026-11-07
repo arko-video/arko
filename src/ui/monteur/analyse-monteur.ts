@@ -31,7 +31,12 @@ import {
   nouvelUid,
 } from './etat-monteur';
 import { cleGardee } from './cles-monteur';
+import { garderAllume } from './ecran-allume';
+import { avecMotsGardes, persosDesClips } from './persos-monteur';
+import { titreSurClips } from './reglage-titre';
 import { commencerRevue } from './revue-monteur';
+import { lireSignauxSource } from '../../auto/signaux-source';
+import type { SignauxSource } from '../../auto/types';
 
 /** Analyse interrompue (pour proposer « Reprendre l'analyse » même après un rechargement). */
 const CLE_INTERROMPUE = 'arko.monteur.interrompue';
@@ -52,51 +57,6 @@ export async function analyseInterrompue(emp: string): Promise<AnalyseInterrompu
 function noter(a: AnalyseInterrompue | null) {
   const ecrit = a ? set(CLE_INTERROMPUE, a) : del(CLE_INTERROMPUE);
   ecrit.catch(() => {});
-}
-
-/* ------------------------------------------------------------------ écran allumé */
-
-// analyserSource prend déjà un verrou au départ (src/ia/client-analyse.ts) ; le navigateur le relâche quand on
-// change d'onglet. L'interface ne prend donc le sien qu'AU RETOUR sur l'onglet : jamais deux verrous à la fois.
-let verrou: WakeLockSentinel | null = null;
-let enDemande = false;
-let actif = false;
-
-async function demanderVerrou() {
-  if (!actif || verrou || enDemande || !('wakeLock' in navigator) || document.visibilityState !== 'visible')
-    return;
-  enDemande = true;
-  try {
-    const v = await navigator.wakeLock.request('screen');
-    // L'analyse a pu finir (ou être annulée) pendant la demande : on relâche tout de suite (I-3).
-    if (!actif) {
-      void v.release().catch(() => {});
-      return;
-    }
-    verrou = v;
-    v.addEventListener('release', () => {
-      if (verrou === v) verrou = null;
-    });
-  } catch {
-    verrou = null;
-  } finally {
-    enDemande = false;
-  }
-}
-
-/** Le navigateur relâche le verrou quand on change d'onglet : on le reprend au retour. */
-function auRetour() {
-  if (document.visibilityState === 'visible') void demanderVerrou();
-}
-
-function garderAllume(oui: boolean) {
-  actif = oui;
-  if (oui) document.addEventListener('visibilitychange', auRetour);
-  else {
-    document.removeEventListener('visibilitychange', auRetour);
-    void verrou?.release().catch(() => {});
-    verrou = null;
-  }
 }
 
 /* ------------------------------------------------------------------ analyse */
@@ -226,8 +186,25 @@ async function proposer(res: ResultatAnalyse, d: DemandeMonteur, signal: AbortSi
   if (!source) return;
   if (d.mode === 'sansIA') {
     const { min, max } = DUREES[d.duree];
-    const props = clipsSansIA(res.moments, source.infos, d.nombre, { dureeMin: min, dureeMax: max });
-    await terminer(brouillons(props, res.moments), 0);
+    // v3 : les signaux du son (déjà calculés par l'analyse : relus du point de reprise) servent à noter chaque scène.
+    let signaux: SignauxSource | null = null;
+    try {
+      signaux = await lireSignauxSource(source, { signal });
+    } catch (e) {
+      if (estAnnule(e)) throw e;
+    }
+    // Mots déjà transcrits sur l'appareil (Montage express…) : sous-titres et qui parle sans 2ᵉ passage de Whisper.
+    const moments = await avecMotsGardes(source, res.moments);
+    const props = clipsSansIA(moments, source.infos, d.nombre, { dureeMin: min, dureeMax: max, signaux, titre: titreSurClips.peek() });
+    // Persos de qui parle (l'étape partagée par tous les montages sans IA).
+    const debut = Date.now();
+    const p = await persosDesClips(source, brouillons(props, moments), {
+      signal,
+      signaux,
+      surProgression: (x, m) => !signal.aborted && (etatAnalyse.value = { phase: 'encours', p: x, message: m || T.monteur.demarrage, debut }),
+    });
+    if (p.avertissement) console.warn('[Arko]', p.avertissement);
+    await terminer(p.brouillons, 0);
     return;
   }
   const f = trouverFournisseur(d.fournisseur);

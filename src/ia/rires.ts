@@ -19,6 +19,9 @@ export interface OptionsRires {
   auDessus?: number;
 }
 
+/** Plage de rire la plus longue gardée (s). */
+export const RIRE_MAX: Sec = 10;
+
 /** Fréquences de modulation examinées (Hz) : de 1 à 12 par demi-hertz. */
 const FREQUENCES: number[] = Array.from({ length: 23 }, (_, k) => 1 + k * 0.5);
 
@@ -74,7 +77,8 @@ function tables(n: number, pas: Sec): Tables {
 /**
  * Rires : fenêtres de 1,28 s (tous les 0,2 s) assez fortes, bien « hachées », et dont les variations
  * sont surtout entre 4 et 6 Hz. Les fenêtres retenues qui se suivent forment une plage ;
- * on garde les plages de 0,5 à 3,5 s (un rire de 0,5 à 3 s, plus la marge de la fenêtre).
+ * on garde les plages de 0,5 à RIRE_MAX s (v3 : un FOU RIRE dure souvent plus de 3 s ; avant, au-delà de 3,5 s, il
+ * était jeté et le passage le plus drôle de la session disparaissait).
  */
 export function detecterRires(env: Float32Array, db: Float32Array, fond: Fond, pas: Sec, o: OptionsRires = {}): Plage[] {
   const n = Math.round((o.fenetre ?? 1.28) / pas);
@@ -88,7 +92,7 @@ export function detecterRires(env: Float32Array, db: Float32Array, fond: Fond, p
   const fermer = () => {
     if (!courante) return;
     const d = courante.fin - courante.debut;
-    if (d >= 0.5 && d <= 3.5) plages.push(courante);
+    if (d >= 0.5 && d <= RIRE_MAX) plages.push(courante);
     courante = null;
   };
   for (let a = 0; a + n <= env.length; a += saut) {

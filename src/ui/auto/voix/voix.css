@@ -1,0 +1,161 @@
+/* v3 (dev 1) : écran « Qui parle ? » et cartes des voix (aussi dans la revue du Best-of).
+   Mobile d'abord (360 px), cibles tactiles ≥ 44 px. */
+
+.liste-voix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.carte-voix {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--r);
+  border: 1px solid var(--bord);
+  background: var(--surface);
+}
+.carte-voix-haut {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+.carte-voix-nom {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.carte-voix-nom .champ-saisie {
+  min-height: 44px;
+}
+.pastille-voix {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-bottom: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--fond);
+  box-shadow: 0 0 0 1px var(--bord-fort);
+}
+.extraits-voix {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.extraits-voix .btn {
+  min-height: 44px;
+  padding: 0 6px;
+  font-size: 14px;
+}
+.carte-voix-chibi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qp-etat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--r);
+  background: var(--surface-2);
+}
+.qp-barre {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bord);
+  overflow: hidden;
+}
+.qp-barre > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.liste-phrases {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.phrase-voix {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: var(--r-petit);
+  border: 1px solid var(--bord);
+  background: var(--fond-creux);
+  color: var(--texte);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.phrase-voix[data-sur='0'] {
+  border-style: dashed;
+}
+.phrase-voix .pastille-voix {
+  margin: 0;
+}
+.phrase-voix-texte {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.phrase-voix-qui {
+  flex: none;
+  max-width: 35%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--texte-doux);
+  font-size: 13px;
+}
+.qp-pied {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.qp-pied .btn {
+  min-height: 48px;
+}
+/* Situation de jeu d'une phrase (persos en papier découpé) : petit menu sous la phrase, d'un toucher. */
+.liste-phrases > li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.phrase-situation {
+  align-self: flex-end;
+  min-height: 32px;
+  max-width: 60%;
+  padding: 2px 8px;
+  border-radius: var(--r-petit);
+  border: 1px solid var(--bord);
+  background: var(--fond-creux);
+  color: var(--texte-doux, var(--texte));
+  font: inherit;
+  font-size: 0.85em;
+}
+
+/* « Qui parle ? » sur la carte d'un clip de la revue du monteur (7/11) : la légende laisse passer les gestes,
+   ce lien et ses cartes se touchent ; les cartes défilent dans la carte du clip. */
+.revue-qui-parle {
+  pointer-events: auto;
+  margin-top: 6px;
+  max-height: 58vh;
+  overflow-y: auto;
+  min-height: 44px;
+}
+.revue-qui-parle > .lien {
+  min-height: 44px;
+}

@@ -32,7 +32,9 @@ import {
   type BruitagePose,
 } from '../../recette/operations';
 import type { Chapitre, MorceauMusique, NiveauBlancs, PisteMusique, Recette, Rognage, Sec, Source } from '../../recette/types';
-import type { SignauxSource, Transcription } from '../types';
+import type { PlageTemps, SignauxSource, Transcription } from '../types';
+import type { EmpreintesVoix, VoixDetectees } from '../types-v3';
+import { poserPersos, type ChoixPersos } from '../voix/persos-montage';
 import { motsDesScenes, type SceneProposee } from './scenes';
 
 /** Écran 1, Réglages. */
@@ -55,6 +57,8 @@ export interface ReglagesExpress {
   accroche: boolean;
   /** Avec l'IA (clé de l'utilisateur) : choisir les moments et corriger les punchlines, en n'envoyant que du texte. */
   avecIA: boolean;
+  /** « Persos de qui parle » : voix reconnues, un perso par voix, avatars au bon moment. Absent = oui. */
+  persos?: boolean;
 }
 
 /** Écran 2, Analyse : ce qu'on sait de la source. */
@@ -68,6 +72,9 @@ export interface AnalyseExpress {
   cadreBords: Omit<Rognage, 'src'> | null;
   /** Messages pour l'utilisateur (« La fin (25 min sans son) n'est pas proposée »). */
   avertissements: string[];
+  /** Voix reconnues (« Persos de qui parle ») : absentes si on ne les a pas écoutées. */
+  voix?: VoixDetectees | null;
+  empreintes?: EmpreintesVoix[];
 }
 
 /**
@@ -79,6 +86,9 @@ export interface RessourcesExpress {
   sourcesAudio: Source[];
   bruitages: BruitagePose[];
   musique: PisteMusique | null;
+  /** Noms des voix et persos choisis sur la revue (cartes des voix). */
+  noms?: Readonly<Record<string, string>>;
+  chibis?: ChoixPersos['chibis'];
 }
 
 function finir(r: Recette): Recette {
@@ -134,23 +144,37 @@ export function placerMorceaux(srcs: readonly string[], debuts: readonly Sec[], 
   return res;
 }
 
-/** Écran 3 → montage : applique A + D + B + E + C + accroche + chapitres + G + F aux scènes gardées (ordre donné). Pure. */
-export function construireMontageExpress(
+/** Options des étapes communes (le Best-of serré les règle autrement que le Montage express). */
+export interface OptionsEtapes {
+  /** Texte de l'accroche de 6 s (null : aucun texte) ; absent = « ATTENDS… ». */
+  texteAccroche?: string | null;
+  /** G. Titres de section ; absent = `reglages.sections`. */
+  sections?: boolean;
+  /** E. Bruitages ; absent = `reglages.bruitages`. */
+  bruitages?: boolean;
+}
+
+/**
+ * Les étapes du Montage express, dans l'ordre : plans = `plages` (temps source, dans l'ordre donné), A → D → B → (E)
+ * → C → accroche → chapitres (un par élément de `scenes`, au début de son 1er plan) → G → F + volume final. Pure.
+ */
+export function etapesMontage(
   recette: Recette,
   analyse: AnalyseExpress,
+  plages: readonly PlageTemps[],
   scenes: readonly SceneProposee[],
   reglages: ReglagesExpress,
   ressources: RessourcesExpress,
+  o: OptionsEtapes = {},
 ): Recette {
-  const gardees = scenes.filter((s) => s.garde && s.a > s.de);
   const src = premiereVideo(recette);
-  if (gardees.length === 0 || !src) return recette;
+  if (plages.length === 0 || !src) return recette;
   const signaux = analyse.signaux;
-  const mots = motsDesScenes(analyse.transcription.mots, gardees);
+  const mots = motsDesScenes(analyse.transcription.mots, plages);
   const vraisMots = analyse.parole === 'mots' && mots.length > 0;
 
-  // 1. Plans = scènes gardées ; sous-titres = mots de ces scènes.
-  let r = finir({ ...recette, plans: gardees.map((s) => ({ de: s.de, a: s.a })) });
+  // 1. Plans = plages gardées ; sous-titres = mots de ces plages.
+  let r = finir({ ...recette, plans: plages.map((s) => ({ de: s.de, a: s.a })) });
   if (vraisMots) {
     r = definirSousTitres(r, { style: SOUS_TITRES.style, y: ySousTitres(r.mise, gabaritDe(r)), parLigne: SOUS_TITRES.parLigne, mots, src });
   }
@@ -165,22 +189,22 @@ export function construireMontageExpress(
     r = choisirModeSousTitres(definirPunchlines(r, trouverPunchlines(mots, signaux)), 'punchlines');
   }
   // 5. E — Bruitages (préparés par la page).
-  if (reglages.bruitages && ressources.bruitages.length > 0) r = poserBruitages(r, ressources.bruitages, ressources.sourcesAudio);
+  if ((o.bruitages ?? reglages.bruitages) && ressources.bruitages.length > 0) r = poserBruitages(r, ressources.bruitages, ressources.sourcesAudio);
   // 6. C — Zooms automatiques (après E).
   if (reglages.zooms) r = zoomsAutomatiques(r, signaux, reglages.zooms);
   // Accroche de 6 s : le meilleur moment copié au début (textes, sons et zooms en temps de sortie décalés).
   let finAccroche = 0;
   if (reglages.accroche) {
     const t = meilleurMoment(r, signaux);
-    const avec = t === null ? r : modeleMeilleurDAbord(r, t, MEILLEUR.dureeExpress);
+    const avec = t === null ? r : modeleMeilleurDAbord(r, t, MEILLEUR.dureeExpress, o.texteAccroche === undefined ? {} : { texte: o.texteAccroche });
     if (avec !== r) finAccroche = compiler(avec).plans[0]?.t1 ?? 0;
     r = avec;
   }
   // Chapitres (YouTube 16:9) puis 7. G — titres de section, placés après l'accroche.
-  const chapitres = gabaritDe(r).paysage ? chapitresDesScenes(r, gardees, src, finAccroche) : [];
+  const chapitres = gabaritDe(r).paysage ? chapitresDesScenes(r, scenes, src, finAccroche) : [];
   if (chapitres.length > 0) {
     r = finir({ ...r, chapitres });
-    if (reglages.sections) r = titresDeSection(r, { source: 'chapitres' });
+    if (o.sections ?? reglages.sections) r = titresDeSection(r, { source: 'chapitres' });
   }
   // 8. F — Musique (au début des chapitres) et volume final −14 LUFS / −1,5 dBTP.
   const srcs = ressources.musique?.morceaux.map((m) => m.src) ?? [];
@@ -189,4 +213,24 @@ export function construireMontageExpress(
     r = definirMusique(r, { ...ressources.musique, morceaux: morceauxMusique }, ressources.sourcesAudio);
   }
   return choisirVolumeFinal(r, { lufs: VOLUME_FINAL.lufs, crete: VOLUME_FINAL.crete });
+}
+
+/** Persos de qui parle (étape partagée), si demandés et si des voix ont été reconnues. Pure. */
+export function etapePersos(r: Recette, analyse: AnalyseExpress, reglages: Pick<ReglagesExpress, 'persos'>, ressources: Pick<RessourcesExpress, 'noms' | 'chibis'>): Recette {
+  if (reglages.persos === false || !analyse.voix) return r;
+  const mots = analyse.parole === 'mots' ? analyse.transcription.mots : undefined;
+  return poserPersos(r, { voix: analyse.voix, empreintes: analyse.empreintes ?? [] }, { noms: ressources.noms, chibis: ressources.chibis, ...(mots ? { mots } : {}), signaux: analyse.signaux });
+}
+
+/** Écran 3 → montage : A + D + B + E + C + accroche + chapitres + G + F aux scènes gardées (ordre donné), puis les persos. Pure. */
+export function construireMontageExpress(
+  recette: Recette,
+  analyse: AnalyseExpress,
+  scenes: readonly SceneProposee[],
+  reglages: ReglagesExpress,
+  ressources: RessourcesExpress,
+): Recette {
+  const gardees = scenes.filter((s) => s.garde && s.a > s.de);
+  const r = etapesMontage(recette, analyse, gardees, gardees, reglages, ressources);
+  return r === recette ? r : etapePersos(r, analyse, reglages, ressources);
 }

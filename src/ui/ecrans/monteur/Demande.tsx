@@ -14,6 +14,9 @@ import { analyseInterrompue, lancerAnalyse } from '../../monteur/analyse-monteur
 import { demande, regler, revue, sourceMonteur } from '../../monteur/etat-monteur';
 import { allerMonteur } from '../../monteur/navigation-monteur';
 import { tailleArrondie } from '../../sous-titres-ui';
+import { reglerTitre, titreSurClips } from '../../monteur/reglage-titre';
+import { persosSurClips, reglerPersos } from '../../monteur/persos-monteur';
+import { TV } from '../../../textes-v3';
 
 /** L'utilisateur a touché à « Transcrire les voix » : on ne le recoche plus tout seul. */
 let transcrireTouche = false;
@@ -192,6 +195,35 @@ export function Demande() {
               </button>
               {explication && <p class="petit doux">{T.monteur.moduleExplication(module.taille)}</p>}
             </>
+          )}
+        </div>
+
+        <div class="champ">
+          <label class="interrupteur">
+            <span>
+              <strong>{TV.derush.titres.reglage}</strong>
+              <span class="petit doux">{TV.derush.titres.reglageAide}</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={titreSurClips.value}
+              onChange={(e) => reglerTitre((e.currentTarget as HTMLInputElement).checked)}
+              data-testid="titre-clips"
+            />
+          </label>
+          {d.mode === 'sansIA' && (
+            <label class="interrupteur">
+              <span>
+                <strong>{TV.bestOf.avatars}</strong>
+                <span class="petit doux">{TV.bestOf.avatarsAide}</span>
+              </span>
+              <input
+                type="checkbox"
+                checked={persosSurClips.value}
+                onChange={(e) => reglerPersos((e.currentTarget as HTMLInputElement).checked)}
+                data-testid="persos-clips"
+              />
+            </label>
           )}
         </div>
 

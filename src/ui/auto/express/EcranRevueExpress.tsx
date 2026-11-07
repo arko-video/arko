@@ -7,7 +7,9 @@ import { MEILLEUR } from '../../../recette/modeles';
 import { TA } from '../../../textes-auto';
 import { IconeAlerte } from '../../composants/Icones';
 import { formatDuree } from '../../format';
+import type { SceneBestOf } from '../../../auto/express/best-of';
 import { EnteteExpress, fourchette } from './EcranReglagesExpress';
+import { EtiquetteResserree, RevueBestOf } from './RevueBestOf';
 import {
   analyseExpress,
   basculerScene,
@@ -64,6 +66,7 @@ export function EcranRevueExpress() {
             <pre class="envoi-texte">{envoiIA.value}</pre>
           </details>
         )}
+        <RevueBestOf partie="haut" />
         {scenes.length === 0 && <p data-testid="express-aucune">{TX.aucune}</p>}
         <ol class="express-scenes">
           {scenes.map((s, i) => (
@@ -74,6 +77,7 @@ export function EcranRevueExpress() {
                   <strong>{s.titre}</strong>
                   <span class="petit doux chiffres">{TX.sequence(horodatage(s.de), horodatage(s.a), formatDuree(s.duree))}</span>
                   <span class="petit">{s.raison}</span>
+                  <EtiquetteResserree scene={s as SceneBestOf} />
                 </span>
               </button>
               <span class="express-ordre">
@@ -87,6 +91,7 @@ export function EcranRevueExpress() {
             </li>
           ))}
         </ol>
+        <RevueBestOf partie="bas" />
       </main>
       <footer class="ecran-pied">
         <button type="button" class="btn btn-principal" disabled={gardees === 0 || total > max || occupe} aria-busy={occupe} onClick={() => void monterExpress()} data-testid="express-monter">

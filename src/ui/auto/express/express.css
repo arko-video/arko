@@ -117,3 +117,8 @@
   height: 22px;
   accent-color: var(--orange);
 }
+
+/* Best-of serré : séquence resserrée (morceaux gardés d'une scène drôle mais longue). */
+.express-resserree {
+  color: var(--accent, #ffd23f);
+}

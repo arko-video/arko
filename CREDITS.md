@@ -32,3 +32,9 @@ Les fichiers sous MPL-2.0 ne sont pas modifiés. Leur code source est disponible
 - Ils sont placés dans le **domaine public (CC0)** : tu peux les utiliser dans tes vidéos sans rien demander à personne.
 - Les sons tendance de TikTok ne sont pas dans Arko : on les ajoute dans TikTok au moment de publier.
 - « Mes sons » contient seulement les sons que **toi** tu importes (fichiers, `.zip` ou Partager → Arko), gardés sur ton appareil. Ils ne font pas partie d'Arko ni du dépôt, et restent sous ta responsabilité.
+
+## Chibis (personnages et avatars)
+- Les **chibis** d'Arko (10 coiffures, 10 tenues, 10 accessoires, 24 émotions, 3 styles « Feutre raté », « Crayon », « Paint ») sont **dessinés par le code d'Arko** (`src/chibis/`), sans aucune image copiée. Ce sont des personnages **originaux** : ni Wankul, ni Pepe, ni aucun personnage existant.
+- Les **persos** (7/11/2026 : style « Papier découpé » en buste, 6 persos tout prêts, 23 situations de jeu avec leurs objets, et les styles BD, Dessin animé, Bonhomme raté, Mascotte ronde, Pixel) sont eux aussi **dessinés par le code** (`src/chibis/persos/`). Les objets (épée, pioche, bombe, manette, coffre, trophée…) sont **génériques** : aucun objet, bloc, outil ni monstre d'un jeu existant.
+- Ils sont placés dans le **domaine public (CC0)**, comme les PNG que tu en exportes : utilise-les où tu veux, sans rien demander à personne.
+- Le style « Best-of serré » s'inspire de la façon de monter des créateurs gaming (best-of de partie monté serré, avatars dessinés à la place de la webcam). Aucun contenu, personnage, dessin ni nom de Wankil Studio n'est utilisé : les Wankuls et les cartes Wankul restent leur propriété.

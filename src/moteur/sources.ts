@@ -48,6 +48,9 @@ export async function ouvrirSource(fichier: File, onEtape?: (message: string) =>
       l: media.largeur,
       h: media.hauteur,
     };
+    // v3 (E) : nombre de pistes audio, seulement s'il y en a au moins 2 (OBS : micro + Discord).
+    const n = media.pistesAudio?.length ?? 0;
+    if (n >= 2) infos.pistes = Math.min(16, n);
     const source: SourceOuverte = { infos, verticale: media.hauteur > media.largeur, fichier };
     internes.set(source, media);
     onEtape?.('C\'est prêt !');

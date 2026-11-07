@@ -109,6 +109,33 @@ Tout tourne sur ton téléphone : ni la vidéo ni le son ne sont envoyés.
   montage « Montage express — <nom> » que tu retouches comme d'habitude. Un seul Annuler le remet à zéro.
   Avec l'IA (ta clé) : seul du texte est envoyé, jamais le son.
 
+## Best-of serré, chibis et « Insérer ici » (novembre 2026)
+
+Pour monter une session de jeu entre potes « façon best-of » : seulement les meilleurs moments, montés serré, avec un
+petit personnage pour chaque voix. Tout reste sur ton téléphone.
+
+- **Best-of serré** (Montage express → Style du montage) : les rires et les moments forts gardés **avec leur contexte**
+  (la phrase d'avant, la chute d'après) ; une scène drôle mais longue est **resserrée** au lieu d'être jetée ; coupe
+  Serrée ; punchlines calées sur les mots ; musique qui baisse quand on parle ; **pas de bruitages** ; titres de
+  séquence **facultatifs** (décochés d'office) ; bip sur les gros mots au choix. Un nouveau montage « Best-of — <nom> »,
+  un seul Annuler.
+- **Qui parle ?** : Arko reconnaît les voix (pistes séparées si ta vidéo OBS en a, sinon le niveau et le timbre),
+  tu les nommes en écoutant 3 extraits, et tu corriges une phrase d'un toucher.
+- **Avatars** : le chibi de chaque personne apparaît quand elle parle (en bas à gauche, taille moyenne), change selon
+  l'émotion, bouge la bouche avec la voix. **Sous-titres pour : <personne>** : toutes les phrases de la voix qu'on
+  entend mal sont sous-titrées en bas, en plus des punchlines.
+- **Chibis** (Ma bibliothèque → Chibis) : personnages originaux dessinés par Arko, volontairement « un peu ratés »,
+  3 styles (Feutre raté, Crayon, Paint), 24 émotions bouche ouverte / fermée (48 variantes par style), coiffures, tenues
+  (astronaute, cow-boy, armure…), accessoires ; « Au hasard », « Ressemble à… », export PNG transparent ou .zip. CC0.
+- **Passages pas retenus** (Couper) : les moments notés mais pas gardés, triés par note : Écouter, Ajouter d'un toucher.
+- **Insérer ici** (Couper) : coupe la vidéo à la tête de lecture et place entre les deux parties une autre vidéo, un
+  mème, une image fixe, un carton texte ou un chibi plein écran ; la suite est décalée toute seule.
+- **Vidéo à plusieurs pistes de son** (micro et Discord séparés dans OBS) : choisis les pistes gardées et leur volume.
+- **Monteur sans IA** : clips qui racontent quelque chose (mise en place + chute), sans doublons ; le titre se change
+  ou se retire d'un toucher.
+
+Les chibis d'Arko ne copient aucun personnage existant (ni Wankul, ni Pepe) : ils sont dessinés par le code.
+
 ## TikTok ou YouTube
 
 Au premier lancement, Arko demande **« Tu montes pour où ? »** : TikTok, ou YouTube puis **Vidéo (16:9)** ou **Short (vertical)**.

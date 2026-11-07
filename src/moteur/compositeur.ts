@@ -1,6 +1,6 @@
 // Compositeur : dessine UNE image de la vidéo finale à partir de son état et de l'image source décodée.
 // Ordre : mouvement de transition (zoom, secousse) → zoom fixe du plan (Montage auto) → zoom → mise en page → glisse (décalage + flou de mouvement)
-//         → fonds verts et mèmes posés par-dessus (Ma bibliothèque) → calque de transition (flash, noir, glitch) → textes → sous-titres.
+//         → fonds verts et mèmes posés par-dessus (Ma bibliothèque) → avatars (v3) → calque de transition (flash, noir, glitch) → textes → sous-titres.
 // Tailles pensées pour 1080 px (le petit côté du gabarit) × env.echelle. Utilisé tel quel par l'aperçu et par l'export (un seul chemin de rendu).
 
 import type { Ctx2D, Env, ImageSource } from './canevas';
@@ -11,6 +11,7 @@ import { appliquerZoom, zoneDuZoom } from './couches/zooms';
 import { appliquerZoomFixe } from './couches/zoom-fixe';
 import type { EtatImage } from './etat-image';
 import { poserCalques, type CalqueClip } from './incrustation/incruster';
+import type { CoucheAvatars } from './couches/avatars'; // v3 (C)
 import { dessinerFlou, type FondFlou, type Rect } from './mises-en-page/flou';
 import { dessinerJeuCam, placementJeuCam, type ZoomBande } from './mises-en-page/jeu-cam';
 import { dessinerRecadre } from './mises-en-page/recadre';
@@ -28,6 +29,8 @@ export function dessinerImage(
   tampon?: TamponImage,
   /** Ma bibliothèque : clips détourés (fonds verts, mèmes) déjà prêts, posés au-dessus de la vidéo. */
   calques?: readonly CalqueClip[],
+  /** v3 (C) : avatars (chibi de la personne qui parle), posés au-dessus des clips, sous la transition et les textes. */
+  avatars?: CoucheAvatars | null,
 ) {
   ctx.save();
   ctx.fillStyle = '#000';
@@ -44,6 +47,7 @@ export function dessinerImage(
   ctx.restore();
   if (!etat) return;
   if (calques && calques.length > 0) poserCalques(ctx, calques);
+  avatars?.dessiner(ctx, etat.t, env, etat);
   dessinerTransition(ctx, etat.transition, env, etat.t, tampon);
   dessinerTextes(ctx, etat.textes, env, etat.gab);
   dessinerSousTitres(ctx, etat.sousTitres, env, etat.gab);

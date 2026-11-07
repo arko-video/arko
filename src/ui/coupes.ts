@@ -3,7 +3,7 @@
 // même aimant au rythme du son guide. Textes, sons, zooms et sous-titres suivent donc les coupes
 // exactement de la même façon depuis les deux écrans.
 
-import { scinder, supprimer } from '../recette/operations';
+import { estElementInsere, scinder, supprimer, supprimerElement } from '../recette/operations';
 import type { Recette } from '../recette/types';
 import { debutDuPlan, rognerDebutA, rognerFinA } from './coupe-tete';
 import { modifier, recette, selection, teteLecture } from './etat';
@@ -43,7 +43,8 @@ export function scinderIci(): boolean {
  */
 export function supprimerPlan(i: number, aLaJointure = false): boolean {
   mettreEnPause();
-  if (!modifier((r) => supprimer(r, i))) return false;
+  // v3 (B) : supprimer un élément inséré recolle la suite (décalage inverse de l'habillage).
+  if (!modifier((r) => (estElementInsere(r, i) ? supprimerElement(r, i) : supprimer(r, i)))) return false;
   selection.value = null;
   const r = recette.peek();
   chercher(aLaJointure && r ? debutDuPlan(r, i) : teteLecture.peek());

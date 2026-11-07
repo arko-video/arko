@@ -8,6 +8,8 @@ export interface DemandeExport {
   recette: Recette;
   /** Fichier de chaque source, par id. */
   fichiers: Record<string, File>;
+  /** v3 (B) : fichiers des images fixes insérées, par empreinte (absent = aucune). */
+  images?: Record<string, Blob>;
   /** Rang de cascade déjà validé sur cet appareil (mémorisé par la page), ou null. */
   rangConnu: number | null;
   /** Nom du fichier OPFS (choisi par la page, pour pouvoir l'effacer elle-même après une annulation). */

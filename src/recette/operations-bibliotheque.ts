@@ -6,6 +6,7 @@
 import { compiler, sourceA } from './chronologie';
 import { normaliser } from './normaliser';
 import { scinder } from './operations';
+import { supprimerElement } from './operations-insertion';
 import { arrondir, dureePlan } from './temps';
 import type { Incrustation, Plan, Recette, Sec, Source } from './types';
 
@@ -107,8 +108,14 @@ export function estPlanMeme(r: Recette, i: number): boolean {
  * À la reprise : retire les fonds verts, mèmes en incrustation et mèmes « Coupure » dont le clip n'est plus dans
  * Ma bibliothèque (`ids` = ids de sources). Pure. Un montage qui n'aurait plus aucun plan garde les siens.
  */
-export function retirerClipsManquants(r: Recette, ids: readonly string[]): Recette {
-  if (ids.length === 0) return r;
+export function retirerClipsManquants(r0: Recette, ids: readonly string[]): Recette {
+  if (ids.length === 0) return r0;
+  // v3 (B) : une vidéo insérée (« Insérer ici ») est retirée avec le décalage inverse (la suite est recollée).
+  let r = r0;
+  for (let i = r.plans.length - 1; i >= 0; i--) {
+    const p = r.plans[i]!;
+    if (p.ins && p.src && ids.includes(p.src)) r = supprimerElement(r, i);
+  }
   const plans = r.plans.filter((p) => !p.src || !ids.includes(p.src));
   const incrustations = (r.incrustations ?? []).filter((x) => !ids.includes(x.src));
   const res: Recette = { ...r, plans: plans.length > 0 ? plans : r.plans, sources: r.sources.filter((s) => !ids.includes(s.id) || !plans.length) };
@@ -116,5 +123,5 @@ export function retirerClipsManquants(r: Recette, ids: readonly string[]): Recet
     if (incrustations.length > 0) res.incrustations = incrustations;
     else delete res.incrustations;
   }
-  return finir(r, res);
+  return finir(r0, res);
 }

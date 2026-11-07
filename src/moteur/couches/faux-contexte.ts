@@ -6,7 +6,7 @@ import type { Ctx2D } from '../canevas';
 type Matrice = [number, number, number, number, number, number];
 
 export interface Trace {
-  op: 'fillText' | 'strokeText' | 'fill';
+  op: 'fillText' | 'strokeText' | 'fill' | 'stroke';
   txt?: string;
   /** Point d'ancrage en pixels de la destination. */
   x: number;
@@ -20,7 +20,7 @@ export interface Trace {
   lineWidth: number;
   globalAlpha: number;
   shadowBlur: number;
-  /** Pour 'fill' : boîte englobante du chemin (pixels de la destination). */
+  /** Pour 'fill' et 'stroke' : boîte englobante du chemin (pixels de la destination). */
   boite?: { x0: number; y0: number; x1: number; y1: number };
 }
 
@@ -42,6 +42,10 @@ export class FauxContexte {
   miterLimit = 10;
   imageSmoothingEnabled = true;
   imageSmoothingQuality = 'low';
+  lineCap = 'butt';
+  globalCompositeOperation = 'source-over';
+  /** Nombre de drawImage (chibis du cache, etc.). */
+  images = 0;
   private m: Matrice = [1, 0, 0, 1, 0, 0];
   private pile: { m: Matrice; etat: typeof ETAT }[] = [];
   private chemin: [number, number][] = [];
@@ -110,7 +114,31 @@ export class FauxContexte {
     t.boite = { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
   }
   fillRect() {}
-  drawImage() {}
+  drawImage() {
+    this.images++;
+  }
+  // Ajouts pour les chibis (dev 3) : lignes, arcs, contours, découpe.
+  lineTo(x: number, y: number) {
+    this.chemin.push(this.point(x, y));
+  }
+  arc(x: number, y: number, r: number) {
+    this.chemin.push(this.point(x - r, y - r), this.point(x + r, y + r));
+  }
+  ellipse(x: number, y: number, rx: number, ry: number) {
+    this.chemin.push(this.point(x - rx, y - ry), this.point(x + rx, y + ry));
+  }
+  rect(x: number, y: number, l: number, h: number) {
+    this.chemin.push(this.point(x, y), this.point(x + l, y + h));
+  }
+  clip() {}
+  clearRect() {}
+  setLineDash() {}
+  stroke() {
+    const t = this.noter('stroke', 0, 0);
+    const xs = this.chemin.map((p) => p[0]);
+    const ys = this.chemin.map((p) => p[1]);
+    t.boite = { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
+  }
 }
 
 /** Textes écrits (fillText) dans l'ordre. */

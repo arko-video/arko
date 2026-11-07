@@ -2,11 +2,14 @@
 
 import { ALIAS_TRANSITION, FIGE, JEU_CAM, MISE_DEFAUT, TRANSITION, TYPES_MISE, TYPES_TRANSITION, VITESSE } from './defauts';
 import { normaliserZoomFixe } from './normaliser-auto-habillage';
+import { dureeInsere, normaliserInsere, type ContexteInsertion } from './normaliser-insertion'; // v3 (B)
 import { borner, estObjet, Journal, lireNombre, verifierCles, type Objet } from './normaliser-outils';
 import { arrondir, DUREE_MIN_PLAN, formaterSecondes, lireTemps } from './temps';
 import type { Cadre, MiseEnPage, Plan, Source, Transition } from './types';
 
-const CLES_PLAN = ['src', 'de', 'a', 'vit', 'trans', 'mise', 'm', 'fige', 'zoomFixe'] as const;
+const CLES_PLAN = ['src', 'de', 'a', 'vit', 'trans', 'mise', 'm', 'fige', 'zoomFixe', 'ins'] as const;
+/** v3 (B) : sans contexte (anciens appels), aucun élément inséré n'est reconnu sauf les clips. */
+const SANS_CONTEXTE: ContexteInsertion = { images: [], personnes: [] };
 /** Noms que les IA utilisent souvent à la place des nôtres. */
 const ALIAS_PLAN: Record<string, (typeof CLES_PLAN)[number]> = {
   debut: 'de', start: 'de', from: 'de', in: 'de',
@@ -32,7 +35,7 @@ export function appliquerAlias(obj: Objet, alias: Record<string, string>, chemin
 }
 
 /** Normalise la liste des plans. `videos` = sources vidéo connues. */
-export function normaliserPlans(brut: unknown, videos: Source[], journal: Journal): Plan[] {
+export function normaliserPlans(brut: unknown, videos: Source[], journal: Journal, ctx: ContexteInsertion = SANS_CONTEXTE): Plan[] {
   if (brut === undefined) return [];
   const liste = Array.isArray(brut) ? brut : estObjet(brut) ? [brut] : null;
   if (!liste) {
@@ -41,7 +44,7 @@ export function normaliserPlans(brut: unknown, videos: Source[], journal: Journa
   }
   const plans: Plan[] = [];
   liste.forEach((p, i) => {
-    const plan = normaliserPlan(p, `plans[${i}]`, videos, journal);
+    const plan = normaliserPlan(p, `plans[${i}]`, videos, journal, ctx);
     if (plan) plans.push(plan);
   });
   // Une transition sur le premier plan n'a pas de sens : on la retire.
@@ -52,13 +55,17 @@ export function normaliserPlans(brut: unknown, videos: Source[], journal: Journa
   return plans;
 }
 
-function normaliserPlan(brut: unknown, chemin: string, videos: Source[], journal: Journal): Plan | null {
+function normaliserPlan(brut: unknown, chemin: string, videos: Source[], journal: Journal, ctx: ContexteInsertion): Plan | null {
   if (!estObjet(brut)) {
     journal.corrige(chemin, 'Ce plan n\'est pas un objet : supprimé.');
     return null;
   }
   const p = appliquerAlias(brut, ALIAS_PLAN, chemin, journal);
   verifierCles(p, CLES_PLAN, chemin, journal);
+  // v3 (B) : élément inséré. Image, carton et chibi n'ont pas de vidéo : plan [0, durée] sans source.
+  const ins = normaliserInsere(p.ins, `${chemin}.ins`, journal, ctx);
+  if (ins === null) return null;
+  if (ins && ins.type !== 'clip') return planSansVideo(p, ins, chemin, journal);
 
   // Source du plan.
   let src: string | undefined;
@@ -122,6 +129,28 @@ function normaliserPlan(brut: unknown, chemin: string, videos: Source[], journal
   }
   if (p.m !== undefined) plan.m = String(p.m);
   const zoomFixe = normaliserZoomFixe(p.zoomFixe, `${chemin}.zoomFixe`, journal); // Montage auto (C)
+  if (zoomFixe) plan.zoomFixe = zoomFixe;
+  if (ins) plan.ins = ins; // v3 (B) : clip inséré (plan vidéo ordinaire, marqué)
+  return plan;
+}
+
+/**
+ * v3 (B) : plan d'un élément sans vidéo (image fixe, carton, chibi plein écran) : de = 0, a = durée (0,3 à 30 s),
+ * pas de source, de vitesse ni d'arrêt sur image ; mise en page imposée (image : fond flou ; carton et chibi : plein
+ * écran). Transition d'entrée, zoom fixe et id de moment gardés.
+ */
+function planSansVideo(p: Objet, ins: NonNullable<Plan['ins']>, chemin: string, journal: Journal): Plan {
+  const de = lireTemps(p.de) ?? 0;
+  const a = lireTemps(p.a);
+  const plan: Plan = { de: 0, a: dureeInsere(a === null ? undefined : a - de, `${chemin}.a`, journal), ins };
+  for (const cle of ['src', 'vit', 'fige'] as const) {
+    if (p[cle] !== undefined) journal.ignore(`${chemin}.${cle}`, `Un élément inséré n'a pas de "${cle}" : ignoré.`);
+  }
+  plan.mise = ins.type === 'image' ? { type: 'flou', y: 0.5 } : { type: 'recadre', x: 0.5 };
+  const trans = normaliserTransition(p.trans, `${chemin}.trans`, journal);
+  if (trans !== undefined) plan.trans = trans;
+  if (p.m !== undefined) plan.m = String(p.m);
+  const zoomFixe = normaliserZoomFixe(p.zoomFixe, `${chemin}.zoomFixe`, journal);
   if (zoomFixe) plan.zoomFixe = zoomFixe;
   return plan;
 }

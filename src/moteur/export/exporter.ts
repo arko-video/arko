@@ -13,6 +13,7 @@ import { contexte2D, envPour } from '../canevas';
 import { ErreurArko } from '../erreurs';
 import type { MediaOuvert } from '../media';
 import { rendre } from '../rendre';
+import { imagesDe } from '../inserts/images-ouvertes'; // v3 (B) : images fixes, ouvertes par le Worker
 import { configVideo, type EssaiEncodage } from './cascade';
 import { creerSortie, type Sortie } from './sortie-opfs';
 
@@ -51,7 +52,7 @@ export const PART_MESURE = 0.1;
  * la sonie perdue sur les crêtes. Renvoie la sonie d'origine et le gain à appliquer.
  */
 export async function mesurerVolume(o: OptionsExport, cible: VolumeFinal): Promise<{ lufsAvant: number; gainDb: number }> {
-  const rendu = rendre(o.recette, o.medias);
+  const rendu = rendre(o.recette, o.medias, undefined, undefined, { images: imagesDe(o.recette) });
   const nb = Math.round(rendu.duree * FREQUENCE_SORTIE);
   const brut = new MesureurSonie();
   const blocs: Float32Array[][] = [];
@@ -74,7 +75,7 @@ export async function mesurerVolume(o: OptionsExport, cible: VolumeFinal): Promi
   const lim = new SortieLimitee(new LimiteurCreteVraie(essai, cible.crete), async (c) => essaiLimite.ajouter(c));
   if (blocs.length > 0) for (const b of blocs) await lim.pousser(b.map((c) => c.slice()));
   else {
-    const rendu2 = rendre(o.recette, o.medias);
+    const rendu2 = rendre(o.recette, o.medias, undefined, undefined, { images: imagesDe(o.recette) });
     try {
       for (let k = 0; k < nb; k += BLOC_AUDIO) {
         verifier(o);
@@ -139,7 +140,7 @@ export async function exporterUneFois(o: OptionsExport): Promise<ResultatBrut> {
   // Passe 1 (volume final) : mesure et gain, avant d'ouvrir le fichier de sortie.
   const volume = cible ? await mesurerVolume(o, cible) : null;
   const progression = volume ? (p: number, r: number | null) => o.surProgression(PART_MESURE + (1 - PART_MESURE) * p, r) : o.surProgression;
-  const rendu = rendre(o.recette, o.medias);
+  const rendu = rendre(o.recette, o.medias, undefined, undefined, { images: imagesDe(o.recette) });
   const duree = rendu.duree;
   if (duree <= 0) throw new ErreurArko('Il n\'y a rien à exporter : garde au moins un passage.', 'vide');
   const nbImages = nombreImages(duree);

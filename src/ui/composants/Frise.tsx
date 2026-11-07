@@ -4,13 +4,21 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { bornesDesPlans } from '../../recette/operations';
 import { T } from '../../textes-fr';
+import { VignetteInsere } from '../auto/insertion/VignetteInsere'; // v3 (B)
 import { recette, recetteAffichee, selection, sources, teteLecture } from '../etat';
 import { formatDuree } from '../format';
 import { tempsFortsSortie } from '../guide';
 import { RepereRythme } from './RepereRythme';
 import { clavierPoignee, clavierTete } from './frise-clavier';
 import { creerGestesFrise, type Geste, type VueFrise } from './frise-gestes';
-import { borner, bornerDecalage, graduations, MARGE_FRISE as MARGE, pasDeRegle, PPS_MAX } from './frise-outils';
+import {
+  borner,
+  bornerDecalage,
+  graduations,
+  MARGE_FRISE as MARGE,
+  pasDeRegle,
+  PPS_MAX,
+} from './frise-outils';
 import { TuilesGeneriques, xTete } from './FriseGeneriques';
 import { Poignee, Regle, TeteLecture } from './FriseElements';
 import { VignettesPlan } from './Vignettes';
@@ -82,7 +90,17 @@ export function Frise({ zoomRef }: { zoomRef?: { current: ((facteur: number) => 
   if (!r || !rv || !source) return null;
 
   const vue: VueFrise = {
-    pps, ppsAjuste, zoom, zoomMax, decalage, decalageGeste, largeurVue, largeurContenu, duree, xDe, tempsA,
+    pps,
+    ppsAjuste,
+    zoom,
+    zoomMax,
+    decalage,
+    decalageGeste,
+    largeurVue,
+    largeurContenu,
+    duree,
+    xDe,
+    tempsA,
   };
   const gestes = creerGestesFrise({
     vue,
@@ -123,7 +141,15 @@ export function Frise({ zoomRef }: { zoomRef?: { current: ((facteur: number) => 
         {tempsFortsSortie(r).map((t) => {
           const x = xDe(t);
           if (x < -2 || x > largeurVue + 2) return null;
-          return <span key={t} class="temps-fort" aria-hidden="true" style={{ left: `${x}px` }} data-testid="temps-fort" />;
+          return (
+            <span
+              key={t}
+              class="temps-fort"
+              aria-hidden="true"
+              style={{ left: `${x}px` }}
+              data-testid="temps-fort"
+            />
+          );
         })}
         {r.plans.map((p, i) => {
           const x = xDe(bornes[i]);
@@ -146,18 +172,29 @@ export function Frise({ zoomRef }: { zoomRef?: { current: ((facteur: number) => 
               }}
               data-testid={`plan-${i}`}
             >
-              <VignettesPlan
-                source={source}
-                de={p.de}
-                a={p.a}
-                vit={p.vit ?? 1}
-                x={x}
-                largeur={w}
-                largeurVue={largeurVue}
-                hauteur={H_PLAN - 8}
-                pps={pps}
-              />
-              {p.fige ? <span class="plan-fige" style={{ width: `${Math.min(w, p.fige * pps)}px` }} data-testid={`fige-${i}`} /> : null}
+              {/* v3 (B) : un élément inséré sans vidéo a une tuile à lui ; un clip inséré montre ses propres images. */}
+              {p.ins && p.ins.type !== 'clip' ? (
+                <VignetteInsere el={p.ins} hauteur={H_PLAN - 16} testid={`insere-${i}`} />
+              ) : (
+                <VignettesPlan
+                  source={(p.src && sources.value.find((s) => s.infos.id === p.src)) || source}
+                  de={p.de}
+                  a={p.a}
+                  vit={p.vit ?? 1}
+                  x={x}
+                  largeur={w}
+                  largeurVue={largeurVue}
+                  hauteur={H_PLAN - 8}
+                  pps={pps}
+                />
+              )}
+              {p.fige ? (
+                <span
+                  class="plan-fige"
+                  style={{ width: `${Math.min(w, p.fige * pps)}px` }}
+                  data-testid={`fige-${i}`}
+                />
+              ) : null}
               {(p.vit ?? 1) !== 1 && (
                 <span class="plan-vitesse chiffres" data-testid={`badge-vitesse-${i}`}>
                   {T.plan.vitesseValeur(p.vit ?? 1)}
@@ -168,16 +205,35 @@ export function Frise({ zoomRef }: { zoomRef?: { current: ((facteur: number) => 
         })}
         {poignees !== null && poignees < r.plans.length && (
           <>
-            <Poignee type="debut" i={poignees} x={xDe(bornes[poignees])} onKeyDown={(e) => clavierPoignee(e, 'debut', poignees)} />
-            <Poignee type="fin" i={poignees} x={xDe(bornes[poignees + 1]) - 2} onKeyDown={(e) => clavierPoignee(e, 'fin', poignees)} />
+            <Poignee
+              type="debut"
+              i={poignees}
+              x={xDe(bornes[poignees])}
+              onKeyDown={(e) => clavierPoignee(e, 'debut', poignees)}
+            />
+            <Poignee
+              type="fin"
+              i={poignees}
+              x={xDe(bornes[poignees + 1]) - 2}
+              onKeyDown={(e) => clavierPoignee(e, 'fin', poignees)}
+            />
           </>
         )}
       </div>
 
       <RepereRythme xDe={xDe} pps={pps} largeurVue={largeurVue} />
-      <TeteLecture x={xTete(tete, xDe, duree)} tete={tete} duree={duree} onKeyDown={(e) => clavierTete(e, tete, duree)} />
+      <TeteLecture
+        x={xTete(tete, xDe, duree)}
+        tete={tete}
+        duree={duree}
+        onKeyDown={(e) => clavierTete(e, tete, duree)}
+      />
       {bulle && (
-        <div class="bulle chiffres" style={{ left: `${borner(bulle.x, 32, largeurVue - 32)}px` }} data-testid="bulle">
+        <div
+          class="bulle chiffres"
+          style={{ left: `${borner(bulle.x, 32, largeurVue - 32)}px` }}
+          data-testid="bulle"
+        >
           {bulle.texte}
         </div>
       )}

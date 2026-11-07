@@ -13,9 +13,11 @@ const rire: Moment = { id: 'm02', debut: 2995, fin: 3009, score: 90, etiquettes:
 const motsRire: Mot[] = [['attends', 2999.2, 2999.6], ['NON', 3000.1, 3000.5, 1], ['!', 3000.5, 3000.6]];
 
 describe('transcription des moments', () => {
-  it('écoute ±6 s autour de chaque pic, triées', () => {
+  it('écoute de 15 s avant à 8 s après chaque pic (v3 : la mise en place), triées, réunies si elles se chevauchent', () => {
     const r = recetteATranscrire([rire, calme], SOURCE);
-    expect(r.plans).toEqual([{ de: 994, a: 1006 }, { de: 2994, a: 3006 }]);
+    expect(r.plans).toEqual([{ de: 985, a: 1008 }, { de: 2985, a: 3008 }]);
+    const proche = { ...calme, id: 'm09', pic: 1020 };
+    expect(recetteATranscrire([calme, proche], SOURCE).plans).toEqual([{ de: 985, a: 1028 }]);
     expect(r.sources[0]!.id).toBe('s1');
   });
 
@@ -39,14 +41,14 @@ describe('mode sans IA', () => {
     expect(p[0]!.problemes.filter((x) => x.niveau === 'bloquant')).toEqual([]);
   });
 
-  it('plan de 12 à 30 s qui commence 1,5 s avant l\'action, zoom punch et boom au pic', () => {
+  it('plan de 12 à 30 s raconté (sans mots ni signaux : 8 s avant le pic), zoom punch au pic, sans bruitage', () => {
     const r = clipsSansIA([calme], SOURCE, 5)[0]!.recette;
     const plan = r.plans[0]!;
-    expect(plan.de).toBe(992.5);
+    expect(plan.de).toBe(992);
     expect(plan.a - plan.de).toBeGreaterThanOrEqual(12);
     expect(plan.a - plan.de).toBeLessThanOrEqual(30);
     expect(r.zooms).toEqual([expect.objectContaining({ ts: 1000, style: 'punch' })]);
-    expect(r.sons).toEqual([expect.objectContaining({ id: 'impact.boom', ts: 1000 })]);
+    expect(r.sons).toEqual([]);
     expect(r.textes[0]).toEqual(expect.objectContaining({ role: 'accroche', txt: 'ATTENDS LA FIN…', t: 0 }));
     expect(r.sousTitres?.mots).toBe('auto');
     expect(r.titre).toBe('Calme puis gros pic à 16:40');

@@ -1,16 +1,17 @@
 // Bouton d'entrée d'une fonction du Montage auto, caché derrière son drapeau (drapeaux.ts).
 // Pas encore prête : badge « Bientôt » et message « Bientôt disponible » au toucher.
 // Une erreur « pas encore fait » levée par `agir` donne le même message. Fichier GELÉ (intégrateur).
+// v3 : accepte aussi les drapeaux DrapeauV3.
 
 import type { ComponentChildren } from 'preact';
 import { ErreurArko } from '../../moteur/api';
 import { estPasEncoreFait } from '../../auto/pas-encore-fait';
 import { TA } from '../../textes-auto';
 import { afficherToast } from '../etat';
-import { visible, type DrapeauAuto } from './drapeaux';
+import { visible, type DrapeauAuto, type DrapeauV3 } from './drapeaux';
 
 export interface ProprietesBoutonAuto {
-  drapeau: DrapeauAuto;
+  drapeau: DrapeauAuto | DrapeauV3;
   prete: boolean;
   label: string;
   testid: string;

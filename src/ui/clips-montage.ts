@@ -38,8 +38,8 @@ function message(e: unknown): string {
   return TB.plusLa;
 }
 
-/** Ouvre le clip comme source vidéo du montage (une seule fois : un clip déjà ouvert garde son id). */
-async function sourceDuClip(clip: MonClip): Promise<SourceOuverte> {
+/** Ouvre le clip comme source vidéo du montage (une seule fois : un clip déjà ouvert garde son id). Aussi pour « Insérer ici ». */
+export async function sourceDuClip(clip: MonClip): Promise<SourceOuverte> {
   const r = recette.peek();
   const deja = sources.peek().find((s) => s.infos.bib === clip.id);
   if (deja) return deja;

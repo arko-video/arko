@@ -5,13 +5,16 @@
 
 import { computed, signal } from '@preact/signals';
 import { analyserPourExpress, dureeVisee } from '../../../auto/express/analyse-express';
+import { analyserPourBestOf, construireBestOf, type AnalyseBestOf, type SceneBestOf } from '../../../auto/express/best-of';
 import { construireMontageExpress, type AnalyseExpress, type ReglagesExpress, type RessourcesExpress } from '../../../auto/express/express';
 import { appliquerReponseExpress, consignesExpress, IA_EXPRESS, lireReponseExpress, messageExpress } from '../../../auto/express/ia-express';
 import { dureeGardee, type SceneProposee } from '../../../auto/express/scenes';
 import { ErreurArko, importerSon, lireMonSon, moduleSousTitres, nouveauProjet, recetteInitiale, trouverFournisseur, type IdFournisseur, type SourceOuverte } from '../../../moteur/api';
 import { compiler } from '../../../recette/chronologie';
+import { pistesGardees } from '../../../recette/operations';
 import { gabarit, type Destination } from '../../../recette/destination';
 import { TA } from '../../../textes-auto';
+import { TV } from '../../../textes-v3';
 import { destinationChoisie } from '../../destination';
 import { afficherToast, ajouterSourceOuverte, annulerAction, demarrerProjet, derniereEtape, idsPris, modifier, recette, sauverEnAttente } from '../../etat';
 import { formatDuree } from '../../format';
@@ -23,6 +26,8 @@ import { reprendreA } from '../../navigation';
 import { garderFichier } from '../../sons-gardes';
 import { ouvrirOutil } from '../../habillage';
 import { ouvrirBruitages } from '../son/etat-son';
+import { enBestOf, preparerVoix, reglagesBestOf, ressourcesBestOf, styleMontage, type StyleMontage } from './etat-best-of';
+import { avecVoix, choixVoix, voixApres } from './voix-express';
 import { allerExpress, fermerExpress, garde, remplacerExpress } from './navigation-express';
 
 export { ecranExpress } from './navigation-express';
@@ -53,12 +58,20 @@ function reglagesParDefaut(d: Destination): ReglagesExpress {
     sections: d === 'youtube',
     accroche: true,
     avecIA: false,
+    // Persos de qui parle (7/11) : coché d'office, comme dans le Best-of.
+    persos: true,
   };
 }
 
 export const reglagesExpress = signal<ReglagesExpress>(reglagesParDefaut('youtube'));
 export function reglerExpress(p: Partial<ReglagesExpress>) {
   reglagesExpress.value = { ...reglagesExpress.peek(), ...p };
+}
+
+/** Montage express ou Best-of serré (Best-of : coupe Serrée, jamais de bruitages, sans IA). */
+export function choisirStyle(st: StyleMontage) {
+  styleMontage.value = st;
+  reglerExpress(st === 'bestOf' ? { niveauBlancs: 'serre', bruitages: false, avecIA: false } : { niveauBlancs: 'normal' });
 }
 
 export function choisirDestinationExpress(d: Destination) {
@@ -151,8 +164,16 @@ export async function lancerExpress() {
   allerExpress('analyse');
   try {
     const reg = reglagesExpress.peek();
-    let a = await analyserPourExpress(source, reg, { signal: c.signal, surProgression: (p, message) => controleur === c && (etatExpress.value = { phase: 'encours', p, message }) });
-    if (reg.avecIA && a.parole === 'mots' && a.scenes.length > 0) {
+    const bestOf = enBestOf();
+    const o = { signal: c.signal, surProgression: (p: number, message: string) => controleur === c && (etatExpress.value = { phase: 'encours', p, message: message || TA.express.scenes }) };
+    // Best-of : qui parle sur les pistes gardées de la vidéo (si le montage d'où l'on vient en a choisi).
+    const r0 = recette.peek();
+    const pistes = r0?.sources.some((x) => x.id === source.infos.id) ? pistesGardees(r0, source.infos.id) : [];
+    let a = bestOf ? await analyserPourBestOf(source, reg, reglagesBestOf.peek(), { ...o, pistes }) : await analyserPourExpress(source, reg, voixApres(o, reg));
+    // Persos de qui parle : la même écoute des voix que le Best-of (auto/voix/voix-montage.ts).
+    if (!bestOf && reg.persos !== false) a = await avecVoix(source, a, { ...o, pistes });
+    preparerVoix(a);
+    if (!bestOf && reg.avecIA && a.parole === 'mots' && a.scenes.length > 0) {
       const ia = await demanderIA(a, c.signal);
       if (ia) a = { ...a, scenes: ia.scenes, transcription: { ...a.transcription, mots: ia.mots } };
     }
@@ -232,13 +253,16 @@ export async function monterExpress() {
   montageEnCours.value = true;
   try {
     const reg = reglagesExpress.peek();
+    const bestOf = enBestOf();
     await sauverEnAttente();
     await nouveauProjet();
     const nom = source.infos.nom.replace(/\.[^.]+$/, '');
-    demarrerProjet(source, { ...recetteInitiale(source, destinationExpress.peek()), titre: TA.express.titreProjet(nom) });
+    demarrerProjet(source, { ...recetteInitiale(source, destinationExpress.peek()), titre: (bestOf ? TV.bestOf.titreProjet : TA.express.titreProjet)(nom) });
     idCourant.value = null;
     const ressources = await preparerRessources(reg);
-    modifier((r) => construireMontageExpress(r, a, scenes, reg, ressources));
+    // Un nouveau montage, construit en UNE opération : un seul Annuler revient à la vidéo brute.
+    if (bestOf) modifier((r) => construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(ressources)));
+    else modifier((r) => construireMontageExpress(r, a, scenes, reg, { ...ressources, ...choixVoix() }));
     fermerExpress();
     choixVisible.value = false;
     if (sourceMonteur.peek() === source) sourceMonteur.value = null;
@@ -249,9 +273,9 @@ export async function monterExpress() {
     derniereEtape.value = 'habiller';
     reprendreA('habiller');
     const r = recette.peek();
-    afficherToast(TA.express.pret(formatDuree(r ? compiler(r).duree : 0)), 8000, { label: TA.express.annulerMontage, agir: annulerAction });
+    afficherToast((bestOf ? TV.bestOf.pret : TA.express.pret)(formatDuree(r ? compiler(r).duree : 0)), 8000, { label: TA.express.annulerMontage, agir: annulerAction });
     // Bruitages demandés : la revue (écouter dans la vidéo, cocher) s'ouvre ; rien n'est posé sans validation.
-    if (reg.bruitages && a.parole === 'mots') {
+    if (!bestOf && reg.bruitages && a.parole === 'mots') {
       ouvrirOutil('sons');
       void ouvrirBruitages();
     }

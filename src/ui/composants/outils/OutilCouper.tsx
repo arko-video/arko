@@ -12,16 +12,21 @@ import { formatDuree } from '../../format';
 import { IconeCiseaux, IconeDebutIci, IconeFinIci, IconePoubelle } from '../Icones';
 import type { Calque } from '../MiniFrise';
 import { EntreeBlancs } from '../../auto/coupes/EntreeBlancs';
+import { EntreeInsertion } from '../../auto/insertion/EntreeInsertion'; // v3 (dev 2)
+import { EntreePassages } from '../../auto/derush/EntreePassages'; // v3 (dev 1)
+import { PanneauInsere } from '../../auto/insertion/PanneauInsere'; // v3 (dev 2)
+import { etiquetteInsere } from '../../auto/insertion/actions-insertion';
 
 /** Calques de la mini-frise : un par plan, en temps de sortie. `vise` = plan surligné. */
 export function calquesPlans(r: Recette, vise: number | null): Calque[] {
   const b = bornesDesPlans(r);
-  return r.plans.map((_, i) => ({
+  return r.plans.map((p, i) => ({
     id: i,
     t0: b[i]!,
     t1: b[i + 1]!,
-    genre: 'plan',
-    label: T.coupe.planCourt(i + 1, formatDuree(b[i + 1]! - b[i]!)),
+    // v3 (B) : un élément inséré a sa propre tuile (« Carton », « Image »…).
+    genre: p.ins ? 'insere' : 'plan',
+    label: p.ins ? etiquetteInsere(p.ins) : T.coupe.planCourt(i + 1, formatDuree(b[i + 1]! - b[i]!)),
     choisi: vise === i,
   }));
 }
@@ -85,6 +90,9 @@ export function OutilCouper() {
         </button>
       </div>
       <EntreeBlancs lieu="habiller" />
+      <EntreeInsertion lieu="habiller" />
+      <EntreePassages lieu="habiller" />
+      {i !== null && r.plans[i]?.ins && <PanneauInsere i={i} plan={r.plans[i]!} />}
       <p class="petit doux outil-aide" data-testid="coupe-aide">
         {aide}
       </p>
