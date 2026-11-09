@@ -137,16 +137,42 @@ export function raisonDe(st: Stats): string {
   return parts.length > 0 ? parts.slice(0, 3).join(' · ') : 'De la parole';
 }
 
+/** Mots vides et tics de parole : jamais le sujet d'un titre. */
+const MOTS_VIDES = new Set(
+  "alors aussi avec avoir bah bon bref cette ceux chez comme comment dans donc elle elles encore enfin est était faire fait genre ici juste là leur mais même moi nous oui ouais parce pour quand quoi rien sans sont sous suis sur tout tous toute très trop vas voila voilà vous wesh ahah haha euh hein putain merde".split(' '),
+);
+const normal = (t: string) => t.toLowerCase().replace(/[^a-zà-ÿ0-9'-]/g, '');
+const plein = (t: string) => normal(t).length >= 4 && !MOTS_VIDES.has(normal(t));
+
+/** Les mots pleins qui reviennent au moins 2 fois dans la scène (son sujet : « creeper », « diamants »…). */
+function motsDuSujet(mots: readonly Mot[]): Set<string> {
+  const n = new Map<string, number>();
+  for (const m of mots) if (plein(m[0])) n.set(normal(m[0]), (n.get(normal(m[0])) ?? 0) + 1);
+  return new Set([...n].filter(([, k]) => k >= 2).map(([w]) => w));
+}
+
+function noteTitre(ceux: readonly Mot[], sujet: ReadonlySet<string>, s: SignauxSource | null): number {
+  const pleins = ceux.filter((m) => plein(m[0]));
+  const fin = ceux[ceux.length - 1]?.[2] ?? 0;
+  const reaction = s ? [...s.rires, ...s.cris].some((x) => x.t >= fin - 0.3 && x.t <= fin + 2.5) : false;
+  const taille = ceux.length >= 3 && ceux.length <= 8 ? 2 : ceux.length >= 2 ? 0 : -3;
+  return pleins.length * 2 + pleins.filter((m) => sujet.has(normal(m[0]))).length * 3 + (reaction ? 3 : 0) + taille;
+}
+
 /**
  * Titre : la meilleure punchline de la scène (« ON A GAGNÉ » → « On a gagné »), sinon « Partie n ». `douteux`
  * (facultatif, aligné sur `mots`) : les mots que Whisper a sans doute inventés, jamais dans un titre.
  */
 export function titreDe(mots: readonly Mot[], s: SignauxSource | null, n: number, douteux?: ArrayLike<number>): string {
   const sansInvente = (x: { k0: number; k1: number }) => !douteux || !Array.from({ length: x.k1 - x.k0 }, (_, k) => douteux[x.k0 + k]).some(Boolean);
-  // La punchline la plus longue (un « Non! » seul ne fait pas un titre), la première à égalité.
+  // La punchline qui RÉSUME le mieux la scène (avant : la plus longue, d'où des titres « au hasard ») : des mots
+  // qui ont du sens (pas « ouais », « genre »…), un mot qui revient dans la scène (le sujet), une réaction juste
+  // après (rire, cri). Un « Non! » seul ne fait pas un titre. La première à égalité.
+  const sujet = motsDuSujet(mots);
   const p = trouverPunchlines(mots, s)
     .filter(sansInvente)
-    .reduce<ReturnType<typeof trouverPunchlines>[number] | undefined>((m, x) => (!m || x.k1 - x.k0 > m.k1 - m.k0 ? x : m), undefined);
+    .map((x) => ({ x, note: noteTitre(mots.slice(x.k0, x.k1), sujet, s) }))
+    .reduce<{ x: ReturnType<typeof trouverPunchlines>[number]; note: number } | undefined>((m, c) => (!m || c.note > m.note ? c : m), undefined)?.x;
   const texte = p ? mots.slice(p.k0, p.k1).map((m) => m[0]).join(' ').replace(/\s+([!?…,.])/g, '$1').trim() : '';
   if (!texte) return `Partie ${n}`;
   const bas = texte.toLowerCase();

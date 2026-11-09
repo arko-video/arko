@@ -191,7 +191,7 @@ describe('construireBestOf (ordre du contrat §6)', () => {
     expect(r.personnes![1]!.bib).toBe('c7');
     expect(r.paroles!.length).toBe(TOURS.length);
     expect(r.paroles!.every((t) => t.emo !== undefined)).toBe(true);
-    expect(r.avatars).toEqual({ mode: 'parle', rebond: true });
+    expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 1 });
     expect(r.bips).toBeUndefined();
   });
 

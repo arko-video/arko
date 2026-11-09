@@ -17,7 +17,7 @@ import { construireMontageExpress, type AnalyseExpress, type ReglagesExpress } f
 import { choisirScenes, decouperScenes } from '../express/scenes';
 import type { SignauxSource } from '../types';
 import type { VoixDetectees } from '../types-v3';
-import { paroleDansMontage, poserPersos } from './persos-montage';
+import { corrigerIlots, paroleDansMontage, poserPersos } from './persos-montage';
 
 const DUREE = 600;
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -59,7 +59,7 @@ function analyse(voix: VoixDetectees | null = VOIX): AnalyseExpress {
 
 /** Le montage a des avatars, et l'avatar de chaque voix apparaît quand elle parle. */
 function verifierAvatars(r: Recette, n: number) {
-  expect(r.avatars).toEqual({ mode: 'parle', rebond: true });
+  expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 1 });
   expect(r.personnes).toHaveLength(n);
   const sc = compiler(r);
   const places = placerAvatars(r, sc);
@@ -136,5 +136,18 @@ describe('clips du monteur sans IA (et leur compilation)', () => {
     const p = c.recette.plans[0]!;
     expect(paroleDansMontage(c.recette, TOURS)).toBe(0);
     expect(poserPersos(c.recette, { voix: VOIX, empreintes: [] }, { plage: { de: p.de, a: p.a } })).toBe(c.recette);
+  });
+});
+
+describe('îlots de voix (clignotement des persos)', () => {
+  it('un tour très court collé entre deux tours de l\'autre voix lui est rendu ; un vrai tour reste', () => {
+    const t = corrigerIlots([
+      { ts: 0, fin: 2, p: 'p1' },
+      { ts: 2.1, fin: 2.4, p: 'p2' },
+      { ts: 2.6, fin: 4, p: 'p1' },
+      { ts: 4.1, fin: 6, p: 'p2' },
+      { ts: 6.1, fin: 8, p: 'p1' },
+    ]);
+    expect(t.map((x) => x.p)).toEqual(['p1', 'p1', 'p1', 'p2', 'p1']);
   });
 });

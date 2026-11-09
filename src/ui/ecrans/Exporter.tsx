@@ -1,5 +1,6 @@
 // Étape 5 : créer le MP4. Avant (estimations, alertes) → pendant (progression) → après (aperçu, partage).
 
+import { modeleRythme, oublierModeleRythme, prendreModeleRythme } from '../apprentissage';
 import { useEffect, useState } from 'preact/hooks';
 import { estimerExport, type EstimationExport, type ResultatExport } from '../../moteur/api';
 import { dureeTotale } from '../../recette/generiques';
@@ -9,7 +10,7 @@ import { Entete } from '../composants/Entete';
 import { AstuceExport, BoutonMiniature, InfosExport } from '../composants/ExportYoutube';
 import { IconeAlerte, IconeHorloge, IconeNote, IconePartager, IconeTelecharger } from '../composants/Icones';
 import { destinationProjet } from '../destination';
-import { etatExport, recette, toutFermer, zoneSure } from '../etat';
+import { afficherToast, etatExport, recette, toutFermer, zoneSure } from '../etat';
 import { demarrerExport, lireBatterie, retourAvantExport } from '../exportation';
 import { formatDuree, formatTaille } from '../format';
 import { formatDebutTikTok } from '../guide';
@@ -236,6 +237,7 @@ function Apres({ url, resultat }: { url: string; resultat: ResultatExport }) {
       <p class="petit doux">{T.exporter.ouVaLeFichier}</p>
       <BilanVolume />
       <BoutonMiniature />
+      <ModeleRythme />
       <AstuceExport />
       <button
         type="button"
@@ -249,5 +251,25 @@ function Apres({ url, resultat }: { url: string; resultat: ResultatExport }) {
         {T.exporter.autreClip}
       </button>
     </>
+  );
+}
+
+/** E4b. « Ce montage est réussi : en faire le modèle de rythme » (coupes, zooms, sons, mèmes, textes par minute). */
+function ModeleRythme() {
+  const m = modeleRythme.value;
+  return (
+    <p class="petit doux" data-testid="modele-rythme">
+      <button type="button" class="btn express-mini" onClick={() => { const y = prendreModeleRythme(recette.peek()); if (y) afficherToast(`Modèle de rythme gardé : ${y.coupes} coupes, ${y.zooms} zooms, ${y.sons} sons par minute. Les prochains montages s'en rapprochent.`, 8000); }} data-testid="modele-rythme-prendre">
+        Prendre ce montage comme modèle de rythme
+      </button>
+      {m && (
+        <>
+          {' '}Modèle actuel : {m.coupes} coupes, {m.zooms} zooms, {m.sons} sons / min.{' '}
+          <button type="button" class="btn btn-discret express-mini" onClick={oublierModeleRythme} data-testid="modele-rythme-oublier">
+            Oublier
+          </button>
+        </>
+      )}
+    </p>
   );
 }

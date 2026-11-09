@@ -4,6 +4,10 @@
 // l'utilisateur : Whisper après « Télécharger » sur la carte, l'empreinte après « Séparer les voix ». Le détecteur
 // de voix (Silero) est rangé dans l'appli : il n'est jamais proposé (décision de l'orchestrateur, 7/11).
 
+import { memoriserMontageAuto } from '../../apprentissage';
+import { poserMemesAuto } from '../../clips-montage';
+import { ouvrirOutil } from '../../habillage';
+import { ouvrirBruitages, poserAccentsAuto } from '../son/etat-son';
 import { premiereVideo } from '../../../auto/coupes/decoupe';
 import { ajusterSequence } from '../../../auto/derush/ajuster';
 import { morceauxDuPassage, recouperMontage, type EntreeRecoupe } from '../../../auto/coupes/recouper';
@@ -158,11 +162,34 @@ const SERVICES: ServicesV4 = {
     if (sourceMonteur.peek() === source) sourceMonteur.value = null;
     derniereEtape.value = 'habiller';
     reprendreA('habiller');
-    const r = recette.peek();
-    // Un morceau de Kevin MacLeod dans la musique : le crédit est obligatoire, on le rappelle (demande de dev-musique).
-    const kevin = !!r?.musique?.morceaux.some((m) => r.sources.find((x) => x.id === m.src)?.nom.startsWith('Kevin MacLeod'));
-    const pret = TV.bestOf.pret(formatDuree(r ? compiler(r).duree : 0));
-    afficherToast(kevin ? `${pret} ${TEXTES_MUSIQUE_EXPRESS.credit}` : pret, kevin ? 10000 : 8000, { label: TA.express.annulerMontage, agir: annulerAction });
+    const annoncer = (extra: string) => {
+      const r = recette.peek();
+      // Un morceau de Kevin MacLeod dans la musique : le crédit est obligatoire, on le rappelle (demande de dev-musique).
+      const kevin = !!r?.musique?.morceaux.some((m) => r.sources.find((x) => x.id === m.src)?.nom.startsWith('Kevin MacLeod'));
+      const pret = `${TV.bestOf.pret(formatDuree(r ? compiler(r).duree : 0))}${extra}`;
+      afficherToast(kevin ? `${pret} ${TEXTES_MUSIQUE_EXPRESS.credit}` : pret, kevin ? 10000 : 8000, { label: TA.express.annulerMontage, agir: annulerAction });
+    };
+    // 9/11/2026 (« les sound effects d'une vidéo lambda donnent du dynamisme ») : mèmes / fonds verts, sons de rythme
+    // (pop sur les punchlines, impact sur les gros zooms) et revue des bruitages — avec les sons de TA bibliothèque
+    // SEULEMENT (les sons fabriqués par Arko restent exclus de la DA YouTube). Rien sans bibliothèque.
+    const mots = a.transcription?.mots ?? [];
+    void (async () => {
+      let memes = 0;
+      let accents = 0;
+      try {
+        if (mots.length > 0) memes = await poserMemesAuto(mots, source.infos.id, a.signaux, 6.5, true);
+        accents = await poserAccentsAuto(6.5, { bibliothequeSeule: true, silencieux: true });
+        memoriserMontageAuto(recette.peek());
+      } catch (err) {
+        console.error(err);
+      }
+      const extra = [memes > 0 ? `${memes} mème${memes > 1 ? 's' : ''}` : '', accents > 0 ? `${accents} effets de rythme` : ''].filter(Boolean).join(', ');
+      annoncer(extra ? ` · ${extra} (Annuler les retire un par un).` : '');
+      if (mots.length > 0) {
+        ouvrirOutil('sons');
+        void ouvrirBruitages({ bibliothequeSeule: true });
+      }
+    })();
   },
 };
 

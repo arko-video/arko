@@ -11,6 +11,8 @@ import { premiereVideo } from '../coupes/decoupe';
 import { morceauxDeParole, REGLAGES_BLANCS } from '../coupes/blancs';
 import { trouverPunchlines } from '../habillage/punchlines';
 import type { ForceZoomsAuto } from '../habillage/zooms-auto';
+import { transitionsDesScenes } from '../habillage/transitions-auto';
+import { eclaircir } from '../apprentissage/appliquer-gouts';
 import { compiler, sortiesDe } from '../../recette/chronologie';
 import { CHAPITRES } from '../../recette/chapitres';
 import { SOUS_TITRES, ySousTitres } from '../../recette/defauts';
@@ -157,6 +159,15 @@ export interface OptionsEtapes {
   sections?: boolean;
   /** E. Bruitages ; absent = `reglages.bruitages`. */
   bruitages?: boolean;
+  /** Transitions aux changements de scène (vertical seulement) ; absent = oui. */
+  transitions?: boolean;
+  /** Goûts appris (E3) : secondes ajoutées aux marges des jump cuts avant / après les mots. */
+  marges?: { avant: Sec; apres: Sec };
+  /** Goûts appris : part des punchlines gardée (< 1 : éclaircies ; absent = toutes). */
+  facteurPunchlines?: number;
+  /** Monteur IA : l'accroche commence à ce temps SOURCE (s'il est dans le montage), et dure `dureeAccroche`. */
+  accrocheSource?: Sec;
+  dureeAccroche?: Sec;
 }
 
 /**
@@ -185,13 +196,15 @@ export function etapesMontage(
   }
   // 2. A — Couper les blancs (sur les plans actuels : un plan devient plusieurs morceaux).
   const niveau = reglages.niveauBlancs;
-  const morceaux = morceauxDeParole(mots, reglages.garder === 'parole' ? null : signaux, REGLAGES_BLANCS[niveau]);
+  const base = REGLAGES_BLANCS[niveau];
+  const blancs = o.marges ? { ...base, avant: Math.max(0.05, base.avant + o.marges.avant), apres: Math.max(0.05, base.apres + o.marges.apres) } : base;
+  const morceaux = morceauxDeParole(mots, reglages.garder === 'parole' ? null : signaux, blancs);
   r = couperLesBlancs(r, morceaux, niveau);
   // 3. D — Enlever les bords de l'écran.
   if (reglages.bords && analyse.cadreBords) r = rognerSource(r, src, analyse.cadreBords);
   // 4. B — Punchlines.
   if (vraisMots && reglages.punchlines) {
-    r = choisirModeSousTitres(definirPunchlines(r, trouverPunchlines(mots, signaux)), 'punchlines');
+    r = choisirModeSousTitres(definirPunchlines(r, eclaircir(trouverPunchlines(mots, signaux), o.facteurPunchlines ?? 1)), 'punchlines');
   }
   // 5. E — Bruitages (préparés par la page).
   if ((o.bruitages ?? reglages.bruitages) && ressources.bruitages.length > 0) r = poserBruitages(r, ressources.bruitages, ressources.sourcesAudio);
@@ -200,11 +213,14 @@ export function etapesMontage(
   // Accroche de 6 s : le meilleur moment copié au début (textes, sons et zooms en temps de sortie décalés).
   let finAccroche = 0;
   if (reglages.accroche) {
-    const t = meilleurMoment(r, signaux);
-    const avec = t === null ? r : modeleMeilleurDAbord(r, t, MEILLEUR.dureeExpress, o.texteAccroche === undefined ? {} : { texte: o.texteAccroche });
+    const choisi = o.accrocheSource === undefined ? undefined : sortiesDe(compiler(r), src, o.accrocheSource)[0];
+    const t = choisi ?? meilleurMoment(r, signaux);
+    const avec = t === null ? r : modeleMeilleurDAbord(r, t, o.dureeAccroche ?? MEILLEUR.dureeExpress, o.texteAccroche === undefined ? {} : { texte: o.texteAccroche });
     if (avec !== r) finAccroche = compiler(avec).plans[0]?.t1 ?? 0;
     r = avec;
   }
+  // Transitions aux changements de scène (TikTok vertical seulement : la DA YouTube garde des coupes franches).
+  if (!gabaritDe(r).paysage && (o.transitions ?? true)) r = transitionsDesScenes(r, plages, signaux);
   // Chapitres (YouTube 16:9) puis 7. G — titres de section, placés après l'accroche.
   const chapitres = gabaritDe(r).paysage ? chapitresDesScenes(r, scenes, src, finAccroche) : [];
   if (chapitres.length > 0) {
@@ -237,8 +253,9 @@ export function construireMontageExpress(
   scenes: readonly SceneProposee[],
   reglages: ReglagesExpress,
   ressources: RessourcesExpress,
+  o: OptionsEtapes = {},
 ): Recette {
   const gardees = scenes.filter((s) => s.garde && s.a > s.de);
-  const r = etapesMontage(recette, analyse, gardees, gardees, reglages, ressources);
+  const r = etapesMontage(recette, analyse, gardees, gardees, reglages, ressources, o);
   return r === recette ? r : etapePersos(r, analyse, reglages, ressources);
 }

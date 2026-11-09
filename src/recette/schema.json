@@ -986,7 +986,8 @@
         "role": {
           "enum": [
             "bruitage",
-            "section"
+            "section",
+            "accent"
           ]
         },
         "dur": {

@@ -12,7 +12,23 @@ import type { PlageTemps, SignauxSource } from '../types';
 import type { EmpreintesVoix, VoixDetectees } from '../types-v3';
 
 /** Réglages : il faut au moins `paroleMin` s de parole dans le montage pour poser des persos. */
-export const PERSOS = { paroleMin: 1.5, margeClip: 5 } as const;
+export const PERSOS = { paroleMin: 1.5, margeClip: 5, tenue: 1, ilotMax: 0.6, ilotEcart: 0.4 } as const;
+
+/**
+ * Corrige les « îlots » : un tour très court (moins de 0,6 s) d'une voix, collé (moins de 0,4 s) entre deux tours de
+ * la MÊME autre voix, est presque toujours une erreur d'écoute (un mot plus fort, un rire) : il est rendu à cette
+ * voix. Évite qu'un perso apparaisse une fraction de seconde (clignotement) et que l'autre se coupe. Pure.
+ */
+export function corrigerIlots<T extends TourDeParole>(tours: readonly T[]): T[] {
+  const res = [...tours].sort((a, b) => a.ts - b.ts);
+  for (let i = 1; i + 1 < res.length; i++) {
+    const t = res[i]!;
+    const av = res[i - 1]!;
+    const ap = res[i + 1]!;
+    if (av.p === ap.p && t.p !== av.p && t.fin - t.ts < PERSOS.ilotMax && t.ts - av.fin < PERSOS.ilotEcart && ap.ts - t.fin < PERSOS.ilotEcart) res[i] = { ...t, p: av.p };
+  }
+  return res;
+}
 
 /** Ce que l'utilisateur a choisi sur la revue (cartes des voix) : noms et persos. */
 export interface ChoixPersos {
@@ -65,7 +81,8 @@ export function poserPersos(r: Recette, ecoute: VoixEcoutees, o: OptionsPersos =
   const v = ecoute.voix;
   if (!v || v.voix.length === 0 || v.tours.length === 0) return r;
   const plage = o.plage;
-  const tours = plage ? v.tours.filter((t) => t.fin > plage.de - PERSOS.margeClip && t.ts < plage.a + PERSOS.margeClip) : v.tours;
+  const tous = v.methode === 'pistes' ? v.tours : corrigerIlots(v.tours);
+  const tours = plage ? tous.filter((t) => t.fin > plage.de - PERSOS.margeClip && t.ts < plage.a + PERSOS.margeClip) : tous;
   const enTout = paroleDansMontage(r, tours.map((t) => (t.src ? t : { ...t, src: v.src })));
   if (enTout < PERSOS.paroleMin) return r;
   const quiParle = new Set(tours.map((t) => t.p));
@@ -75,6 +92,6 @@ export function poserPersos(r: Recette, ecoute: VoixEcoutees, o: OptionsPersos =
     const c = o.chibis?.[p.id];
     res = donnerChibi(res, p.id, c?.def ?? p.chibi ?? chibiParDefaut(p.id), c?.bib ?? p.bib);
   }
-  if (o.avatars !== false) res = activerAvatars(res, o.reglagesAvatars ?? { mode: 'parle', rebond: true });
+  if (o.avatars !== false) res = activerAvatars(res, o.reglagesAvatars ?? { mode: 'parle', rebond: true, tenue: PERSOS.tenue });
   return res;
 }

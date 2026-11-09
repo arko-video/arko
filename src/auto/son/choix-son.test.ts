@@ -33,6 +33,16 @@ describe('choix du son', () => {
     expect(r).toEqual(['m2', 'm3']);
   });
 
+  it('jamais une musique de fond en bruitage (rayon Musiques, nom de musique, ambiance chill)', () => {
+    const musiques = [
+      { ...mon('c1', 'laugh chill lofi', 'Laughs', 4) },
+      { ...mon('c2', 'laugh loop music', 'Laughs', 12) },
+      { ...mon('c3', 'laugh jingle', 'Laughs', 3), rayon: 'musiques' as const },
+      mon('c4', 'laugh track', 'Laughs', 2),
+    ];
+    expect(sonsPossibles('rire', musiques).map((s) => s.id)).toEqual(['c4']);
+  });
+
   it('recherche floue : une faute de frappe passe', () => {
     expect(choisirSon('explosion', sons)).toMatchObject({ id: 'm6' });
     expect(scoreFlou({ nom: 'explossion', etiquette: '' }, 'explosion')).toBeGreaterThan(0);

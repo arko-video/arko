@@ -286,6 +286,7 @@ export * from '../ia/api-agent';
 /** Miniature : taille selon la destination, image du montage, habillage (gros texte, émoji, flèche), encodage < 2 Mo. */
 export {
   dessinerHabillageMiniature,
+  dessinerPersosMiniature,
   EMOJIS_MINIATURE,
   encoderSousLimite,
   imageDuMontage,

@@ -2,9 +2,11 @@
 // puis l'enregistrer en JPEG ou PNG (1280 × 720 ; 1080 × 1920 pour un Short), toujours sous 2 Mo.
 // L'image vient du même rendu que l'export (sans les textes ni les sous-titres du montage).
 
+import { ideesPlan } from '../auto/express/monteur-ia';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import {
   dessinerHabillageMiniature,
+  dessinerPersosMiniature,
   EMOJIS_MINIATURE,
   encoderSousLimite,
   imageDuMontage,
@@ -13,6 +15,8 @@ import {
   type ReglagesMiniature,
 } from '../../moteur/api';
 import { dureeFinale } from '../../recette/operations';
+import { proposerTitres, textesMiniature } from '../../auto/habillage/titres-video';
+import type { Mot } from '../../recette/types';
 import { TY } from '../../textes-youtube';
 import { IconeTelecharger } from '../composants/Icones';
 import { destinationProjet } from '../destination';
@@ -71,6 +75,7 @@ export function Miniature() {
       fond.current = { t: x.t, c: off };
     }
     ctx.drawImage(fond.current.c, 0, 0);
+    if (x.persos !== false) dessinerPersosMiniature(ctx, l, h, r, x.emoPersos ?? 'choque');
     dessinerHabillageMiniature(ctx, l, h, x);
     c.dataset.pret = '1';
   }
@@ -101,6 +106,12 @@ export function Miniature() {
 
   if (!r) return null;
   const T = TY.miniature;
+  const mots: readonly Mot[] = Array.isArray(r.sousTitres?.mots) ? r.sousTitres.mots : [];
+  // D3a : les idées du monteur IA (dernier plan appliqué) passent en premier.
+  const ia = ideesPlan.value;
+  const titres = [...new Set([...ia.titres, ...proposerTitres(mots)])].slice(0, 6);
+  const idees = [...new Set([...(ia.miniature ? [ia.miniature.toUpperCase()] : []), ...textesMiniature(mots)])].slice(0, 7);
+  const avecPersos = (r.personnes ?? []).some((p) => p.avatar !== false);
   return (
     <div class="ecran miniature" data-testid="miniature">
       <header class="entete">
@@ -123,11 +134,35 @@ export function Miniature() {
           <span class="petit doux">{T.texte}</span>
           <input class="champ" type="text" maxLength={40} value={reg.texte} onInput={(e) => reglerMiniature({ texte: (e.currentTarget as HTMLInputElement).value })} data-testid="miniature-texte" />
         </label>
+        <div class="puces" aria-label="Idées de gros texte" data-testid="miniature-idees">
+          {idees.map((t) => (
+            <button key={t} type="button" class="puce" onClick={() => reglerMiniature({ texte: t })}>
+              {t}
+            </button>
+          ))}
+        </div>
+        {avecPersos && (
+          <Puces
+            titre="Gros persos"
+            actif={reg.persos === false ? 'non' : reg.emoPersos ?? 'choque'}
+            onChoisir={(v) => reglerMiniature(v === 'non' ? { persos: false } : { persos: true, emoPersos: v })}
+            testid="miniature-persos"
+            choix={[{ v: 'choque', label: 'Choqués' }, { v: 'rit', label: 'Morts de rire' }, { v: 'panique', label: 'Paniqués' }, { v: 'rage', label: 'En rage' }, { v: 'non', label: T.aucun }]}
+          />
+        )}
         <Puces titre={T.style} actif={reg.style} onChoisir={(style) => reglerMiniature({ style })} testid="miniature-style" choix={[{ v: 'accroche', label: 'Blanc' }, { v: 'alerte', label: 'Jaune' }, { v: 'citron', label: 'Citron' }]} />
         <Puces titre={T.position} actif={reg.position} onChoisir={(position) => reglerMiniature({ position })} testid="miniature-position" choix={[{ v: 'haut', label: T.haut }, { v: 'bas', label: T.bas }]} />
         <Puces titre={T.emoji} actif={reg.emoji} onChoisir={(emoji) => reglerMiniature({ emoji })} testid="miniature-emoji" choix={[{ v: '', label: T.aucun }, ...EMOJIS_MINIATURE.map((e) => ({ v: e as string, label: e }))]} />
         <Puces titre={T.fleche} actif={reg.fleche} onChoisir={(fleche) => reglerMiniature({ fleche })} testid="miniature-fleche" choix={[{ v: 'aucune', label: T.aucun }, { v: 'gauche', label: '←' }, { v: 'droite', label: '→' }]} />
         <p class="petit doux">{d === 'short' ? T.regleShort : T.regle}</p>
+        <fieldset class="mini-groupe" data-testid="miniature-titres">
+          <legend class="petit doux">Titres proposés pour la vidéo (touche pour copier)</legend>
+          {titres.map((t) => (
+            <button key={t} type="button" class="btn btn-discret" style={{ textAlign: 'left', justifyContent: 'flex-start' }} onClick={() => void navigator.clipboard?.writeText(t).catch(() => undefined)}>
+              {t}
+            </button>
+          ))}
+        </fieldset>
         {fichier && (
           <p class="message message-info" role="status" data-testid="miniature-prete">
             {T.prete(formatTaille(fichier.taille), l, h)}{' '}

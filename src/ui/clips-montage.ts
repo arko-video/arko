@@ -15,8 +15,14 @@ import {
   supprimerIncrustation,
 } from '../recette/operations-bibliotheque';
 import type { CleChroma, Incrustation, Recette } from '../recette/types';
-import { ficheClip, lireClip, type MonClip } from '../moteur/api';
-import { afficherToast, ajouterSourceOuverte, idsPris, modifier, recette, sources, teteLecture } from './etat';
+import { ficheClip, lireClip, listerClips, type MonClip } from '../moteur/api';
+import { placeMeme, proposerDecor, proposerMemes } from '../auto/insertion/memes-auto';
+import { rejete } from '../auto/apprentissage/gouts';
+import { gouts } from './apprentissage';
+import { gabaritDe } from '../recette/destination';
+import type { Mot, Sec } from '../recette/types';
+import type { SignauxSource } from '../auto/types';
+import { afficherToast, ajouterSourceOuverte, annulerAction, idsPris, modifier, recette, sources, teteLecture } from './etat';
 import { mettreEnPause } from './lecture';
 import { TB } from './textes-bibliotheque';
 
@@ -152,4 +158,60 @@ export async function rouvrirClips(r: Recette): Promise<{ recette: Recette; ouve
     }
   }
   return { recette: retirerClipsManquants(r, manquants), ouvertes, messages };
+}
+
+/**
+ * Montage auto : pose les mèmes et fonds verts de Ma bibliothèque aux moments forts (auto/insertion/memes-auto.ts),
+ * en UNE opération (un Annuler les retire tous). Rien sans clips dans la bibliothèque. Renvoie le nombre posé.
+ */
+export async function poserMemesAuto(mots: readonly Mot[], src: string, signaux: SignauxSource | null, finAccroche: Sec = 0, silencieux = false): Promise<number> {
+  const r0 = recette.peek();
+  if (!r0) return 0;
+  const clips = await listerClips().catch(() => [] as MonClip[]);
+  const g = gouts.peek();
+  const fiches = clips.filter((c) => !rejete(g, c.nom)).map((c) => ({ id: c.id, nom: c.nom, etiquette: c.etiquette, duree: c.duree, fond: c.fond !== null }));
+  const props = proposerMemes(r0, mots, src, signaux, fiches, { finAccroche, facteur: g.densite.memes });
+  // Décor (YouTube 16:9) : le bouton « s'abonner » de la bibliothèque, tôt et avant la fin. Retirable comme un mème.
+  const decor = gabaritDe(r0).paysage ? proposerDecor(r0, fiches, { finAccroche, dejaPoses: props.map((p) => ({ t: p.t, a: p.a - p.de })) }) : [];
+  if (props.length === 0 && decor.length === 0) return 0;
+  const ouvertes = new Map<string, SourceOuverte>();
+  for (const p of [...props, ...decor]) {
+    const clip = clips.find((c) => c.id === p.clip)!;
+    if (!ouvertes.has(clip.id)) {
+      const s = await sourceDuClip(clip).catch(() => null);
+      if (s) ouvertes.set(clip.id, s);
+    }
+  }
+  let n = 0;
+  const ok = modifier((r) => {
+    let res = r;
+    const paysage = gabaritDe(r).paysage;
+    for (const p of props) {
+      const clip = clips.find((c) => c.id === p.clip)!;
+      const s = ouvertes.get(clip.id);
+      if (!s) continue;
+      const inc: Incrustation = { src: s.infos.id, t: p.t, de: p.de, a: p.a, genre: clip.fond ? 'fondVert' : 'meme', ...placeMeme({ fond: clip.fond !== null }, paysage) };
+      if (clip.fond) inc.cle = cleParDefaut(clip);
+      const x = ajouterIncrustation(res, inc, s.infos);
+      if (x.i >= 0) {
+        res = x.recette;
+        n++;
+      }
+    }
+    for (const d of decor) {
+      const clip = clips.find((c) => c.id === d.clip)!;
+      const s = ouvertes.get(clip.id);
+      if (!s) continue;
+      const inc: Incrustation = { src: s.infos.id, t: d.t, de: d.de, a: d.a, genre: clip.fond ? 'fondVert' : 'meme', x: 0.5, y: 0.8, taille: 0.45 };
+      if (clip.fond) inc.cle = cleParDefaut(clip);
+      const x = ajouterIncrustation(res, inc, s.infos);
+      if (x.i >= 0) {
+        res = x.recette;
+        n++;
+      }
+    }
+    return res;
+  });
+  if (ok && n > 0 && !silencieux) afficherToast(`${n} mème${n > 1 ? 's' : ''} posé${n > 1 ? 's' : ''} aux moments forts.`, 6000, { label: 'Annuler', agir: annulerAction });
+  return ok ? n : 0;
 }

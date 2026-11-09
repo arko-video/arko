@@ -25,6 +25,8 @@ export const REGLAGES_QUI_PARLE = {
   trouMax: 0.3,
   /** Voix au plus (au-delà : pistes séparées seulement). */
   voixMax: 4,
+  /** 1 : l'utilisateur a dit « deux personnes parlent » (revue) : on sépare en 2 même si c'est peu net. */
+  forcerDeux: 0,
 } as const;
 
 export type ReglagesQuiParle = { -readonly [K in keyof typeof REGLAGES_QUI_PARLE]: number };
@@ -111,7 +113,8 @@ function classer(e: EmpreintesVoix, trames: readonly number[], r: ReglagesQuiPar
   const sure = new Uint8Array(m).fill(1);
   const nettete = new Float32Array(m);
   const niveaux = niveauxLisses(e, trames);
-  const groupes = deuxGroupesDeNiveau(niveaux, r.ecartSurDb);
+  const forcer = r.forcerDeux > 0;
+  const groupes = deuxGroupesDeNiveau(niveaux, r.ecartSurDb) ?? (forcer ? deuxGroupesDeNiveau(niveaux, 3) : null);
   if (groupes) {
     const x = trames.map((k) => timbre(e.bandes, k));
     niveaux.forEach((l, i) => {
@@ -136,7 +139,7 @@ function classer(e: EmpreintesVoix, trames: readonly number[], r: ReglagesQuiPar
   const utiles = morceaux.map((ix, j) => (ix.length >= MORCEAU_MIN / e.pas ? j : -1)).filter((j) => j >= 0);
   const km = kMoyennes2(utiles.map((j) => points[j]!));
   const part0 = km ? km.groupes.filter((x) => x === 0).length / km.groupes.length : 0;
-  if (!km || km.rapport < RAPPORT_TIMBRE || part0 < 0.1 || part0 > 0.9) return { methode: 'une', g, sure, nettete, voix: 1 };
+  if (!km || (!forcer && (km.rapport < RAPPORT_TIMBRE || part0 < 0.1 || part0 > 0.9))) return { methode: 'une', g, sure, nettete, voix: 1 };
   // La voix 0 est la plus faible (niveau médian de son groupe).
   const niv = [0, 1].map((v) => mediane(utiles.flatMap((j, u) => (km.groupes[u] === v ? morceaux[j]!.map((i) => niveaux[i]!) : []))));
   const centres = niv[0]! > niv[1]! ? [km.c[1], km.c[0]] : [km.c[0], km.c[1]];

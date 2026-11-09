@@ -3,6 +3,9 @@
 // Retirer, et une case « Garder » DÉCOCHÉE d'office : seuls les bruitages cochés sont posés (un seul Annuler).
 // En bas : les mots qui déclenchent (liste éditable, gardée sur l'appareil) et « Retirer les bruitages auto ».
 
+import { ideesPlan, pourquoisPlan } from '../express/monteur-ia';
+import { gouts, oublierGouts } from '../../apprentissage';
+import { resumeGouts } from '../../../auto/apprentissage/gouts';
 import { useState } from 'preact/hooks';
 import { sonsPossibles, type ChoixSon } from '../../../auto/son/choix-son';
 import { NOMS_CATEGORIES } from '../../../auto/son/declencheurs';
@@ -47,6 +50,8 @@ export function PanneauBruitages() {
       </div>
       <h3 class="reglages-titre">{TX.titre}</h3>
       <p class="petit doux">{TX.aide}</p>
+      <CeQueArkoAAppris />
+      <PourquoiMonteurIA />
       {attenteSon.value && (
         <p class="petit" aria-live="polite" data-testid="bruitages-attente">
           <span class="rond-chargement" /> {attenteSon.value}
@@ -157,5 +162,40 @@ function ChoixDuSon({ l, i }: { l: LigneRevue; i: number }) {
         </optgroup>
       </select>
     </label>
+  );
+}
+
+/** Ce qu'Arko a appris des retouches de l'utilisateur (à chaque export), avec « Oublier ». */
+function CeQueArkoAAppris() {
+  const g = gouts.value;
+  if (g.n === 0) return null;
+  const lignes = resumeGouts(g);
+  return (
+    <div class="petit message message-info" data-testid="gouts-appris">
+      <strong>Appris de tes {g.n} montage{g.n > 1 ? 's' : ''} :</strong> {lignes.length > 0 ? lignes.join(' · ') : 'tu gardes presque tout, rien à changer.'}{' '}
+      <button type="button" class="btn btn-discret express-mini" onClick={oublierGouts} data-testid="gouts-oublier">
+        Oublier
+      </button>
+    </div>
+  );
+}
+
+/** A10. Pourquoi le monteur IA a fait chaque choix (dernier plan appliqué). */
+function PourquoiMonteurIA() {
+  const l = pourquoisPlan.value;
+  const intro = ideesPlan.value.intro;
+  if (l.length === 0 && !intro) return null;
+  return (
+    <details class="petit" data-testid="pourquoi-monteur-ia">
+      <summary>Pourquoi le monteur IA a fait ces choix ({l.length})</summary>
+      {intro && <p data-testid="intro-monteur-ia"><strong>Intro à enregistrer (après l'accroche) :</strong> « {intro} »</p>}
+      <ul>
+        {l.slice(0, 40).map((x, k) => (
+          <li key={k}>
+            <span class="chiffres">{x.quand}</span> · {x.quoi} : {x.pourquoi}
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }

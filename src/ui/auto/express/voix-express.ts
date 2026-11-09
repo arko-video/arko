@@ -31,3 +31,14 @@ export async function avecVoix(source: SourceOuverte, a: AnalyseExpress, o: Opti
 export function choixVoix(): Pick<RessourcesExpress, 'noms' | 'chibis'> {
   return { noms: nomsVoix.peek(), chibis: chibisVoix.peek() };
 }
+
+/**
+ * Revue du Montage express : « Deux personnes parlent » quand une seule voix a été trouvée. Réécoute le mélange en
+ * forçant 2 voix (niveau à 3 dB, ou timbre même peu net), pour pouvoir donner un perso différent à chacun.
+ * Renvoie null si rien n'a changé (toujours une seule voix).
+ */
+export async function forcerDeuxVoix(source: SourceOuverte, a: AnalyseExpress, o: OptionsTache = {}): Promise<AnalyseExpress | null> {
+  const e = await ecouterVoix(source, { ...o, mots: a.transcription.mots, deux: true });
+  if (!e.voix || e.voix.voix.length < 2) return null;
+  return { ...a, voix: e.voix, empreintes: [...e.empreintes] };
+}

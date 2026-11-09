@@ -12,6 +12,7 @@ import { TV } from '../../../textes-v3';
 import { IconeRetour } from '../../composants/Icones';
 import { afficherToast, modifier, recette, sources } from '../../etat';
 import { arreterEcoute, ecouteEnCours, ecouterPassage } from '../voix/ecoute';
+import { BoutonApercu, MiniApercu } from '../voix/MiniApercu';
 import { fermerPassages, passagesOuverts } from './etat-derush';
 import './derush.css';
 
@@ -81,10 +82,15 @@ export function PassagesNonRetenus() {
                   <button type="button" class="btn" onClick={() => ecouter(p)} aria-pressed={enCours === cle(p)} data-testid={`v3-passage-ecouter-${k}`}>
                     {enCours === cle(p) ? TV.derush.passages.arreter : TV.derush.passages.ecouter}
                   </button>
+                  <BoutonApercu cle={`apercu:${cle(p)}`} actif={!!videoDe(p)} testid={`v3-passage-voir-${k}`} />
                   <button type="button" class="btn btn-principal" onClick={() => void ajouter(p)} data-testid={`v3-passage-ajouter-${k}`}>
                     {TV.derush.passages.ajouter}
                   </button>
                 </div>
+                {(() => {
+                  const v = videoDe(p);
+                  return v ? <MiniApercu fichier={v.fichier} de={p.de} a={p.a} cle={`apercu:${cle(p)}`} /> : null;
+                })()}
               </li>
             ))}
           </ul>

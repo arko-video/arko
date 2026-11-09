@@ -818,3 +818,126 @@ Pour chaque nouvelle phase reçue en zip :
   - `@huggingface/transformers` 4.3.2
   - `onnxruntime-web` 1.31.0-dev.20260914-8d85527a0
 - **Clés API** : jamais dans le code. Pour le monteur IA, chaque utilisateur met sa propre clé, gardée sur son appareil.
+
+## Session du 9/11/2026 (petit budget, 8 % de la semaine)
+Fait (fichiers modifiés directement dans `C:\dev\arko`, à tester puis `git add -A`, `git commit`, `git push`) :
+- **Son aigu + notification à la fin** : `src/ui/fin-travail.ts` (2 bips fabriqués par le code ; notification
+  système si la page est cachée et permise). Branché : fin d'export (`exportation.ts`, qui demande aussi la
+  permission), fin du Montage express (`auto/express/etat-express.ts`), fin du Best-of v4 (`auto/express/etat-v4.ts`,
+  garde `typeof window` pour les tests Node), fin de l'analyse du monteur (`monteur/analyse-monteur.ts`).
+- **Mini-aperçu vidéo** à côté de « Écouter » : bouton « Voir » → petite vidéo du passage (`auto/voix/MiniApercu.tsx`),
+  dans la revue Best-of (séquences, `EcranRevueExpress.tsx`) et dans Passages pas retenus. Un seul ouvert à la fois.
+- **Revues du jour** : `docs/revues/README.md` (modèle). Typecheck OK ; tests unitaires et e2e PAS relancés.
+
+- **Deux persos en Montage express (TikTok)** : bouton « On est deux à parler » sur la revue quand une seule voix
+  est trouvée (`RevueBestOf.tsx` → `DeuxPersonnes`, `voix-express.ts` → `forcerDeuxVoix`). Réécoute en forçant 2
+  voix (`qui-parle.ts` : réglage `forcerDeux`, niveau à 3 dB ou timbre même peu net ; passé par
+  `mesures-voix.ts` / `voix-montage.ts` option `deux`). Ensuite 2 cartes → un perso par personne.
+- **Titres des séquences (Montage YT)** : `titreDe` (`auto/express/scenes.ts`) ne prend plus la punchline la plus
+  longue mais celle qui résume la scène (mots pleins, mot qui revient = sujet, rire/cri juste après).
+- **Bruitages ≠ musique de fond** : `sonsPossibles` (`auto/son/choix-son.ts`) écarte le rayon Musiques, les sons de
+  plus de 6 s au nom de musique (music, bgm, loop, beat, theme…) et toute ambiance calme (chill, lofi, ambient,
+  piano, jazz…). Test ajouté dans `choix-son.test.ts`. Typecheck OK, tests non lancés.
+- **Plus d'effets en TikTok** : transitions automatiques à chaque changement de scène, jamais dans les jump cuts
+  (`auto/habillage/transitions-auto.ts`, branché dans `etapesMontage`, vertical seulement ; option `transitions`).
+  Cri/rire/pic au début de la scène → secousse, sinon glissé → zoom → flash en boucle. Son assorti seulement si les
+  bruitages sont demandés. Tests : `transitions-auto.test.ts`.
+- Tests lancés (vitest, copie hors du dépôt) : auto/express, auto/voix, auto/habillage, auto/son/choix-son,
+  auto/derush, ui, recette → tout passe (seul échec : un test qui lit `vite.config.ts`, absent de la copie).
+- **Persos qui clignotent / précision de qui parle** (`auto/voix/persos-montage.ts`) : `corrigerIlots` rend à
+  l'autre voix un tour de moins de 0,6 s collé (< 0,4 s) entre deux tours de cette autre voix (erreur d'écoute) ;
+  tenue des avatars 1 s au lieu de 0,5 s dans les montages sans IA (le perso ne disparaît plus entre deux phrases).
+  Le Best-of v4 garde sa tenue de la DA (0,35 s) mais profite de `corrigerIlots`. Pas avec des pistes séparées.
+  Tests : `persos-montage.test.ts`, `best-of.test.ts` mis à jour.
+- **Miniature et titres (retours de spectateurs)** : écran Miniature (`ui/ecrans/Miniature.tsx`) →
+  GROS persos de la vidéo (`dessinerPersosMiniature`, `moteur/miniature.ts` : 2 premières personnes, 78 % de la
+  hauteur, un de chaque côté, émotion au choix ou aucun), idées de gros texte et 5 titres proposés à copier
+  (`auto/habillage/titres-video.ts` : jeu, mode « ONE BLOCK »…, « 100 jours », sujet qui revient ;
+  ex. « 100 Jours sur Minecraft ONE BLOCK ! »). Tests : `titres-video.test.ts`.
+- Idées pas faites (retours) : intro « concept » (carton ou voix off enregistrée par Romain après l'accroche),
+  parler plus au public (conseil de tournage, pas du montage), son : on vise déjà −14 LUFS (norme YouTube, qui
+  baisse tout ce qui est plus fort) ; si la voix de Romain est trop faible, monter sa voix plutôt que le total.
+- **Mèmes et fonds verts automatiques** (Montage express / TikTok) : `auto/insertion/memes-auto.ts` (pur) choisit
+  les clips de Ma bibliothèque (Mèmes + Fonds verts) par leur nom / dossier aux moments des déclencheurs des
+  bruitages (mode réaction : après la phrase), jamais dans l'accroche, 1 toutes les 25 s au plus, pas à côté d'un
+  bruitage ni sur une incrustation, pas deux fois le même de suite, 4 s au plus. Fond vert → détouré plein écran ;
+  mème → en haut (hors des persos). Posés par `poserMemesAuto` (`ui/clips-montage.ts`) juste après « Monter la
+  vidéo » (`etat-express.ts`), en une opération avec un toast « Annuler ». Pas dans le Best-of (DA YouTube).
+  Tests : `memes-auto.test.ts`. À faire : la revue des bruitages pourrait écarter les moments où un mème est posé.
+- **Sound effects plus dynamiques** (retour : « comparé à une vidéo lambda, ça enlève du dynamisme ») :
+  - `auto/son/accents.ts` (pur) : WHOOSH juste avant chaque transition, POP à chaque punchline, IMPACT sur les
+    gros zooms (×1,25 et plus) ; −8 dB, 1,2 s au plus, 2,5 s d'écart, 10/min au plus, rien pendant l'accroche ni
+    à moins d'1 s d'un son ou d'un mème. Sons pris dans Mes sons par leur nom (whoosh, swoosh, pop, vine boom…,
+    les 3 meilleurs en alternance), sinon ceux d'Arko. Posés par `poserAccentsAuto` (`ui/auto/son/etat-son.ts`)
+    juste après « Monter la vidéo » si les bruitages sont demandés (TikTok). Tests : `accents.test.ts`.
+  - Bruitages « mèmes » : 2 par minute au lieu de 1 toutes les 2 min (sûreté 3, après la phrase), cochés d'office
+    quand le son vient de Mes sons, jamais à moins de 1,5 s d'un mème ou d'un son déjà posé ; mots clés des
+    catégories élargis (français, noms de mèmes : metal pipe, bonk, anime wow, game over…).
+  - Transitions auto : toujours sans leur son d'Arko (le whoosh vient des accents, de la bibliothèque).
+- **Best-of YouTube (v4) profite aussi des sons** (`ui/auto/express/best-of-v4.ts` → `apresMontage`) : mèmes /
+  fonds verts auto, accents (pop sur les punchlines, impact sur les gros zooms ; pas de transitions en YouTube), puis
+  revue des bruitages — TOUT avec les sons de Mes sons SEULEMENT (option `bibliothequeSeule` : les sons fabriqués
+  par Arko restent hors de la DA YouTube, Romain les trouvait « atroces »). Revue vide → pas de panneau. Un seul
+  toast à la fin (montage prêt + nombre de mèmes / effets, crédit Kevin MacLeod gardé). Persos : `corrigerIlots`
+  s'applique aussi au v4 (moins de clignotement), tenue de la DA gardée.
+- **Calé sur la VRAIE bibliothèque de Romain** (4 dossiers sur son PC : `meme` 49 vidéos, `effet de fond vert` 110,
+  `son de fond` 95 musiques, `sound effect` 405 sons ; leurs noms → bons rayons à l'import). Simulation hors dépôt
+  (noms + durées seulement, aucun fichier copié) : chaque catégorie a ses sons ET un clip ; sons courts jamais
+  choisis 268 → 179 sur 353. Mots clés élargis (bruitages, accents, `MOTS_CLIPS` pour les vidéos), clips de décor
+  jamais posés comme réaction (boutons s'abonner, logos, fonds, VHS…). Filtre des noms offensants RETIRÉ à la
+  demande de Romain (il fait le tri lui-même dans sa bibliothèque). Montage TikTok aussi en
+  `bibliothequeSeule` : UNIQUEMENT les sons de Ma bibliothèque en auto (les sons d'Arko restent à la main).
+- **Quand utiliser les sons** :
+  - `auto/son/echos.ts` : la RÉPLIQUE dont le nom reprend ce qu'on vient de dire (« le FBI arrive » → FBI Open Up,
+    « John Cena », « nani », « oof »…), juste après la phrase, 2/min ; mots courants, mots qui décrivent le son
+    (cartoon, scream…), faux amis français (super, moments…) et noms de jeux ne déclenchent pas seuls. 335 des 353
+    sons courts de Romain ont des déclencheurs. Dans la revue des bruitages, prioritaires et cochés.
+  - Déclencheurs français élargis (`declencheurs.ts`) : « let's go », « c'est ouf », « au secours », « il m'a tué »,
+    « derrière toi », « TNT », « creeper »… (une liste modifiée par l'utilisateur reste la sienne).
+- **Décor** (YouTube 16:9) : `proposerDecor` (`memes-auto.ts`) pose le bouton « s'abonner / like » de la bibliothèque
+  une fois tôt (≥ 30 s, 25 s après l'accroche) et 15 s avant la fin (vidéo > 3 min), sans chevaucher un mème.
+- **Tout est retirable un par un** : mèmes / décor = calques « clip » de la frise (toucher → Retirer), sons (accents,
+  échos, bruitages) = calques « son » (toucher → Supprimer, ou « Retirer tous les bruitages »), transitions =
+  chaque coupe ; et Annuler retire chaque vague d'un coup.
+- Tests : 1343 tests unitaires passent (copie complète hors dépôt, avec `public/`, `vite.config.ts`, `CREDITS.md`
+  et la vidéo de test) ; e2e non lancés.
+- **ARKO APPREND DES RETOUCHES** (objectif de Romain : l'améliorer chaque jour, viser la perfection) :
+  - `auto/apprentissage/gouts.ts` (pur, testé) : `empreinteDe` (ce qu'il y a dans un montage : bruitages, accents,
+    mèmes, zooms, transitions, punchlines, durée, noms stables `cleNom`), `comparer` (gardé / retiré / ajouté à la
+    main), `apprendre` (densités ×0,25 à ×3, la moitié du chemin à chaque montage ; notes par son / clip ; un son
+    retiré 2 fois de plus que gardé = plus proposé seul), `resumeGouts`.
+  - `ui/apprentissage.ts` : empreinte gardée (localStorage `arko.empreinte.<emp>`) après le montage auto (express,
+    Best-of v4) et après « Tout poser » des bruitages ; à l'EXPORT, comparaison, goûts mis à jour
+    (`arko.gouts`), toast « Arko a appris de tes retouches : … ». Une fois par montage auto.
+  - Goûts appliqués : densité des bruitages / échos (revue), des accents, des mèmes ; sons et clips rejetés écartés ;
+    transitions coupées si l'utilisateur les retire toujours (< ×0,5). Encadré « Appris de tes N montages » +
+    « Oublier » en haut du panneau des bruitages.
+  - Nouveau rôle de son `accent` (types, normaliseur, schema.json) ; « Retirer tous les bruitages » retire aussi les
+    accents.
+- **Feuille de route « perfection »** (une étape par session) : appliquer aussi les goûts aux zooms, punchlines et à
+  la durée visée ; apprendre des COUPES (marges avant / après les mots que Romain rallonge ou raccourcit) ;
+  « copier le rythme » d'un montage de référence (coupes / zooms / sons par minute, mesurés sur l'appareil) ; banc
+  réel (§0.3 de la passation générale) pour mesurer chaque progrès ; IA locale (où ? question posée à Romain).
+- **Monteur IA = module complet de MON HUB** (choix de Romain, 9/11) : plan dans `docs/monteur-ia/plan.md` (Arko
+  prépare le dossier et applique le plan ; Mon Hub pense avec llama.cpp + modèle GGUF local + sortie JSON forcée ;
+  serveur local 127.0.0.1 ; exemples appris de chaque export ; 5 étapes). Le savoir du monteur (instruction de
+  départ de l'IA, et guide pour les règles d'Arko) : `docs/monteur-ia/savoir-du-monteur.md`. Rien de codé côté
+  Mon Hub pour l'instant.
+  - ÉTAPE 1 FAITE (côté Arko, pur, testé) : `auto/monteur-ia/dossier.ts` (`construireDossier`, `phrasesDe` : phrases
+    avec qui parle / émotion / dit fort, réactions, scènes, bibliothèque en noms + durées, goûts) et
+    `auto/monteur-ia/plan.ts` (`validerPlan` : accroche ≤ 8 s, séquences triées sans chevauchement, effets d'un type
+    connu et d'un VRAI fichier de la bibliothèque, ≤ 12 effets/min, textes raccourcis, journal des corrections ; ne
+    lève jamais). Tests : `monteur-ia.test.ts`.
+  - **SUIVI CASE PAR CASE : `docs/monteur-ia/etapes.md`** (reprendre à la première case vide). Faits le 9/11 :
+    A1 à A5 (`ui/auto/express/monteur-ia.ts` : dossier depuis l'analyse, « Envoyer au monteur IA »,
+    « Ouvrir un plan » + journal dans la revue). A6 fait (`auto/monteur-ia/appliquer.ts`). A7 fait (`poserEffetsSimples`). Puis A8 à A10, C2, C3, D1, D3a, E1 à E4c faits le 9/11 (voir les cases).
+    TOUT LE CÔTÉ ARKO EST FAIT. Côté Mon Hub (C:\dev\mon_hub\lib\modules\monteur_ia\), B1 à B6, C1, D2, D3b
+    sont ÉCRITS le 9/11 mais PAS COMPILÉS (cases [~]) : vérifier avec outils\verif_auto.bat. Avant :
+    `docs/monteur-ia/plan.md` §8), D2 / D3b (Mon Hub), D4 (banc réel : il faut refaire la « vérité » du montage à
+    la main, perdue avec l'ancien conteneur).
+
+Reste à faire (demandes de Romain du 9/11), par ordre conseillé :
+1. Tester les 2 points ci-dessus sur la vraie session et ajouter des tests unitaires (forcerDeux, noteTitre).
+2. Qui parle : upgrade (empreinte de voix d'office quand les niveaux se ressemblent) + placement des persos quand
+   l'un parle (banc réel §0.3 de la passation générale).
+6. Boucle « revue du jour » → banc réel → réglages (voir `docs/revues/`).

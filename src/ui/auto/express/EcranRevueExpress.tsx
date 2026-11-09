@@ -13,6 +13,7 @@ import { IconeAlerte } from '../../composants/Icones';
 import { formatDuree } from '../../format';
 import type { SceneBestOf } from '../../../auto/express/best-of';
 import { arreterEcoute, ecouteEnCours, ecouterPassage } from '../voix/ecoute';
+import { BoutonApercu, MiniApercu } from '../voix/MiniApercu';
 import { parcoursV4 } from './best-of-v4';
 import { BRANCHEMENTS } from './branchements-v4';
 import { CarteModules } from './CarteModules';
@@ -37,6 +38,7 @@ import {
 } from './etat-express';
 import { avertissementsRevue, dureeSequence, estV4, etoiles, refaireSansPrecision } from './etat-v4';
 import { TEXTES_V4 } from './textes-v4';
+import { demanderPlanMonHub, etatMonHub, ouvrirPlan, planMonteur, telechargerDossier } from './monteur-ia';
 
 const TX = TA.express;
 const TR = TEXTES_V4.revue;
@@ -64,12 +66,14 @@ function OutilsSequence({ s, i, ouvert, basculer }: { s: SequenceV4; i: number; 
         <button type="button" class="btn express-mini" aria-pressed={enCours} disabled={!source} onClick={() => source && void ecouterPassage(source.fichier, s.de, s.a, cle)} data-testid={`express-ecouter-${i}`}>
           {enCours ? TR.arreter : TR.ecouter}
         </button>
+        <BoutonApercu cle={cle} actif={!!source} classe="btn express-mini" testid={`express-voir-${i}`} />
         {reglable && (
           <button type="button" class="btn express-mini" aria-expanded={ouvert} onClick={basculer} data-testid={`express-regler-${i}`}>
             {ouvert ? TR.fermerReglage : TR.regler}
           </button>
         )}
       </div>
+      {source && <MiniApercu fichier={source.fichier} de={s.de} a={s.a} cle={cle} />}
       {reglable && ouvert && (
         <div class="express-regler" data-testid={`express-reglage-${i}`}>
           {(['debut', 'fin'] as const).map((cote) => (
@@ -241,6 +245,20 @@ export function EcranRevueExpress() {
           </div>
           <div class="express-revue-voix">
             <RevueBestOf partie="bas" />
+            <p class="petit doux">
+              <button type="button" class="btn btn-principal express-mini" onClick={() => void demanderPlanMonHub()} data-testid="express-demander-monteur-ia">
+                Demander au monteur IA{etatMonHub.value === 'absent' ? ' (Mon Hub absent)' : ''}
+              </button>{' '}
+              <button type="button" class="btn express-mini" onClick={() => void telechargerDossier()} data-testid="express-envoyer-monteur-ia">
+                Envoyer au monteur IA
+              </button>{' '}
+              Pour Mon Hub → Monteur IA (le fichier reste sur ton appareil).{' '}
+              <label class="btn express-mini" data-testid="express-ouvrir-plan">
+                Ouvrir un plan
+                <input type="file" accept="application/json,.json" hidden onChange={(e) => { const f = (e.currentTarget as HTMLInputElement).files?.[0]; if (f) void ouvrirPlan(f); }} />
+              </label>
+            </p>
+            <JournalPlan />
           </div>
         </div>
       </main>
@@ -261,6 +279,28 @@ export function EcranRevueExpress() {
         </button>
       </footer>
       {v4 && <CarteModules />}
+    </div>
+  );
+}
+
+/** A5. Ce que le plan du monteur IA contient, et les corrections faites par Arko. */
+function JournalPlan() {
+  const v = planMonteur.value;
+  if (!v) return null;
+  return (
+    <div class="petit message message-info" data-testid="express-journal-plan">
+      <strong>Plan du monteur IA :</strong> {v.plan.sequences.length} séquences, {v.plan.effets.length} effets{v.plan.titres[0] ? `, titre « ${v.plan.titres[0]} »` : ''}.{' '}
+      {v.plan.sequences.length > 0 ? '« Monter » utilisera ce plan.' : 'Ce plan n\'a aucune séquence : « Monter » fera comme d\'habitude.'}{' '}
+      <button type="button" class="btn btn-discret express-mini" onClick={() => (planMonteur.value = null)} data-testid="express-plan-oublier">
+        Ne pas l'utiliser
+      </button>
+      {v.journal.length > 0 && (
+        <ul>
+          {v.journal.slice(0, 8).map((j, k) => (
+            <li key={k}>{j}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

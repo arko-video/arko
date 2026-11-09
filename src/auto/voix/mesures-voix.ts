@@ -120,7 +120,7 @@ export async function mesurerEmpreintes(source: SourceOuverte, o: OptionsTache &
  */
 export async function analyserQuiParle(
   source: SourceOuverte,
-  o: OptionsTache & { pistes?: readonly number[]; zones?: readonly PlageTemps[]; plage?: PlageTemps } = {},
+  o: OptionsTache & { pistes?: readonly number[]; zones?: readonly PlageTemps[]; plage?: PlageTemps; deux?: boolean } = {},
 ): Promise<{ detectees: VoixDetectees; empreintes: EmpreintesNommees[] }> {
   const src = source.infos.id;
   const nb = source.infos.pistes ?? 0;
@@ -131,5 +131,5 @@ export async function analyserQuiParle(
   }
   const e = await mesurerEmpreintes(source, { ...o, ...(pistes.length === 1 ? { piste: pistes[0] } : {}) });
   const zones = o.zones && o.zones.length > 0 ? o.zones : zonesDeVoix(e);
-  return { detectees: separerVoix(e, zones, src), empreintes: [e] };
+  return { detectees: separerVoix(e, zones, src, o.deux ? { forcerDeux: 1 } : {}), empreintes: [e] };
 }

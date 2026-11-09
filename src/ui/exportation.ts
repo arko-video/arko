@@ -3,7 +3,9 @@
 
 import { ErreurArko, lancerExport } from '../moteur/api';
 import { T } from '../textes-fr';
-import { etatExport, exportTermine, recette, sources } from './etat';
+import { afficherToast, etatExport, exportTermine, recette, sources } from './etat';
+import { preparerFinTravail, signalerFinTravail } from './fin-travail';
+import { apprendreDeLExport } from './apprentissage';
 
 let verrou: WakeLockSentinel | null = null;
 let cacheePendantExport = false;
@@ -34,6 +36,7 @@ export function demarrerExport() {
   const r = recette.peek();
   if (!r || etatExport.peek().phase === 'encours') return;
   cacheePendantExport = false;
+  preparerFinTravail();
   document.addEventListener('visibilitychange', surVisibilite);
   void demanderVerrou();
 
@@ -54,7 +57,12 @@ export function demarrerExport() {
   enCours.resultat.then(
     (resultat) => {
       fin();
-      if (etatExport.peek().phase === 'encours') exportTermine(resultat, r);
+      if (etatExport.peek().phase === 'encours') {
+        exportTermine(resultat, r);
+        signalerFinTravail('Arko : la vidéo est prête');
+        const appris = apprendreDeLExport(r);
+        if (appris) afficherToast(appris.length > 0 ? `Arko a appris de tes retouches : ${appris.slice(0, 3).join(' · ')}.` : 'Arko a appris de ce montage : tu as tout gardé, il continue comme ça.', 8000);
+      }
     },
     (e: unknown) => {
       const absence = cacheePendantExport;

@@ -32,19 +32,19 @@ export const NOMS_CATEGORIES: Readonly<Record<CategorieBruitage, string>> = {
 
 /** Les déclencheurs du brief (réglages qui ont marché sur une vraie vidéo). « non ! » exige le point d'exclamation. */
 export const DECLENCHEURS_DEFAUT: readonly Declencheur[] = [
-  { categorie: 'reussite', mots: ['on a gagne', 'gagne', 'victoire', '300 fois', 'trois cents fois', 'reussi'] },
-  { categorie: 'wow', mots: ['wow', 'waouh', 'whoa', '1000', 'mille'] },
-  { categorie: 'bruh', mots: ['zero', 'bruh'] },
-  { categorie: 'triste', mots: ['bloque', 'coince'] },
-  { categorie: 'rate', mots: ['impossible'] },
-  { categorie: 'destin', mots: ['invincible', 'destin'] },
-  { categorie: 'explosion', mots: ['explose', 'explosion'] },
-  { categorie: 'ohnon', mots: ['oh non', 'non !'] },
-  { categorie: 'wasted', mots: ['je suis mort', 'spawn kill', 'spawnkill', 'mort'] },
+  { categorie: 'reussite', mots: ['on a gagne', 'gagne', 'victoire', '300 fois', 'trois cents fois', 'reussi', 'lets go', 'let s go', 'trop fort', 'trop bien', 'je l ai eu', 'on l a eu', 'gg', 'parfait', 'je suis un genie', 'ez'] },
+  { categorie: 'wow', mots: ['wow', 'waouh', 'whoa', '1000', 'mille', 'oh mon dieu', 'omg', 'c est ouf', 'trop ouf', 'dingue', 'incroyable', 'diamant', 'diamants', 'regarde ca'] },
+  { categorie: 'bruh', mots: ['zero', 'bruh', 'serieux', 'n importe quoi', 'quoi ?', 'hein ?', 't es nul', 'c est quoi ca'] },
+  { categorie: 'triste', mots: ['bloque', 'coince', 'dommage', 'j ai tout perdu', 'tout perdu', 'mon stuff', 'c est triste', 'snif'] },
+  { categorie: 'rate', mots: ['impossible', 'rate', 'loupe', 'j ai rate', 'j ai perdu', 'c est mort'] },
+  { categorie: 'destin', mots: ['invincible', 'destin', 'derriere toi', 'il arrive', 'chut', 'j ai peur', 'qu est ce que c est'] },
+  { categorie: 'explosion', mots: ['explose', 'explosion', 'tnt', 'boum', 'creeper', 'ca a pete', 'tout a pete'] },
+  { categorie: 'ohnon', mots: ['oh non', 'non !', 'au secours', 'a l aide', 'aide moi', 'aidez moi', 'non non non', 'fuis'] },
+  { categorie: 'wasted', mots: ['je suis mort', 'spawn kill', 'spawnkill', 'mort', 'il m a tue', 'je meurs', 'game over', 'j ai creve', 'il est mort'] },
   { categorie: 'rire', mots: [], signal: 'rire' },
   { categorie: 'boom', mots: ['putain', 'merde', 'bordel', 'ptn'], signal: 'juron-fort' },
   { categorie: 'grillons', mots: [], signal: 'silence' },
-  { categorie: 'fin', mots: ['tchao', 'ciao', 'a plus tard', 'a la prochaine', 'salut tout le monde'] },
+  { categorie: 'fin', mots: ['tchao', 'ciao', 'a plus tard', 'a la prochaine', 'salut tout le monde', 'bonne nuit', 'je vais dormir', 'on arrete la'] },
 ];
 
 /** Catégories dans l'ordre d'affichage. */

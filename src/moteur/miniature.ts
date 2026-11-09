@@ -14,6 +14,9 @@ import { GROTESK } from './polices';
 import { rendre } from './rendre';
 import { mediasDe } from './sources';
 import { imagesDe } from './inserts/images-ouvertes'; // v3 (B)
+import { dessinerChibiCache } from '../chibis/cache';
+import type { Emotion } from '../chibis/catalogue';
+import { chibiDe } from './couches/avatars';
 
 export const MINIATURE = { l: 1280, h: 720, maxOctets: 2 * 1024 * 1024 } as const;
 export const MINIATURE_SHORT = { l: 1080, h: 1920 } as const;
@@ -26,6 +29,10 @@ export interface ReglagesMiniature {
   position: 'haut' | 'bas';
   emoji: string;
   fleche: 'aucune' | 'gauche' | 'droite';
+  /** GROS persos de la vidéo (un de chaque côté), absent = oui s'il y en a. */
+  persos?: boolean;
+  /** Leur émotion (défaut : choqué). */
+  emoPersos?: Emotion;
 }
 
 export const EMOJIS_MINIATURE = ['😱', '🔥', '💀', '😂', '🤯', '🏆'] as const;
@@ -154,4 +161,20 @@ export function dessinerHabillageMiniature(ctx: Ctx2D, l: number, h: number, r: 
   }
   // Flèche : du côté opposé au texte, pour ne pas le cacher.
   if (r.fleche !== 'aucune') dessinerFleche(ctx, l * 0.45, h * (haut ? 0.68 : 0.32), Math.min(l, h) * 0.42, r.fleche === 'droite' ? 1 : -1);
+}
+
+/**
+ * GROS persos sur la miniature (retour d'un spectateur, 9/11/2026 : « mettre les personnages plus gros ») : les 2
+ * premières personnes de la recette, en bas, un de chaque côté (un seul : à droite), 78 % de la hauteur, l'émotion
+ * choisie. À dessiner AVANT l'habillage : le gros texte passe par-dessus.
+ */
+export function dessinerPersosMiniature(ctx: Ctx2D, l: number, h: number, recette: Recette, emo: Emotion = 'choque'): number {
+  const gens = (recette.personnes ?? []).filter((p) => p.avatar !== false).slice(0, 2);
+  const taille = h * (l > h ? 0.78 : 0.42);
+  const xs = gens.length === 1 ? [0.8] : [0.17, 0.83];
+  gens.forEach((p, i) => {
+    const x = xs[i]! * l;
+    dessinerChibiCache(ctx, chibiDe(p), { emo, bouche: true, t: 0, retourne: x > l / 2 }, { x, y: h * 1.03, h: taille });
+  });
+  return gens.length;
 }

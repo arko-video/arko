@@ -71,7 +71,8 @@ export interface ReglagesSections {
 /* ------------------------------------------------------------------ E, F. Son (dev 3) */
 
 /** Qui a posé un son : un bruitage automatique (E) ou un titre de section (G). Absent = posé à la main. */
-export type RoleSon = 'bruitage' | 'section';
+/** 'accent' : son de rythme posé par le montage auto (whoosh, pop, impact ; auto/son/accents.ts). */
+export type RoleSon = 'bruitage' | 'section' | 'accent';
 
 /** Un morceau de la musique de fond, posé en TEMPS DE SORTIE (la musique ne suit pas les coupes). */
 export interface MorceauMusique {

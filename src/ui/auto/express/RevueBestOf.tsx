@@ -9,10 +9,12 @@ import type { AnalyseBestOf, SceneBestOf } from '../../../auto/express/best-of';
 import { TV } from '../../../textes-v3';
 import { CartesVoix } from '../voix/CartesVoix';
 import { parcoursV4 } from './best-of-v4';
-import { chibisVoix, chibiVoix, enBestOf, nommerVoix, nomsVoix, sousTitresPourVoix } from './etat-best-of';
+import { chibisVoix, chibiVoix, enBestOf, nommerVoix, nomsVoix, preparerVoix, sousTitresPourVoix } from './etat-best-of';
 import { analyseExpress, reglagesExpress, sourceExpress } from './etat-express';
 import { choixCombien, estV4 } from './etat-v4';
 import { ReglagePrecis } from './SousTitresPrecis';
+import { forcerDeuxVoix } from './voix-express';
+import { useState } from 'preact/hooks';
 import { TEXTES_V4 } from './textes-v4';
 
 const TB = TV.bestOf;
@@ -108,6 +110,36 @@ function PropositionEmpreinte() {
   );
 }
 
+/** Montage express (pas le Best-of v4) : une seule voix trouvée → « Deux personnes parlent » (réécoute à 2 voix). */
+function DeuxPersonnes() {
+  const [etat, setEtat] = useState<'rien' | 'encours' | 'rate'>('rien');
+  const a = analyseExpress.value;
+  const source = sourceExpress.value;
+  if (!a || !source || estV4(a) || a.voix?.methode === 'pistes' || (a.voix && a.voix.voix.length >= 2)) return null;
+  const lancer = async () => {
+    setEtat('encours');
+    try {
+      const b = await forcerDeuxVoix(source, a);
+      if (!b) return setEtat('rate');
+      preparerVoix(b);
+      analyseExpress.value = b;
+      setEtat('rien');
+    } catch {
+      setEtat('rate');
+    }
+  };
+  return (
+    <div class="champ" data-testid="express-deux-personnes">
+      <button type="button" class="btn express-mini" disabled={etat === 'encours'} onClick={() => void lancer()} data-testid="express-forcer-deux">
+        {etat === 'encours' ? 'Je réécoute les voix…' : 'On est deux à parler'}
+      </button>
+      <span class="petit doux">
+        {etat === 'rate' ? 'Je n\'arrive pas à séparer les deux voix sur ce son.' : 'Pour donner un perso différent à chacun.'}
+      </span>
+    </div>
+  );
+}
+
 /** `haut` : lien « Qui parle ? » et passages pas retenus (au-dessus des séquences) ; `bas` : les voix. */
 export function RevueBestOf({ partie }: { partie: 'haut' | 'bas' }) {
   const a = analyseExpress.value as (AnalyseBestOf & Partial<Pick<AnalyseBestOf, 'passages'>>) | null;
@@ -138,6 +170,7 @@ export function RevueBestOf({ partie }: { partie: 'haut' | 'bas' }) {
       <span class="champ-titre">{TB.lienQuiParle}</span>
       <p class="petit doux">{!voix ? TB.pasDeVoix : voix.voix.length < 2 ? TB.aucuneVoix : TB.voixAide}</p>
       {v4 && <CombienDeVoix />}
+      {!v4 && <DeuxPersonnes />}
       {v4 && <PropositionEmpreinte />}
       {voix && (
         <CartesVoix

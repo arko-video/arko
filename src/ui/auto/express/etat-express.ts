@@ -3,6 +3,12 @@
 // un NOUVEAU projet « Montage express — <nom> » (dans Mes montages, supprimable) construit en UNE opération
 // (un seul Annuler revient à la vidéo brute).
 
+import { reglagesAvecGouts } from '../../../auto/apprentissage/appliquer-gouts';
+import { appliquerPlan } from '../../../auto/monteur-ia/appliquer';
+import { planMonteur, poserEffetsBibliotheque, retenirPourquois } from './monteur-ia';
+import { gouts, memoriserMontageAuto } from '../../apprentissage';
+import { poserMemesAuto } from '../../clips-montage';
+import { signalerFinTravail } from '../../fin-travail';
 import { computed, signal } from '@preact/signals';
 import { analyserPourExpress, dureeVisee } from '../../../auto/express/analyse-express';
 import { analyserPourBestOf, construireBestOf, type AnalyseBestOf, type SceneBestOf } from '../../../auto/express/best-of';
@@ -26,7 +32,7 @@ import { choixVisible, demande, sourceMonteur } from '../../monteur/etat-monteur
 import { reprendreA } from '../../navigation';
 import { garderFichier } from '../../sons-gardes';
 import { ouvrirOutil } from '../../habillage';
-import { ouvrirBruitages } from '../son/etat-son';
+import { ouvrirBruitages, poserAccentsAuto } from '../son/etat-son';
 import { DUREES_BEST_OF } from '../../../auto/express/chaine-best-of';
 import { enBestOf, preparerVoix, reglagesBestOf, ressourcesBestOf, retenirStyle, styleMontage, type StyleMontage } from './etat-best-of';
 import { estV4, reglagesPourStyle } from './etat-v4';
@@ -195,7 +201,7 @@ export async function lancerExpress() {
   etatExpress.value = { phase: 'encours', p: 0, message: TA.express.ecoute };
   allerExpress('analyse');
   try {
-    const reg = reglagesExpress.peek();
+    const reg = reglagesAvecGouts(reglagesExpress.peek(), gouts.peek());
     const bestOf = enBestOf();
     const o = { signal: c.signal, surProgression: (p: number, message: string) => controleur === c && (etatExpress.value = { phase: 'encours', p, message: message || TA.express.scenes }) };
     // Best-of : qui parle sur les pistes gardées de la vidéo (si le montage d'où l'on vient en a choisi).
@@ -213,6 +219,7 @@ export async function lancerExpress() {
     analyseExpress.value = a;
     scenesExpress.value = a.scenes;
     etatExpress.value = { phase: 'fini' };
+    signalerFinTravail('Arko : le montage est prêt', 'Viens vérifier et modifier si besoin.');
     remplacerExpress('revue');
   } catch (e) {
     if (controleur !== c) return;
@@ -282,19 +289,26 @@ export async function monterExpress() {
   const source = sourceExpress.peek();
   const a = analyseExpress.peek();
   const scenes = scenesExpress.peek();
-  if (estV4(a) && routeBestOf.monter) return void (await routeBestOf.monter());
-  if (!source || !a || montageEnCours.peek() || !scenes.some((s) => s.garde)) return;
+  // Monteur IA (A9) : un plan validé est ouvert → c'est LUI qui décide des séquences, de l'accroche et des effets.
+  const planIA = planMonteur.peek()?.plan ?? null;
+  const avecPlan = planIA !== null && planIA.sequences.length > 0;
+  if (!avecPlan && estV4(a) && routeBestOf.monter) return void (await routeBestOf.monter());
+  if (!source || !a || montageEnCours.peek() || (!avecPlan && !scenes.some((s) => s.garde))) return;
   montageEnCours.value = true;
   try {
-    const reg = reglagesExpress.peek();
+    // Goûts appris (exports précédents) : zooms, punchlines, durée visée nuancés (E1, E2).
+    const reg = reglagesAvecGouts(reglagesExpress.peek(), gouts.peek());
     const bestOf = enBestOf();
     await sauverEnAttente();
     await nouveauProjet();
     const nom = source.infos.nom.replace(/\.[^.]+$/, '');
     demarrerProjet(source, { ...recetteInitiale(source, destinationExpress.peek()), titre: (bestOf ? TV.bestOf.titreProjet : TA.express.titreProjet)(nom) });
     idCourant.value = null;
+    const journalPlan: string[] = [];
     const construire = (r: Recette, res: RessourcesExpress) =>
-      bestOf ? construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(res)) : construireMontageExpress(r, a, scenes, reg, { ...res, ...choixVoix() });
+      avecPlan
+        ? ((x) => (journalPlan.splice(0, journalPlan.length, ...x.journal), x.recette))(appliquerPlan(r, a, planIA, reg, { ...res, ...choixVoix() }))
+        : bestOf ? construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(res)) : construireMontageExpress(r, a, scenes, reg, { ...res, ...choixVoix() }, { transitions: gouts.peek().densite.transitions >= 0.5, facteurPunchlines: gouts.peek().densite.punchlines, ...(gouts.peek().marges ? { marges: gouts.peek().marges } : {}) });
     // Un nouveau montage, construit en UNE opération : un seul Annuler revient à la vidéo brute.
     if (reg.musiqueAuto === true) {
       // Musique automatique : le montage est construit une fois SANS musique (pur), Arko y choisit un morceau par
@@ -321,10 +335,27 @@ export async function monterExpress() {
     reprendreA('habiller');
     const r = recette.peek();
     afficherToast((bestOf ? TV.bestOf.pret : TA.express.pret)(formatDuree(r ? compiler(r).duree : 0)), 8000, { label: TA.express.annulerMontage, agir: annulerAction });
+    // Plan du monteur IA : ses sons / mèmes à lui (une opération, un Annuler), puis on s'arrête là (pas les choix
+    // automatiques d'Arko par-dessus). Le journal des corrections est rappelé.
+    if (avecPlan) {
+      const n = await poserEffetsBibliotheque(planIA.effets).catch((e: unknown) => (console.error(e), 0));
+      memoriserMontageAuto(recette.peek());
+      retenirPourquois(planIA);
+      planMonteur.value = null;
+      afficherToast(`Monté avec le plan du monteur IA${n > 0 ? ` (${n} sons et mèmes)` : ''}.${journalPlan.length > 0 ? ` ${journalPlan[0]}` : ''}`, 9000, { label: TA.express.annulerMontage, agir: annulerAction });
+      return;
+    }
+    // Mèmes et fonds verts de Ma bibliothèque aux moments forts (TikTok) : une opération à part, son propre Annuler.
+    if (!bestOf && a.parole === 'mots') await poserMemesAuto(a.transcription.mots, source.infos.id, a.signaux, reg.accroche ? 6.5 : 0).catch((e: unknown) => console.error(e));
+    // Effets de rythme (whoosh / pop / impact) et bruitages : UNIQUEMENT les sons de Ma bibliothèque (demande de
+    // Romain, 9/11/2026) ; les sons fabriqués par Arko restent posables à la main.
+    if (!bestOf && reg.bruitages) await poserAccentsAuto(reg.accroche ? 6.5 : 0, { bibliothequeSeule: true }).catch((e: unknown) => console.error(e));
+    // Ce qu'Arko a posé : comparé à la version finale à l'export (apprentissage des goûts).
+    memoriserMontageAuto(recette.peek());
     // Bruitages demandés : la revue (écouter dans la vidéo, cocher) s'ouvre ; rien n'est posé sans validation.
     if (!bestOf && reg.bruitages && a.parole === 'mots') {
       ouvrirOutil('sons');
-      void ouvrirBruitages();
+      void ouvrirBruitages({ bibliothequeSeule: true });
     }
   } catch (e) {
     console.error(e);

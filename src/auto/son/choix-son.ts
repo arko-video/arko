@@ -9,19 +9,19 @@ export type ChoixSon = { type: 'arko'; id: string } | { type: 'mesSons'; id: str
 
 /** Mots cherchés dans Mes sons pour chaque catégorie (noms habituels des packs de sons). */
 export const MOTS_CLES_CATEGORIES: Readonly<Record<CategorieBruitage, readonly string[]>> = {
-  reussite: ['mission passed', 'mission complete', 'success', 'victory', 'victoire'],
-  wow: ['wow'],
-  bruh: ['bruh'],
-  triste: ['sad trombone', 'trombone', 'sad'],
-  rate: ['mission failed', 'failed', 'fail'],
-  destin: ['dun dun', 'dramatic', 'choir', 'choeur'],
-  explosion: ['explosion', 'explode'],
-  ohnon: ['oh no', 'nooo'],
-  wasted: ['wasted'],
-  rire: ['laugh', 'laughing', 'rire', 'sitcom'],
-  boom: ['vine boom', 'boom'],
-  grillons: ['crickets', 'grillons'],
-  fin: ['windows shutdown', 'shutdown', 'windows', 'extinction'],
+  reussite: ['mission passed', 'mission complete', 'success', 'victory', 'victoire', 'tadaah', 'tada', 'yay', 'kids cheering', 'crowd cheering', 'oh baby a triple', 'wombo combo', 'jackpot', '1 up', 'powerup', 'world clear', 'perfect', 'mlg horns', 'airhorn', 'level up', 'win', 'gg'],
+  wow: ['anime wow', 'wow', 'waouh', 'omg', 'oh my god', 'damn son', 'mom get the camera', 'no one has ever done that', 'illuminati', 'anime shine', 'surprise'],
+  bruh: ['bruh', 'huh', 'nani', 'derp', 'what the hell', 'what the', 'wtf', 'boi', 'record scratch', 'disque'],
+  triste: ['sad trombone', 'sad violin', 'trombone', 'sad', 'triste', 'violin', 'violon', 'crying', 'depression', 'emotional'],
+  rate: ['mission failed', 'failed', 'fail', 'buzzer', 'wrong', 'denied', 'nope', 'losing horn', 'take the l', 'gameover', 'game over', 'lose', 'perdu', 'error', 'erreur'],
+  destin: ['dun dun', 'dramatic', 'dramatique', 'choir', 'choeur', 'suspense', 'riser', 'jaws', 'heartbeat', 'law and order', 'alert', 'drama'],
+  explosion: ['explosion', 'explode', 'kaboom', 'ka boom', 'tactical nuke', 'nuke', 'grenade', 'granada', 'car crash', 'bombe'],
+  ohnon: ['oh no', 'no god please no', 'nooo', 'oh non', 'noo', 'help me', 'scream'],
+  wasted: ['wasted', 'you died', 'roblox death', 'minecraft damage', 'fall damage', 'oof', 'fatality', 'mario die', 'knocked', 'omae wa mou', 'dead', 'death', 'mort', 'game over'],
+  rire: ['laugh', 'laughing', 'laughter', 'rire', 'sitcom', 'haha', 'dolphin', 'mdr', 'lol'],
+  boom: ['vine boom', 'boom', 'metal pipe', 'bonk', 'brick on metal', 'pan hit', 'headshot', 'bass drop', 'bang'],
+  grillons: ['crickets', 'cricket', 'grillons', 'grillon', 'criquet', 'awkward', 'a few moments later', 'hours later', 'malaise'],
+  fin: ['windows xp shutdown', 'shutdown', 'extinction', 'have a great time', 'outro', 'bye'],
 };
 
 /**
@@ -46,6 +46,11 @@ export const SONS_ARKO_CATEGORIES: Readonly<Record<CategorieBruitage, string>> =
 
 /** Un son plus long que ça est une musique, pas un bruitage. */
 export const DUREE_MAX_BRUITAGE = 15;
+
+/** Noms qui trahissent une musique (pas un bruitage). */
+const RESSEMBLE_MUSIQUE_SON = /kevin\s*mac\s*leod|incompetech|music|musique|bgm|background|soundtrack|\bost\b|theme|instrumental|loop|boucle|beat|melod/i;
+/** Musiques d'ambiance calme : jamais en bruitage, quelle que soit leur durée. */
+const RESSEMBLE_CHILL = /\b(chill|lofi|lo-fi|ambient|ambiance|relax|calme|piano|jazz)\b/i;
 
 /** Distance d'édition ≤ 1 (une lettre en trop, en moins ou changée) : « explossion » ≈ « explosion ». */
 function presque(a: string, b: string): boolean {
@@ -83,7 +88,9 @@ export interface OptionsChoix {
 
 /** Les sons de Mes sons qui conviennent à une catégorie, du meilleur au moins bon. */
 export function sonsPossibles(categorie: CategorieBruitage, mesSons: readonly MonSon[]): MonSon[] {
-  const courts = mesSons.filter((s) => s.duree <= DUREE_MAX_BRUITAGE);
+  // Un bruitage DYNAMISE (whoosh, boom, cri…) : jamais une musique de fond. On écarte le rayon Musiques et tout son
+  // qui ressemble à une musique (nom, ou long et rangé sans rayon), pour ne plus poser une musique chill en « effet ».
+  const courts = mesSons.filter((s) => s.duree <= DUREE_MAX_BRUITAGE && s.rayon !== 'musiques' && !(s.duree > 6 && RESSEMBLE_MUSIQUE_SON.test(`${s.nom} ${s.etiquette}`)) && !RESSEMBLE_CHILL.test(`${s.nom} ${s.etiquette}`));
   const res: { s: MonSon; note: number }[] = [];
   MOTS_CLES_CATEGORIES[categorie].forEach((cle, rang) => {
     for (const s of courts) {

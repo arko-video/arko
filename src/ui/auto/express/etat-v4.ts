@@ -8,6 +8,7 @@
 // faux services ; best-of-v4.ts le branche sur l'appli. La recette ne change que par les fonctions de la chaîne
 // (qui passent par src/recette/operations*.ts).
 
+import { signalerFinTravail } from '../../fin-travail';
 import { computed, effect, signal, untracked, type Signal } from '@preact/signals';
 import { plagesGardees, type ReglagesBestOf } from '../../../auto/express/best-of';
 import {
@@ -422,6 +423,7 @@ export function creerParcoursBestOf(e: EtatPartageV4, s: ServicesV4) {
       });
       if (controleur !== c) return;
       analyserDepuis(me);
+      signalerFinTravail('Arko : le Best-of est prêt', 'Viens vérifier et modifier si besoin.');
       s.allerA('revue', true);
     } catch (err) {
       if (controleur !== c) return;

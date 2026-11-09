@@ -5,6 +5,11 @@
 import { signal } from '@preact/signals';
 import { BRUITAGES, dureeBruitage, proposerBruitages, type PropositionBruitage } from '../../../auto/son/bruitages';
 import { choisirSon, type ChoixSon } from '../../../auto/son/choix-son';
+import { proposerEchos } from '../../../auto/son/echos';
+import { rejete } from '../../../auto/apprentissage/gouts';
+import { gouts, memoriserMontageAuto } from '../../apprentissage';
+import { ACCENTS, ACCENTS_ARKO, proposerAccents, sonsAccent, type FamilleAccent } from '../../../auto/son/accents';
+import { ajouterSon, ajouterSource } from '../../../recette/operations-effets';
 import { DECLENCHEURS_DEFAUT, lireDeclencheurs, type Declencheur } from '../../../auto/son/declencheurs';
 import { fichierPropose, kevinGardes } from '../../../auto/son/musiques-arko';
 import { lireSignauxSource } from '../../../auto/signaux-source';
@@ -64,7 +69,7 @@ function sourceDesMots(r: Recette): SourceOuverte | undefined {
 }
 
 /** Ouvre la revue : propositions sur les mots transcrits (+ rires, jurons criés, blancs si le son a été écouté). */
-export async function ouvrirBruitages() {
+export async function ouvrirBruitages(o: { bibliothequeSeule?: boolean } = {}) {
   panneauSonAuto.value = 'bruitages';
   const r = recette.peek();
   const mots = r?.sousTitres && Array.isArray(r.sousTitres.mots) ? r.sousTitres.mots : [];
@@ -85,13 +90,40 @@ export async function ouvrirBruitages() {
     }
   }
   await chargerMesSons();
-  const props = proposerBruitages(mots, source?.infos.id ?? r.sources[0]?.id ?? '', signaux, declencheurs.peek());
-  const pris = new Set<string>();
-  revue.value = props.map((p) => {
-    const choix = choisirSon(p.categorie, mesSons.peek().filter(estBruitage), { eviter: pris });
-    pris.add(choix.id);
-    return { ...p, choix };
+  // Plus dense qu'avant (1 toutes les 2 min, trop peu : « ça enlève du dynamisme ») : 2 par minute, après la phrase.
+  const src = source?.infos.id ?? r.sources[0]?.id ?? '';
+  const sc = compiler(r);
+  const occupes = [...(r.incrustations ?? []).map((i) => i.t), ...sc.sons.map((x) => x.t)];
+  // Goûts appris (exports précédents) : densité, et jamais un son que l'utilisateur retire toujours.
+  const g = gouts.peek();
+  const parMinute = Math.max(0.5, Math.round(2 * g.densite.bruitages * 2) / 2);
+  const permis = mesSons.peek().filter((x) => estBruitage(x) && !rejete(g, x.nom));
+  const props = proposerBruitages(mots, src, signaux, declencheurs.peek(), { parMinute, seuilSurete: 3, placement: 'reaction' }).filter((p) => {
+    const t = sortiesDe(sc, p.src, p.ts)[0];
+    return t !== undefined && !occupes.some((o) => Math.abs(o - t) < 1.5);
   });
+  // Échos : la réplique de Mes sons dont le NOM reprend ce qu'on vient de dire (« FBI », « John Cena »…), prioritaires.
+  const echos = proposerEchos(mots, src, signaux, permis, { parMinute }).filter((p) => {
+    const t = sortiesDe(sc, p.src, p.ts)[0];
+    return t !== undefined && !occupes.some((o) => Math.abs(o - t) < 1.5);
+  });
+  const lignesEchos: LigneRevue[] = echos.map((e) => ({ ...e, choix: { type: 'mesSons', id: e.son, nom: e.nomSon }, garde: true }));
+  const pris = new Set<string>(echos.map((e) => e.son));
+  const lignes = props.filter((p) => !echos.some((e) => Math.abs(e.ts - p.ts) < 4)).map((p) => {
+    const choix = choisirSon(p.categorie, permis, { eviter: pris });
+    pris.add(choix.id);
+    // Cochés d'office quand le son vient de TA bibliothèque (presque tout en auto) ; décocher reste possible.
+    return { ...p, choix, garde: choix.type === 'mesSons' };
+  });
+  const tout = [...lignesEchos, ...lignes].sort((a, b) => a.ts - b.ts);
+  const gardees = o.bibliothequeSeule ? tout.filter((l) => l.choix.type === 'mesSons') : tout;
+  if (o.bibliothequeSeule && gardees.length === 0) {
+    // YouTube sans sons à toi qui conviennent : on ne montre pas une revue vide.
+    revue.value = null;
+    panneauSonAuto.value = null;
+    return;
+  }
+  revue.value = gardees;
 }
 
 export function basculerGarde(i: number) {
@@ -150,7 +182,7 @@ export async function ecouterContexte(i: number) {
 }
 
 /** Copie un son de Mes sons dans le projet (source audio « aN », gardée avec le projet). Même chemin que poserMonSon. */
-async function copierMonSon(id: string): Promise<SourceOuverte> {
+export async function copierMonSon(id: string): Promise<SourceOuverte> {
   const f = await lireMonSon(id);
   if (!f) throw new ErreurArko(TA.son.bruitages.introuvable, 'introuvable');
   const source = await importerSon(f, idsPris());
@@ -173,7 +205,10 @@ export async function toutPoser() {
       poses.push(p.pose);
       if (p.source) infos.set(p.source.infos.id, p.source.infos);
     }
-    if (modifier((r) => poserBruitages(r, poses, [...infos.values()]))) afficherToast(TA.son.bruitages.poses(poses.length), 3000);
+    if (modifier((r) => poserBruitages(r, poses, [...infos.values()]))) {
+      afficherToast(TA.son.bruitages.poses(poses.length), 3000);
+      memoriserMontageAuto(recette.peek());
+    }
     revue.value = null;
     panneauSonAuto.value = null;
   } catch (e) {
@@ -287,4 +322,53 @@ export function reglerMusique(partiel: { vol?: number; baisse?: boolean; baisseS
 /** Volume affiché en dB (0,14 → « −17 »). */
 export function volEnDb(vol = MUSIQUE.vol): number {
   return Math.round(20 * Math.log10(Math.max(0.001, vol)));
+}
+
+/**
+ * Accents du Montage auto (TikTok) : whoosh sur les transitions, pop sur les punchlines, impact sur les gros zooms,
+ * pris dans Mes sons d'abord (auto/son/accents.ts), en UNE opération (un Annuler les retire). Renvoie le nombre posé.
+ */
+export async function poserAccentsAuto(apres = 0, o: { bibliothequeSeule?: boolean; silencieux?: boolean } = {}): Promise<number> {
+  const r0 = recette.peek();
+  if (!r0) return 0;
+  await chargerMesSons();
+  const g = gouts.peek();
+  const accents = proposerAccents(r0, { apres, facteur: g.densite.accents });
+  if (accents.length === 0) return 0;
+  const mes = mesSons.peek().filter((x) => estBruitage(x) && !rejete(g, x.nom));
+  const parFamille = new Map<FamilleAccent, MonSon[]>();
+  const n = new Map<FamilleAccent, number>();
+  const prets: { id: string; t: number; dur: number; source: SourceOuverte | null }[] = [];
+  for (const a of accents) {
+    if (!parFamille.has(a.famille)) parFamille.set(a.famille, sonsAccent(a.famille, mes).slice(0, 3) as MonSon[]);
+    const liste = parFamille.get(a.famille)!;
+    const k = n.get(a.famille) ?? 0;
+    n.set(a.famille, k + 1);
+    const mien = liste.length > 0 ? liste[k % liste.length]! : null;
+    if (mien) {
+      const source = copiesRevue.get(mien.id) ?? (await copierMonSon(mien.id).catch(() => null));
+      if (!source) continue;
+      copiesRevue.set(mien.id, source);
+      prets.push({ id: source.infos.id, t: a.t, dur: Math.min(ACCENTS.durMax, source.infos.duree), source });
+    } else if (!o.bibliothequeSeule) {
+      const id = ACCENTS_ARKO[a.famille];
+      prets.push({ id, t: a.t, dur: Math.min(ACCENTS.durMax, catalogueSons.find((x) => x.id === id)?.duree ?? 0.6), source: null });
+    }
+  }
+  const vol = Math.round(10 ** (ACCENTS.gainDb / 20) * 1000) / 1000;
+  let poses = 0;
+  const ok = modifier((r) => {
+    let res = r;
+    for (const p of prets) {
+      if (p.source) res = ajouterSource(res, p.source.infos);
+      const x = ajouterSon(res, { id: p.id, t: p.t, vol, role: 'accent', dur: p.dur, fondu: ACCENTS.fondu });
+      if (x.i >= 0) {
+        res = x.recette;
+        poses++;
+      }
+    }
+    return res;
+  });
+  if (ok && poses > 0 && !o.silencieux) afficherToast(`${poses} effets de rythme posés (whoosh, pop, impact).`, 6000);
+  return ok ? poses : 0;
 }

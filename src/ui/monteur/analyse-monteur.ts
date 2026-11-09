@@ -1,6 +1,7 @@
 // Analyse du monteur IA : analyse de la longue vidéo (Worker), puis propositions de clips,
 // sans IA (clipsSansIA) ou avec l'IA (proposerClips). Écran gardé allumé, annulation, reprise.
 
+import { signalerFinTravail } from '../fin-travail';
 import { del, get, set } from 'idb-keyval';
 import {
   analyserSource,
@@ -233,6 +234,7 @@ async function terminer(
 ) {
   const source = sourceMonteur.peek();
   if (source) await commencerRevue(source.infos, b);
+  signalerFinTravail('Arko : l\'analyse est finie');
   etatAnalyse.value = { phase: 'fini', corrections, ...(coupee ? { coupee } : {}) };
 }
 

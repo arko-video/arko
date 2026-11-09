@@ -17,7 +17,7 @@ export const VOLUME_FINAL = { lufs: -14, crete: -1.5, lufsMin: -30, lufsMax: -6,
 /** Champs auto d'un son (seulement ceux présents et valides). */
 export function normaliserSonAuto(b: Objet, ch: string, journal: Journal): Partial<Son> {
   const res: Partial<Son> = {};
-  if (b.role === 'bruitage' || b.role === 'section') res.role = b.role;
+  if (b.role === 'bruitage' || b.role === 'section' || b.role === 'accent') res.role = b.role;
   else if (b.role !== undefined) journal.ignore(`${ch}.role`, `Le rôle "${String(b.role)}" est inconnu : ignoré.`);
   if (b.dur !== undefined && b.dur !== null) res.dur = lireNombre(b.dur, `${ch}.dur`, journal, { defaut: SON_AUTO.durMax, min: SON_AUTO.durMin, max: SON_AUTO.durMax, nom: 'la durée du son' });
   if (b.fondu !== undefined && b.fondu !== null) res.fondu = lireNombre(b.fondu, `${ch}.fondu`, journal, { defaut: SON_AUTO.fondu, min: 0, max: SON_AUTO.fonduMax, nom: 'le fondu du son' });

@@ -20,6 +20,8 @@ export interface OptionsEcoute extends OptionsTache {
   pistes?: readonly number[];
   /** N'écouter que ce passage de la source (clips). */
   plage?: PlageTemps;
+  /** « Deux personnes parlent » (revue) : forcer 2 voix sur un mélange. */
+  deux?: boolean;
 }
 
 /** Écoute les voix de la source. `avertissement` : message pour l'utilisateur si l'écoute a échoué. */
@@ -33,6 +35,7 @@ export async function ecouterVoix(source: SourceOuverte, o: OptionsEcoute = {}):
       ...(zones.length > 0 ? { zones } : {}),
       ...(o.pistes && o.pistes.length > 0 ? { pistes: o.pistes } : {}),
       ...(o.plage ? { plage: o.plage } : {}),
+      ...(o.deux ? { deux: true } : {}),
     });
     return { voix: q.detectees.voix.length > 0 && q.detectees.tours.length > 0 ? q.detectees : null, empreintes: q.empreintes };
   } catch (e) {

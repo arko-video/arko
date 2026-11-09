@@ -49,8 +49,9 @@ export function poserBruitages(recette: Recette, poses: readonly BruitagePose[],
 
 /** Retire tous les sons de rôle « bruitage » (et leurs sources audio devenues inutiles). */
 export function retirerBruitagesAuto(recette: Recette): Recette {
-  if (!recette.sons.some((s) => s.role === 'bruitage')) return recette;
-  return finir(recette, { ...recette, sons: recette.sons.filter((s) => s.role !== 'bruitage') }, true);
+  const auto = (s: { role?: string }) => s.role === 'bruitage' || s.role === 'accent';
+  if (!recette.sons.some(auto)) return recette;
+  return finir(recette, { ...recette, sons: recette.sons.filter((s) => !auto(s)) }, true);
 }
 
 /** Met (ou retire, null) la musique ; `sources` = sources audio des morceaux, ajoutées si elles manquent. */
