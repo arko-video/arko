@@ -964,3 +964,7 @@ Reste à faire (demandes de Romain du 9/11), par ordre conseillé :
 - « Arko écoute tes sons » : auto/son/ecoute.ts (pur), worker-ecoute.ts, ui/auto/son/ecoute-ui.ts, modèle `ecoute`,
   `MonSon.ecoute` + `noterEcoute` (stockage/mes-sons.ts), choix-son.ts / accents.ts (`entenduPour`). Tests 1485 verts.
 - H5 : apprentissage par genre de moment (Son.pour, cleMoment). Tests 1486 verts.
+- ATTENTION (10/11, 23 h) : `tsc` plante (segfault) dans la VM de Cowork SANS rien afficher → les « typecheck propres »
+  de la soirée étaient faux ; la publication #11 a échoué (sans-sons-arko.ts : `trans` peut être une chaîne ;
+  structure-youtube.ts : `dur` facultatif). Corrigé. Vérifier les types dans le conteneur cloud (npm ci + npx tsc),
+  jamais se fier à une sortie vide dans la VM.

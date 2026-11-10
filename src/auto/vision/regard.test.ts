@@ -21,8 +21,8 @@ describe('Arko regarde l\'image', () => {
 
   it('zones mortes : 2 images de suite au moins, 6 s au moins ; jamais une image seule', () => {
     const l = [img(0, 0.1), img(3, 0.2), img(6, 0.9), img(9, 0.3), img(12, 0.8), img(15, 0.4), img(18, 0.5), img(21, 0.45), img(24, 0.9)];
-    const z = zonesMortes(l, 30);
+    const z = zonesMortes(l, 30, { seuil: 0.58 });
     expect(z.map((x) => [x.de, x.a])).toEqual([[13.5, 22.5]]);
-    expect(zonesMortes([img(0, 0.9), img(3, 0.2), img(6, 0.9)], 10)).toEqual([]);
+    expect(zonesMortes([img(0, 0.9), img(3, 0.2), img(6, 0.9)], 10, { seuil: 0.58 })).toEqual([]);
   });
 });

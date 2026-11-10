@@ -247,7 +247,7 @@ export function EcranRevueExpress() {
             <RevueBestOf partie="bas" />
             <p class="petit doux">
               <button type="button" class="btn btn-principal express-mini" onClick={() => void demanderPlanMonHub()} data-testid="express-demander-monteur-ia">
-                Demander au monteur IA{etatMonHub.value === 'absent' ? ' (Mon Hub absent)' : ''}
+                Demander au monteur IA{etatMonHub.value === 'absent' ? ' (Mon Hub absent)' : etatMonHub.value === 'occupe' ? ' (Mon Hub occupé)' : etatMonHub.value === 'bloque' ? ' (bloqué par le navigateur)' : ''}
               </button>{' '}
               <button type="button" class="btn express-mini" onClick={() => void telechargerDossier()} data-testid="express-envoyer-monteur-ia">
                 Envoyer au monteur IA

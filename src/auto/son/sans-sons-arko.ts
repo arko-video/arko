@@ -16,9 +16,12 @@ export function sansSonsArko(r: Recette): Recette {
   const gardes = sons.filter((s) => !estSonArko(s.id));
   let change = gardes.length !== sons.length;
   const plans = r.plans.map((p) => {
-    if (!p.trans || p.trans.son === false || (typeof p.trans.son === 'string' && !estSonArko(p.trans.son))) return p;
+    if (!p.trans) return p;
+    // Une transition écrite en court (« zoom ») a le son d'office : on la passe en objet, sans son.
+    const tr = typeof p.trans === 'string' ? { type: p.trans } : p.trans;
+    if (tr.son === false || (typeof tr.son === 'string' && !estSonArko(tr.son))) return p;
     change = true;
-    return { ...p, trans: { ...p.trans, son: false as const } };
+    return { ...p, trans: { ...tr, son: false as const } };
   });
   if (!change) return r;
   const res: Recette = { ...r, plans };

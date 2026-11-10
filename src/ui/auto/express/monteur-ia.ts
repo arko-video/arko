@@ -158,9 +158,27 @@ export async function poserEffetsBibliotheque(effets: readonly EffetPlan[]): Pro
 /* ------------------------------------------------------------------ C2 / C3 : lien direct avec Mon Hub */
 
 /** Adresse du monteur IA de Mon Hub sur CET appareil (docs/monteur-ia/plan.md §4 ; protocole en bas de plan.md). */
-export const MON_HUB = { url: 'http://127.0.0.1:47321', attenteEtat: 1500, attentePlan: 15 * 60 * 1000 } as const;
+export const MON_HUB = { url: 'http://127.0.0.1:47321', attenteEtat: 5000, attentePlan: 15 * 60 * 1000 } as const;
 
-export const etatMonHub = signal<'inconnu' | 'connecte' | 'absent'>('inconnu');
+export const etatMonHub = signal<'inconnu' | 'connecte' | 'absent' | 'occupe' | 'bloque'>('inconnu');
+
+/**
+ * 10/11/2026 : Chrome / Edge récents (« accès au réseau local ») bloquent une page web qui parle à Mon Hub
+ * (127.0.0.1) tant que l'utilisateur ne l'a pas permis. Mon Hub répondait bien, mais Arko voyait « absent ».
+ * Rend vrai si le navigateur dit que c'est refusé.
+ */
+async function reseauLocalRefuse(): Promise<boolean> {
+  for (const name of ['loopback-network', 'local-network-access', 'local-network']) {
+    try {
+      const p = await navigator.permissions.query({ name: name as PermissionName });
+      if (p.state === 'denied') return true;
+      if (p.state === 'granted') return false;
+    } catch {
+      /* nom inconnu de ce navigateur */
+    }
+  }
+  return false;
+}
 
 async function avecDelai(url: string, init: RequestInit, ms: number): Promise<Response> {
   const c = new AbortController();
@@ -176,11 +194,13 @@ async function avecDelai(url: string, init: RequestInit, ms: number): Promise<Re
 export async function verifierMonHub(): Promise<boolean> {
   try {
     const r = await avecDelai(`${MON_HUB.url}/etat`, { method: 'GET' }, MON_HUB.attenteEtat);
-    const ok = r.ok && ((await r.json().catch(() => null)) as { monteur?: boolean } | null)?.monteur === true;
-    etatMonHub.value = ok ? 'connecte' : 'absent';
-    return ok;
+    const e = r.ok ? ((await r.json().catch(() => null)) as { monteur?: boolean; occupe?: boolean } | null) : null;
+    const ok = e?.monteur === true;
+    // Mon Hub prépare déjà un plan (son bouton « Créer le plan ») : il est là, mais il faut attendre.
+    etatMonHub.value = ok ? (e?.occupe ? 'occupe' : 'connecte') : 'absent';
+    return ok && !e?.occupe;
   } catch {
-    etatMonHub.value = 'absent';
+    etatMonHub.value = (await reseauLocalRefuse()) ? 'bloque' : 'absent';
     return false;
   }
 }
@@ -196,6 +216,14 @@ export async function demanderPlanMonHub(): Promise<PlanValide | null> {
     return null;
   }
   if (!(await verifierMonHub())) {
+    if (etatMonHub.peek() === 'bloque') {
+      afficherToast('Ton navigateur empêche Arko de parler à Mon Hub. Clique sur le cadenas à gauche de l\'adresse → Autorisations → « Accès au réseau local » (ou « Appareils locaux ») → Autoriser, puis recharge la page.', 15000);
+      return null;
+    }
+    if (etatMonHub.peek() === 'occupe') {
+      afficherToast('Mon Hub prépare déjà un plan : attends qu\'il ait fini, puis redemande.', 8000);
+      return null;
+    }
     afficherToast('Mon Hub n\'est pas lancé sur cet appareil : « Monter » utilisera les règles d\'Arko (ou passe par « Envoyer au monteur IA »).', 8000);
     return null;
   }

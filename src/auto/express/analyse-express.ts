@@ -6,7 +6,7 @@ import { imagesReparties, mesurerVoix } from '../coupes/mesures';
 import { cadreRognage, detecterBords } from '../coupes/rognage-detection';
 import { zonesDeVoix } from '../coupes/voix';
 import { lireSignauxSource } from '../signaux-source';
-import { preparerRegard } from '../vision/regarder';
+import { messageRegard, preparerRegard } from '../vision/regarder';
 import type { SourceOuverte } from '../../moteur/api';
 import { ErreurArko } from '../../moteur/erreurs';
 import { MEILLEUR } from '../../recette/modeles';
@@ -58,7 +58,7 @@ async function bordsDe(source: SourceOuverte): Promise<Omit<Rognage, 'src'> | nu
 export async function analyserPourExpress(source: SourceOuverte, reglages: ReglagesExpress, options: OptionsTache = {}): Promise<AnalyseExpress> {
   const { signal, surProgression } = options;
   const p = (de: number, a: number) => (x: number, m: string) => surProgression?.(de + (a - de) * x, m);
-  await preparerRegard(source, { signal, surProgression: (x, m) => p(0, 0.05)(x, m ?? TA.express.ecoute) });
+  const vu = await preparerRegard(source, { signal, surProgression: (x, m) => p(0, 0.05)(x, m ?? TA.express.ecoute) });
   const signaux = await lireSignauxSource(source, { signal, surProgression: (x) => p(0.05, 0.2)(x, TA.express.ecoute) });
   if (signal?.aborted) throw new ErreurArko('Analyse annulée.', 'annule');
   const toute = { de: 0, a: source.infos.duree };
@@ -78,6 +78,8 @@ export async function analyserPourExpress(source: SourceOuverte, reglages: Regla
   surProgression?.(0.98, TA.express.scenes);
   const scenes = choisirScenes(decouperScenes(transcription.mots, signaux), transcription.mots, signaux, dureeVisee(reglages));
   const avertissements = avertissementsMuets(signaux);
+  const mv = messageRegard(vu);
+  if (mv) avertissements.push(mv);
   if (parole === 'voix') avertissements.push(TA.express.sansMots);
   surProgression?.(1, TA.express.scenes);
   return { transcription, parole, signaux, scenes, cadreBords, avertissements };

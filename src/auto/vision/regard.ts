@@ -16,8 +16,14 @@ export const REGARD = {
   ecart: 3,
   /** Taille d'entrée de CLIP. */
   taille: 224,
-  /** Sous ce score de « jeu », l'image n'est pas du jeu (réglé sur la vidéo CS2 : jeu ≥ 0,63, morts ≤ 0,54). */
-  seuilJeu: 0.58,
+  /**
+   * Sous ce score de « jeu », l'image n'est pas du jeu. Essai sur la vidéo CS2 : jeu ≥ 0,63, morts ≤ 0,54 ; mais le
+   * 10/11 chez Romain (image décodée par le navigateur) presque toute la vidéo est passée sous 0,58 → montage de 19 s.
+   * Donc on ne coupe que ce qui est NETTEMENT pas du jeu, et on ignore tout si c'est trop (voir `partMax`).
+   */
+  seuilJeu: 0.4,
+  /** Si plus de 35 % de la vidéo serait coupée, le regard n'est pas fiable sur cette vidéo : on n'en tient pas compte. */
+  partMax: 0.35,
   /** Une zone morte dure au moins 6 s (2 images de suite au moins) : on ne coupe jamais sur une seule image. */
   dureeMin: 6,
   /** Échelle des scores (CLIP : 100). */

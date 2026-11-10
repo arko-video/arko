@@ -22,3 +22,20 @@ describe('menus gardés quand on y réagit', () => {
     expect(avecRegard({ ...avec, rires: [{ de: 5, a: 6, t: 5, force: 1 }] } as unknown as SignauxSource, [{ de: 0, a: 12, vu: 'menu' }]).muets.filter((m) => m.vu)).toEqual([]);
   });
 });
+
+describe('garde-fou du regard', () => {
+  it('plus de 35 % de la vidéo en menus : ignoré, et c\'est dit', async () => {
+    const { definirRegard, preparerRegard, messageRegard } = await import('./regarder');
+    const source = { infos: { emp: 'e', id: 'v', duree: 100 } } as never;
+    definirRegard(async () => [{ de: 0, a: 80, vu: 'menu' }]);
+    const r = await preparerRegard(source);
+    expect(r.ignore).toBe(true);
+    expect(r.zones).toEqual([]);
+    expect(messageRegard(r)).toContain('80 %');
+    definirRegard(async () => [{ de: 0, a: 12, vu: 'bureau' }]);
+    const ok = await preparerRegard(source);
+    expect(ok.zones).toHaveLength(1);
+    expect(messageRegard(ok)).toContain('1 passage');
+    definirRegard(null);
+  });
+});

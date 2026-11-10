@@ -41,7 +41,7 @@ export const vraiNom = (nom: string) => !/^voix\s*\d+$/i.test(nom.trim());
 /** Fin de l'accroche (temps de sortie), 0 s'il n'y en a pas. */
 export function finAccrocheDe(r: Recette): Sec {
   const a = (r.textes ?? []).find((t) => t.role === 'accroche');
-  return a ? a.t + a.dur : 0;
+  return a ? a.t + (a.dur ?? 0) : 0;
 }
 
 /** Temps de sortie des cartons d'ellipse (pure) : début du plan qui suit un saut ≥ 3 min, après l'accroche. */
