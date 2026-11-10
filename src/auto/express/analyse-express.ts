@@ -6,6 +6,7 @@ import { imagesReparties, mesurerVoix } from '../coupes/mesures';
 import { cadreRognage, detecterBords } from '../coupes/rognage-detection';
 import { zonesDeVoix } from '../coupes/voix';
 import { lireSignauxSource } from '../signaux-source';
+import { preparerRegard } from '../vision/regarder';
 import type { SourceOuverte } from '../../moteur/api';
 import { ErreurArko } from '../../moteur/erreurs';
 import { MEILLEUR } from '../../recette/modeles';
@@ -30,7 +31,7 @@ function enMinutes(s: Sec): string {
 
 /** Messages sur les longs passages sans son (fin d'enregistrement AFK) : jamais proposés. */
 export function avertissementsMuets(s: SignauxSource): string[] {
-  return s.muets.map((m) =>
+  return s.muets.filter((m) => !m.vu).map((m) =>
     m.sonIsole ? TA.express.afkIsole(enMinutes(m.a - m.de - m.sonIsole), enMinutes(m.sonIsole)) : s.duree - m.a < 5 ? TA.express.afk(enMinutes(m.a - m.de)) : TA.express.afkMilieu(enMinutes(m.a - m.de)),
   );
 }
@@ -57,7 +58,8 @@ async function bordsDe(source: SourceOuverte): Promise<Omit<Rognage, 'src'> | nu
 export async function analyserPourExpress(source: SourceOuverte, reglages: ReglagesExpress, options: OptionsTache = {}): Promise<AnalyseExpress> {
   const { signal, surProgression } = options;
   const p = (de: number, a: number) => (x: number, m: string) => surProgression?.(de + (a - de) * x, m);
-  const signaux = await lireSignauxSource(source, { signal, surProgression: (x) => p(0, 0.2)(x, TA.express.ecoute) });
+  await preparerRegard(source, { signal, surProgression: (x, m) => p(0, 0.05)(x, m ?? TA.express.ecoute) });
+  const signaux = await lireSignauxSource(source, { signal, surProgression: (x) => p(0.05, 0.2)(x, TA.express.ecoute) });
   if (signal?.aborted) throw new ErreurArko('Analyse annulée.', 'annule');
   const toute = { de: 0, a: source.infos.duree };
   let transcription: Transcription | null = null;

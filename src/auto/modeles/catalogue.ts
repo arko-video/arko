@@ -61,6 +61,20 @@ export const MODELES: Readonly<Record<IdModele, FicheModele>> = {
     licence: 'Apache-2.0',
     credit: 'CAM++ « common advanced » — 3D-Speaker / ModelScope (iic), licence Apache 2.0 ; conversion ONNX : sherpa-onnx (k2-fsa)',
   },
+  // 10/11/2026 : « Arko regarde l'image » (menus, bureau, chargements) — CLIP ViT-B/32, partie vision quantifiée.
+  // Essayé sur la vidéo CS2 de Romain : 12 images de jeu sur 12 gardées, 7 temps morts sur 8 trouvés.
+  vision: {
+    id: 'vision',
+    fichier: 'clip-vit-b32-vision-quantized.onnx',
+    nom: 'Regard sur l\'image',
+    nomDans: 'le regard sur l\'image',
+    role: 'Repère les menus, le bureau et les chargements pour ne garder que le jeu.',
+    url: 'https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/6b7c523703ae26e39be4b03774966f8571c7f523/onnx/vision_model_quantized.onnx',
+    octets: 89_117_001,
+    sha256: '583fd1110a514667812fee7d684952aaf82a99b959760c8d7dca7e0ab9839299',
+    licence: 'MIT',
+    credit: 'CLIP ViT-B/32 — OpenAI, licence MIT ; conversion ONNX : Xenova (transformers.js), licence MIT',
+  },
 };
 
 /**

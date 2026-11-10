@@ -19,6 +19,15 @@ describe('monteur IA : dossier', () => {
     expect(d.bibliotheque[0]!.duree).toBe(1.23);
     expect(d.gouts).toBeUndefined();
     expect(JSON.stringify(d).length).toBeLessThan(1000);
+    expect(d.zonesMortes).toBeUndefined();
+  });
+
+  it('F8 : les zones mortes vues à l\'image sont dans le dossier, et leurs phrases et réactions en sont retirées', () => {
+    const signaux = { src: 'v', duree: 60, pas: 0.02, rms: new Float32Array(0), pics: [{ ts: 12, db: -10, z: 4 }, { ts: 40, db: -10, z: 4 }], cris: [], rires: [], muets: [{ de: 0, a: 20, vu: 'bureau' as const }] };
+    const d = construireDossier({ da: 'youtube', duree: 60, dureeVisee: { min: 20, max: 40 }, mots: [...phrase(5, 'je lance le jeu'), ...phrase(30, 'on y va')], signaux });
+    expect(d.phrases.map((p) => p.texte)).toEqual(['on y va']);
+    expect(d.reactions.map((r) => r.t)).toEqual([40]);
+    expect(d.zonesMortes).toEqual([{ de: 0, a: 20, genre: 'bureau' }]);
   });
 });
 

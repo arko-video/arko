@@ -84,6 +84,22 @@ export function signauxDepuisEnveloppe(src: string, duree: Sec, pas: Sec, rms: F
 
 /** Signaux déjà lus pendant cette session (clé : empreinte de la source). */
 const deja = new Map<string, SignauxSource>();
+/** Zones mortes vues à l'image (« Arko regarde l'image »), par empreinte de source. */
+const regards = new Map<string, PlageMuette[]>();
+
+/** Les signaux avec les zones mortes vues à l'image dans `muets` (pure) : remplace celles d'avant, garde l'ordre. */
+export function avecRegard(s: SignauxSource, zones: readonly PlageMuette[]): SignauxSource {
+  const muets = [...s.muets.filter((m) => !m.vu), ...zones.filter((z) => z.a > z.de)].sort((x, y) => x.de - y.de);
+  return { ...s, muets };
+}
+
+/** Retient les zones mortes vues à l'image pour cette source (signaux déjà lus et à venir). */
+export function appliquerRegard(source: SourceOuverte, zones: readonly PlageMuette[]): void {
+  const cle = `${source.infos.emp}|${source.infos.id}`;
+  regards.set(cle, [...zones]);
+  const connu = deja.get(cle);
+  if (connu) deja.set(cle, avecRegard(connu, zones));
+}
 
 /**
  * Signaux d'une source ouverte : relit le point de reprise de l'analyse (instantané si le monteur IA ou un
@@ -100,7 +116,9 @@ export async function lireSignauxSource(source: SourceOuverte, options: OptionsT
     point = await lirePoint(emp, duree, PAS_ENVELOPPE);
   }
   if (!point?.fini) throw new ErreurArko('Je n\'ai pas pu écouter le son de ta vidéo. Réessaie.', 'analyse');
-  const s = signauxDepuisEnveloppe(id, duree, point.pas, point.enveloppe);
+  const brut = signauxDepuisEnveloppe(id, duree, point.pas, point.enveloppe);
+  const vu = regards.get(cle);
+  const s = vu ? avecRegard(brut, vu) : brut;
   deja.set(cle, s);
   return s;
 }

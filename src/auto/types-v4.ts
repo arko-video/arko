@@ -18,7 +18,7 @@ export type { ReglagesBestOf, ReglagesExpress };
 /* ================================================================== A. Petits modèles sur l'appareil (dev-vad) */
 
 /** Les modèles ONNX qu'Arko peut télécharger UNE fois (après accord), en plus de Whisper. Fiches : modeles/catalogue.ts. */
-export type IdModele = 'vad' | 'empreinte';
+export type IdModele = 'vad' | 'empreinte' | 'vision';
 
 /**
  * État d'un module pour CE Best-of : 'present' = sur l'appareil ; 'absent' = jamais téléchargé (à proposer) ;

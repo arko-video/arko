@@ -62,9 +62,8 @@ Savoir donné à l'IA : savoir-du-monteur.md.
 - [x] F2. Accroche : une réaction humaine (cri, rire) avant un simple pic de son ; jamais les 90 premières s de la
   source sauf en dernier recours (express `meilleurMoment`, Best-of v4 `choisirAccroche`) — 10/11
 - [x] F3. Persos 16:9 GRANDS comme dans les best-of YouTube (taille 0,42 de la hauteur, en bas dans les coins, x 0,13 / 0,87), demande de Romain — 10/11
-- [ ] F4. « Arko regarde l'image » : échantillonner 1 image / s en tout petit (64 × 36) pendant l'analyse
-  (worker, mediabunny), mesurer mouvement + part d'aplats / de texte ; marquer bureau, menus, chargements
-- [ ] F5. Couper ces zones mortes (ou les raccourcir à 2 s) dans les scènes ; accroche jamais dedans
-- [ ] F6. Couper le début jusqu'à la première vraie image de jeu (bureau, lanceur, OBS)
-- [ ] F7. Plus d'effets sur les vrais moments forts (zoom + texte + son sur cri / rire / gros pic EN JEU)
-- [ ] F8. Envoyer au monteur IA les zones « menu / bureau » (pour qu'il ne les choisisse pas)
+- [x] F4. « Arko regarde l'image » (10/11) : CLIP ViT-B/32 vision quantifié (89 Mo, MIT, modèle « vision » du catalogue), une image clé / 3 s recadrée en 224, comparée à 10 phrases (auto/vision/phrases-vision.json). Interrupteur « Couper les menus et chargements » (réglages express) : le cocher télécharge le modèle. Worker arko-regard, résultat gardé (IndexedDB arko.regard.<emp>). Essai CS2 : 12/12 images de jeu gardées, 7/8 temps morts trouvés (le chargement de Nuke est encore raté).
+- [x] F5. Zones mortes (≥ 2 images, ≥ 6 s, p(jeu) < 0,58) ajoutées aux passages muets (`vu`) : coupes v4, blancs, scènes, accroche les sautent ; pas de message « AFK » pour elles.
+- [x] F6. Début : le bureau / lanceur au début est une zone morte qui commence à 0 → coupé par F5.
+- [~] F7. Les effets (zooms v4, sons, punchlines) ne tombent plus dans les menus puisque ces plans n'existent plus. Reste à voir sur une vraie vidéo s'il faut en plus monter la dose sur cri / rire en jeu.
+- [x] F8. Dossier : `zonesMortes` + phrases et réactions dedans retirées ; Mon Hub `nettoyerPlan` retaille les séquences qui y entrent (test Dart écrit, pas encore lancé).

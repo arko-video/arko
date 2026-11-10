@@ -941,3 +941,12 @@ Reste à faire (demandes de Romain du 9/11), par ordre conseillé :
 2. Qui parle : upgrade (empreinte de voix d'office quand les niveaux se ressemblent) + placement des persos quand
    l'un parle (banc réel §0.3 de la passation générale).
 6. Boucle « revue du jour » → banc réel → réglages (voir `docs/revues/`).
+
+## Session du 10/11/2026 (suite) — F4 à F8 « Arko regarde l'image »
+- `src/auto/vision/` : `regard.ts` (pur : entrée CLIP, genres, zones mortes), `worker-vision.ts`, `client-vision.ts`
+  (cache IndexedDB), `regarder.ts` (branchement injectable), `phrases-vision.json`. Modèle `vision` dans le catalogue.
+- Zones mortes = `PlageMuette` avec `vu` dans `signaux.muets` (`appliquerRegard` / `avecRegard` dans signaux-source).
+  Appelé avant les signaux dans `analyserPourExpress` et `mesurerPourBestOf`.
+- UI : `ui/auto/express/regard-ui.ts` + interrupteur dans les réglages express (cocher = télécharger 89 Mo).
+- Dossier du monteur IA : `zonesMortes` ; Mon Hub `nettoyerPlan` retaille les séquences (test Dart à lancer).
+- À faire : essai réel par Romain ; F7 (dose d'effets en jeu) à juger sur une vraie vidéo ; chargement Nuke raté.

@@ -28,6 +28,7 @@ import { candidatsBibliotheque } from '../../../auto/son/musique-auto';
 import { basculerMorceau, choisirDestinationExpress, choisirMusiqueAuto, destinationExpress, DUREES_EXPRESS, fournisseurExpress, lancerExpress, reglagesExpress, reglerExpress, sourceExpress } from './etat-express';
 import { reglagesBestOf } from './etat-best-of';
 import { CarteModules } from './CarteModules';
+import { basculerRegard, etatRegard, regardActif, tailleRegardMo, TEXTES_REGARD as TR, verifierRegard } from './regard-ui';
 import { TEXTES_MUSIQUE_EXPRESS as TM } from './textes-musique';
 import { TEXTES_V4 } from './textes-v4';
 import type { ReglagesExpress } from '../../../auto/express/express';
@@ -149,6 +150,10 @@ export function EcranReglagesExpress() {
   }, [f]);
 
   if (!s) return null;
+  const er = etatRegard.value;
+  if (er.phase === 'inconnu') void verifierRegard();
+  const texteRegard = () =>
+    er.phase === 'telechargement' ? TR.telechargement(er.p) : er.phase === 'pret' ? TR.pret : er.phase === 'erreur' ? TR.erreur : TR.aTelecharger(tailleRegardMo);
   // Ma bibliothèque : le rayon Musiques d'abord.
   const musiques = mesSons.value.filter((x) => x.duree >= 8).sort((a, b) => Number(b.rayon === 'musiques') - Number(a.rayon === 'musiques'));
   const choisies = musiques.filter((x) => r.musique.includes(x.id));
@@ -246,6 +251,11 @@ export function EcranReglagesExpress() {
         <Segments titre={TX.pour} id="pour" valeurs={['youtube', 'tiktok', 'short'] as Destination[]} actif={d} nom={(v) => TX.destinations[v]} choisir={choisirDestinationExpress} />
         <ChoixStyle />
         <Segments titre={TX.dureeVisee} id="duree" valeurs={['0', '1', '2']} actif={String(iDuree)} nom={(v) => fourchette(durees[Number(v)]!)} choisir={(v) => reglerExpress({ dureeVisee: durees[Number(v)]! })} />
+        <div class="express-interrupteurs" data-testid="express-regard">
+          <Interrupteur titre={TR.titre} aide={TR.aide} coche={regardActif.value} changer={(v) => void basculerRegard(v)} id="regard">
+            {regardActif.value && <span class="petit">{texteRegard()}</span>}
+          </Interrupteur>
+        </div>
         {bestOf ? (
           <>
             <CeQuArkoFait r={r} d={r.dureeVisee} avecTextes={r.transcrire && r.punchlines} />

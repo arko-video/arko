@@ -39,6 +39,8 @@ export interface Dossier {
   gouts?: Pick<Gouts, 'n' | 'densite' | 'duree'> & { rejetes: string[]; aimes: string[] };
   /** D1 : derniers exemples « Arko a proposé → Romain a fait » (le monteur IA s'en inspire, D2). */
   exemples?: ExempleMonteur[];
+  /** F8 : menus, chargements, bureau vus à l'image (« Arko regarde l'image ») : à ne JAMAIS mettre dans le montage. */
+  zonesMortes?: { de: Sec; a: Sec; genre: 'menu' | 'chargement' | 'bureau' }[];
 }
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -94,17 +96,20 @@ export function construireDossier(e: EntreeDossier): Dossier {
         ...s.pics.map((x) => ({ t: r2(x.ts), type: 'pic' as const, force: 1 })),
       ].sort((a, b) => a.t - b.t)
     : [];
+  const vues = (s?.muets ?? []).filter((m) => m.vu);
+  const dedans = (t: Sec) => vues.some((z) => t >= z.de && t < z.a);
   const d: Dossier = {
     version: VERSION_DOSSIER,
     da: e.da,
     duree: r2(e.duree),
     dureeVisee: e.dureeVisee,
     personnes: [...(e.personnes ?? [])],
-    phrases: phrasesDe(e.mots, e.tours ?? [], s),
-    reactions,
+    phrases: phrasesDe(e.mots, e.tours ?? [], s).filter((p) => !dedans((p.de + p.a) / 2)),
+    reactions: reactions.filter((x) => !dedans(x.t)),
     scenes: (e.scenes ?? []).map((x) => ({ de: r2(x.de), a: r2(x.a), note: Math.round(x.note ?? x.score ?? 0) })),
     bibliotheque: [...(e.bibliotheque ?? [])].map((f) => ({ ...f, duree: r2(f.duree) })),
   };
+  if (vues.length > 0) d.zonesMortes = vues.map((z) => ({ de: r2(z.de), a: r2(z.a), genre: z.vu! }));
   if (e.exemples && e.exemples.length > 0) d.exemples = e.exemples.slice(0, 10);
   if (e.gouts && e.gouts.n > 0) {
     const notes = Object.entries(e.gouts.notes);

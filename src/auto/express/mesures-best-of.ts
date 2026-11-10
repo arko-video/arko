@@ -11,6 +11,7 @@
 import { imagesReparties } from '../coupes/mesures';
 import { plagesManquantes } from '../coupes/tranches';
 import { cadreRognage, detecterBords } from '../coupes/rognage-detection';
+import { preparerRegard } from '../vision/regarder';
 import { lireSignauxSource } from '../signaux-source';
 import { MODELES } from '../modeles/catalogue';
 import { mesurerSonBestOf } from '../vad/passe-son';
@@ -74,7 +75,8 @@ export async function mesurerPourBestOf(source: SourceOuverte, reg: ReglagesExpr
   const modules: ModulesBestOf = { ...o.modules };
 
   // 1. Signaux du son (enveloppe 20 ms, pics, passages muets).
-  const signaux = await lireSignauxSource(source, { signal, surProgression: (x) => part(0, PARTS.signaux)(x, TA.express.ecoute) });
+  await preparerRegard(source, { signal, surProgression: (x, m) => part(0, PARTS.signaux / 4)(x, m ?? TA.express.ecoute) });
+  const signaux = await lireSignauxSource(source, { signal, surProgression: (x) => part(PARTS.signaux / 4, PARTS.signaux)(x, TA.express.ecoute) });
   if (signal?.aborted) throw new ErreurArko('Analyse annulée.', 'annule');
 
   // 2. Une passe du son : empreintes + VAD + hauteur (une seule lecture du fichier, gardée pour la fois suivante).

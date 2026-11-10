@@ -46,6 +46,8 @@ export interface SignauxSource {
 /** Un long passage sans son. `sonIsole` : secondes de bruits isolés comprises dedans (fin AFK), jamais proposées. */
 export interface PlageMuette extends PlageTemps {
   sonIsole?: Sec;
+  /** Zone morte VUE à l'image (« Arko regarde l'image ») : menu, chargement ou bureau. Le son peut y être fort. */
+  vu?: 'menu' | 'chargement' | 'bureau';
 }
 
 /** Un morceau gardé par « Couper les blancs » : parole, son fort hors parole, ou voix détectée sans transcription. */
