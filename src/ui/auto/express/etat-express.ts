@@ -12,6 +12,9 @@ import { signalerFinTravail } from '../../fin-travail';
 import { computed, signal } from '@preact/signals';
 import { analyserPourExpress, dureeVisee } from '../../../auto/express/analyse-express';
 import { analyserPourBestOf, construireBestOf, type AnalyseBestOf, type SceneBestOf } from '../../../auto/express/best-of';
+import { poserStructureYoutube } from '../../../auto/habillage/structure-youtube';
+import { sansSonsArko } from '../../../auto/son/sans-sons-arko';
+import { ecouterMesSons } from '../son/ecoute-ui';
 import { construireMontageExpress, type AnalyseExpress, type ReglagesExpress, type RessourcesExpress } from '../../../auto/express/express';
 import { appliquerReponseExpress, consignesExpress, IA_EXPRESS, lireReponseExpress, messageExpress } from '../../../auto/express/ia-express';
 import { dureeGardee, type SceneProposee } from '../../../auto/express/scenes';
@@ -83,6 +86,26 @@ function reglagesParDefaut(d: Destination): ReglagesExpress {
 }
 
 export const reglagesExpress = signal<ReglagesExpress>(reglagesParDefaut('youtube'));
+/** Nom de la chaîne YouTube (générique et fin des best-of), gardé sur l'appareil. */
+const CLE_CHAINE = 'arko.chaine';
+export const chaineYoutube = signal<string>(
+  (() => {
+    try {
+      return localStorage.getItem(CLE_CHAINE) ?? '';
+    } catch {
+      return '';
+    }
+  })(),
+);
+export function reglerChaine(nom: string) {
+  chaineYoutube.value = nom.slice(0, 40);
+  try {
+    localStorage.setItem(CLE_CHAINE, chaineYoutube.peek());
+  } catch {
+    /* rien */
+  }
+}
+
 export function reglerExpress(p: Partial<ReglagesExpress>) {
   reglagesExpress.value = { ...reglagesExpress.peek(), ...p };
 }
@@ -203,6 +226,8 @@ export async function lancerExpress() {
   try {
     const reg = reglagesAvecGouts(reglagesExpress.peek(), gouts.peek());
     const bestOf = enBestOf();
+    // « Arko écoute tes sons » : les sons ajoutés depuis la dernière fois sont écoutés avant de choisir les effets.
+    await ecouterMesSons();
     const o = { signal: c.signal, surProgression: (p: number, message: string) => controleur === c && (etatExpress.value = { phase: 'encours', p, message: message || TA.express.scenes }) };
     // Best-of : qui parle sur les pistes gardées de la vidéo (si le montage d'où l'on vient en a choisi).
     const r0 = recette.peek();
@@ -305,7 +330,8 @@ export async function monterExpress() {
     demarrerProjet(source, { ...recetteInitiale(source, destinationExpress.peek()), titre: (bestOf ? TV.bestOf.titreProjet : TA.express.titreProjet)(nom) });
     idCourant.value = null;
     const journalPlan: string[] = [];
-    const construire = (r: Recette, res: RessourcesExpress) =>
+    const construire = (r: Recette, res: RessourcesExpress) => sansSonsArko(poserStructureYoutube(construireSans(r, res), { chaine: chaineYoutube.peek() }));
+    const construireSans = (r: Recette, res: RessourcesExpress) =>
       avecPlan
         ? ((x) => (journalPlan.splice(0, journalPlan.length, ...x.journal), x.recette))(appliquerPlan(r, a, planIA, reg, { ...res, ...choixVoix() }))
         : bestOf ? construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(res)) : construireMontageExpress(r, a, scenes, reg, { ...res, ...choixVoix() }, { transitions: gouts.peek().densite.transitions >= 0.5, facteurPunchlines: gouts.peek().densite.punchlines, ...(gouts.peek().marges ? { marges: gouts.peek().marges } : {}) });

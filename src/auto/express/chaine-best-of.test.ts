@@ -222,7 +222,7 @@ describe('Best-of v4 : revue et montage', () => {
     const r = monterChaine(depart(), a, revue, reg, bestOf, { piste: { morceaux: [{ src: 'a1', t: 0 }] }, sources: [MUSIQUE] });
     expect(r.plans.length).toBeGreaterThan(2);
     expect(r.blancs?.niveau).toBe('normal');
-    expect(r.volumeFinal).toEqual({ lufs: -14, crete: -1.5 });
+    expect(r.volumeFinal).toEqual({ lufs: -13, crete: -1.5 });
     expect(r.musique?.morceaux.length).toBe(1);
     // Morceau choisi à la main : il baisse aussi sur la parole (même la voix faible), comme la musique automatique.
     expect(r.musique?.baisseSur).toBe('parole');

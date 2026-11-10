@@ -75,6 +75,20 @@ export const MODELES: Readonly<Record<IdModele, FicheModele>> = {
     licence: 'MIT',
     credit: 'CLIP ViT-B/32 — OpenAI, licence MIT ; conversion ONNX : Xenova (transformers.js), licence MIT',
   },
+  // 10/11/2026 : « Arko écoute tes sons » — CLAP (LAION, HTSAT unfused), partie audio quantifiée. Range chaque son de Ma
+  // bibliothèque (whoosh, pop, impact, rire, fail…) quand son nom ne dit rien. Essai : 32 sons de Romain sur 48.
+  ecoute: {
+    id: 'ecoute',
+    fichier: 'clap-htsat-unfused-audio-quantized.onnx',
+    nom: 'Écoute des sons',
+    nomDans: 'l\'écoute des sons',
+    role: 'Écoute tes sons pour savoir lequel mettre où (whoosh, pop, impact, rire, fail…).',
+    url: 'https://huggingface.co/Xenova/clap-htsat-unfused/resolve/c28f2883575e590e04d3146ff0713c2448d691ba/onnx/audio_model_quantized.onnx',
+    octets: 34_301_667,
+    sha256: '3fcff2c8824e7bcb83a983f2a49edab3b60cbcf4872ac70efee517355173bd1f',
+    licence: 'Apache-2.0',
+    credit: 'CLAP HTSAT unfused — LAION, licence Apache 2.0 ; conversion ONNX : Xenova (transformers.js)',
+  },
 };
 
 /**

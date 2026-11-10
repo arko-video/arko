@@ -15,7 +15,7 @@ export const FAMILLES: readonly Famille[] = ['bruitages', 'accents', 'memes', 'z
 export interface Empreinte {
   duree: Sec;
   /** Éléments posés, en temps de sortie, avec leur nom stable (nom du fichier, ou id du son d'Arko). */
-  elements: { f: Famille; t: Sec; nom: string; auto: boolean }[];
+  elements: { f: Famille; t: Sec; nom: string; auto: boolean; pour?: string }[];
   /** E3 : morceaux gardés (temps SOURCE), pour apprendre les marges avant / après les mots. */
   plans?: { de: Sec; a: Sec }[];
 }
@@ -51,7 +51,7 @@ export function empreinteDe(r: Recette): Empreinte {
   for (const p of sc.sons) {
     const role = p.element.role;
     if (role === 'section') continue;
-    el.push({ f: role === 'accent' ? 'accents' : 'bruitages', t: p.t, nom: nomSource(p.element.id), auto: role === 'bruitage' || role === 'accent' });
+    el.push({ f: role === 'accent' ? 'accents' : 'bruitages', t: p.t, nom: nomSource(p.element.id), auto: role === 'bruitage' || role === 'accent', ...(p.element.pour ? { pour: p.element.pour } : {}) });
   }
   for (const i of r.incrustations ?? []) el.push({ f: 'memes', t: i.t, nom: nomSource(i.src), auto: true });
   for (const z of sc.zooms) el.push({ f: 'zooms', t: z.t, nom: 'zoom', auto: true });
@@ -90,9 +90,9 @@ export function comparer(auto: Empreinte, fin: Empreinte): Observation {
     const k = restants.findIndex((x) => x.f === e.f && x.nom === e.nom && (pres(x.t, e.t) || (e.f !== 'punchlines' && x.t <= e.t + 0.5 && x.t >= e.t + decalage - 0.5)));
     if (k >= 0) {
       par[e.f].gardes++;
-      if (e.f === 'bruitages' || e.f === 'accents' || e.f === 'memes') aimes.push(e.nom);
+      if (e.f === 'bruitages' || e.f === 'accents' || e.f === 'memes') aimes.push(e.nom, ...(e.pour ? [cleMoment(e.nom, e.pour)] : []));
       restants.splice(k, 1);
-    } else if (e.f === 'bruitages' || e.f === 'accents' || e.f === 'memes') retires.push(e.nom);
+    } else if (e.f === 'bruitages' || e.f === 'accents' || e.f === 'memes') retires.push(e.pour ? cleMoment(e.nom, e.pour) : e.nom);
   }
   // Ce qui reste dans la version finale et n'était pas dans l'auto : ajouté à la main.
   for (const x of restants) {
@@ -145,14 +145,26 @@ export function apprendre(g: Gouts, o: Observation): Gouts {
   return { version: 1, n: g.n + 1, densite, duree, notes, ...(marges.avant !== 0 || marges.apres !== 0 ? { marges } : {}) };
 }
 
-/** Un son / clip que l'utilisateur a retiré 2 fois de plus qu'il ne l'a gardé : plus jamais proposé tout seul. */
-export function rejete(g: Gouts, nom: string): boolean {
-  return (g.notes[cleNom(nom)] ?? 0) <= -2;
+/**
+ * Clé « son pour un genre de moment » (10/11/2026, Romain : apprendre QUEL son va OÙ). Un son retiré d'un whoosh
+ * baisse seulement sa note « pour whoosh » : il reste proposé ailleurs (impact, rire…).
+ */
+export function cleMoment(nom: string, pour: string): string {
+  return `${cleNom(nom)}@${pour}`;
 }
 
-/** Bonus de choix d'un son / clip aimé (0 à 5). */
-export function bonus(g: Gouts, nom: string): number {
-  return Math.max(0, g.notes[cleNom(nom)] ?? 0);
+/**
+ * Un son / clip que l'utilisateur a retiré 2 fois de plus qu'il ne l'a gardé : plus jamais proposé tout seul. Avec
+ * `pour` (genre de moment) : retiré UNE fois pour ce genre suffit à ne plus le proposer pour lui.
+ */
+export function rejete(g: Gouts, nom: string, pour?: string): boolean {
+  if ((g.notes[cleNom(nom)] ?? 0) <= -2) return true;
+  return pour !== undefined && (g.notes[cleMoment(nom, pour)] ?? 0) <= -1;
+}
+
+/** Bonus de choix d'un son / clip aimé (0 à 5 ; + 0 à 5 s'il a été gardé pour ce genre de moment). */
+export function bonus(g: Gouts, nom: string, pour?: string): number {
+  return Math.max(0, g.notes[cleNom(nom)] ?? 0) + (pour === undefined ? 0 : Math.max(0, g.notes[cleMoment(nom, pour)] ?? 0));
 }
 
 /** Relit des goûts gardés (texte JSON) ; illisible → goûts de départ. */
@@ -184,7 +196,9 @@ export function resumeGouts(g: Gouts): string[] {
   if (g.marges && (Math.abs(g.marges.avant) >= 0.05 || Math.abs(g.marges.apres) >= 0.05)) res.push(`Coupes : ${g.marges.avant >= 0 ? '+' : ''}${g.marges.avant.toFixed(2)} s avant les mots, ${g.marges.apres >= 0 ? '+' : ''}${g.marges.apres.toFixed(2)} s après`);
   if (g.duree <= 0.9) res.push(`Montages plus courts (×${g.duree.toFixed(2)})`);
   else if (g.duree >= 1.1) res.push(`Montages plus longs (×${g.duree.toFixed(2)})`);
-  const rejetes = Object.entries(g.notes).filter(([, v]) => v <= -2).map(([k]) => k);
+  const rejetes = Object.entries(g.notes).filter(([k, v]) => !k.includes('@') && v <= -2).map(([k]) => k);
+  const deplaces = Object.entries(g.notes).filter(([k, v]) => k.includes('@') && v <= -1).length;
+  if (deplaces > 0) res.push(`${deplaces} son${deplaces > 1 ? 's' : ''} retiré${deplaces > 1 ? 's' : ''} d'un genre de moment : plus proposé${deplaces > 1 ? 's' : ''} pour lui, encore ailleurs`);
   if (rejetes.length > 0) res.push(`${rejetes.length} son${rejetes.length > 1 ? 's' : ''} ou clip${rejetes.length > 1 ? 's' : ''} que tu retires toujours : plus proposé${rejetes.length > 1 ? 's' : ''}`);
   return res;
 }

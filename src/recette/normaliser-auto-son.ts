@@ -8,10 +8,16 @@ import type { MorceauMusique, PisteMusique, Sec, Son, VolumeFinal } from './type
 /** Bruitage coupé : durée jouée 0,1 à 10 s, fondu de sortie 0,3 s par défaut. */
 export const SON_AUTO = { durMin: 0.1, durMax: 10, fondu: 0.3, fonduMax: 2 };
 /** Clés d'un son ajoutées par le Montage auto (à accepter dans normaliserSons). */
-export const CLES_SON_AUTO = ['role', 'dur', 'fondu'] as const;
+export const CLES_SON_AUTO = ['role', 'dur', 'fondu', 'pour'] as const;
 /** Musique : −17 dB ≈ 0,14 ; fondus 1,2 s / 1,5 s ; 20 morceaux au plus. */
 export const MUSIQUE = { vol: 0.14, volMin: 0, volMax: 1, fonduEntree: 1.2, fonduSortie: 1.5, fonduMax: 10, morceauxMax: 20 };
 /** Volume final (YouTube et TikTok). */
+/**
+ * Volume visé des montages automatiques (10/11/2026) : −13 LUFS, comme le best-of modèle de Romain (mesuré −12,9) ;
+ * l'export d'Arko sortait à −15 avec −14 visé, la vidéo semblait faible à côté des autres.
+ */
+export const LUFS_MONTAGE = -13;
+
 export const VOLUME_FINAL = { lufs: -14, crete: -1.5, lufsMin: -30, lufsMax: -6, creteMin: -6, creteMax: -0.1 };
 
 /** Champs auto d'un son (seulement ceux présents et valides). */
@@ -20,6 +26,7 @@ export function normaliserSonAuto(b: Objet, ch: string, journal: Journal): Parti
   if (b.role === 'bruitage' || b.role === 'section' || b.role === 'accent') res.role = b.role;
   else if (b.role !== undefined) journal.ignore(`${ch}.role`, `Le rôle "${String(b.role)}" est inconnu : ignoré.`);
   if (b.dur !== undefined && b.dur !== null) res.dur = lireNombre(b.dur, `${ch}.dur`, journal, { defaut: SON_AUTO.durMax, min: SON_AUTO.durMin, max: SON_AUTO.durMax, nom: 'la durée du son' });
+  if (typeof b.pour === 'string' && /^[a-z]{2,20}$/.test(b.pour)) res.pour = b.pour;
   if (b.fondu !== undefined && b.fondu !== null) res.fondu = lireNombre(b.fondu, `${ch}.fondu`, journal, { defaut: SON_AUTO.fondu, min: 0, max: SON_AUTO.fonduMax, nom: 'le fondu du son' });
   return res;
 }

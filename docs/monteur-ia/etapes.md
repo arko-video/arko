@@ -67,3 +67,42 @@ Savoir donné à l'IA : savoir-du-monteur.md.
 - [x] F6. Début : le bureau / lanceur au début est une zone morte qui commence à 0 → coupé par F5.
 - [~] F7. Les effets (zooms v4, sons, punchlines) ne tombent plus dans les menus puisque ces plans n'existent plus. Reste à voir sur une vraie vidéo s'il faut en plus monter la dose sur cri / rire en jeu.
 - [x] F8. Dossier : `zonesMortes` + phrases et réactions dedans retirées ; Mon Hub `nettoyerPlan` retaille les séquences qui y entrent (test Dart écrit, pas encore lancé).
+
+## G. Montage « comme la référence » (10/11, vidéo modèle de Romain : best-of CS2 façon Laink et Terracid, 15 min)
+Mesures : référence 15:17, un plan / 4,7 s, −12,9 LUFS, écart 8,1 LU ; Arko 6:45, un plan / 4,8 s, −15,0 LUFS, écart 4,0 LU.
+Rien de la référence n'est copié dans le dépôt (ni persos, ni logo, ni jingle) : on imite la FORME avec les persos et sons de Romain.
+Structure
+- [x] G1. Cold open (= l'accroche, déjà en place ; le générique vient APRÈS elle) — : 3–6 s de la meilleure action AVANT le générique
+- [x] G2 (10/11, structure-youtube.ts). Générique : carton au nom de la chaîne (case « Nom de ta chaîne » des réglages, gardée sur l'appareil) + chaque perso 0,7 s sur un fond coloré ; jingle PAS encore — : carte titre (titre de Romain) + ses persos qui défilent, jingle pris dans SA bibliothèque
+- [ ] G3. Pas faisable seul : le plateau de la référence est une voix off enregistrée à part (à enregistrer par Romain, Arko pourra la poser sur fond + persos) « Plateau » : fond uni coloré + persos en grand quand on parle hors jeu (début, explication du concept)
+- [x] G4. Cartons « QUELQUES MINUTES PLUS TARD » (saut ≥ 3 min, 4 au plus) — d'ellipse « Quelques minutes plus tard » quand une coupe saute plusieurs minutes
+- [~] G5. Fin « Abonne-toi » (outro modèle « abonne ») ; cercle noir PAS fait — : fond + persos + « abonne-toi », fermeture en cercle noir (iris)
+Persos
+- [x] G6. Mode d'avatars « reactions » d'office (express, best-of, v4) : réactions ≤ 4 s, rappel 2 s après 15 s sans perso — Persos seulement quand ils parlent (apparition / disparition en « pop »), pas posés tout le temps
+- [~] G7. Les poses suivent déjà l'émotion et la situation de chaque tour (24 émotions, situations) ; « manche gagnée » vue à l'image : CLIP essayé, PAS fiable (confond avec les cartons titres) — Pose selon le moment : bras levés (manche gagnée), main sur le visage (raté), doigt pointé, à deux collés
+- [x] G8. Tête géante au centre + image assombrie 1,4 s (hurle, mort de rire, rage, choqué, victoire, pleure), une fois / 45 s — Réaction XXL : tête énorme au centre, image assombrie, 1 à 2 s
+- [x] G9. Carte « nom » (bandeau jaune) à côté du perso à sa 1re apparition après le générique, seulement pour un vrai prénom (cartesNoms) — Plus de 2 personnes + carte « nom » quand un invité arrive
+- [x] G10. Générique : chaque perso déguisé (pirate, cowboy, astronaute, sorcier) — Variantes / costumes des persos (générique, gags)
+Texte, inserts
+- [x] G11. YouTube : 2 punchlines / min au plus, les plus fortes, 18 s d'écart (garderMeilleuresPunchlines) — Sous-titres SEULEMENT sur les punchlines (gros, jaunes, 1–2 / min), pas toute la parole
+- [ ] G12. Inserts courts plein écran (meme, objet qui parle, image ajoutée par Romain)
+- [ ] G13. Schéma simple sur fond uni quand on explique (plus tard, difficile)
+Coupe
+- [x] G14. Zones mortes : ±6/4 s autour d'un rire ou d'un cri rendus au montage (zonesSansReactions) — Menus : couper les menus MUETS, garder un menu quand on y dit un truc drôle (inventaire, caisse, vote)
+- [~] G15. Déjà réglable : « Coupe : Serré » enlève les marches silencieuses — Dans le jeu : couper les marches silencieuses entre deux actions
+Son
+- [~] G16. Volume des montages −13 LUFS (LUFS_MONTAGE) ; contraste PAS fait — Volume final −13 LUFS, plus de contraste (réactions fortes, calme plus bas)
+- [x] G17. Accents : whoosh à chaque carton / perso du générique, impact sur la tête géante, pop quand un perso surgit (Mes sons d'abord) ; jingle propre PAS fait — Petit son « pop » à chaque apparition de perso, jingle aux transitions
+IA
+- [ ] G18. (CLIP essayé le 10/11 sur la référence : bannières non reconnues ; piste suivante : repère de la bannière CS2 à sa place fixe) CLIP (déjà là) : repérer « MANCHE GAGNÉE / PERDUE / DÉFAITE », kill, lunette → déclencheurs de poses (G7)
+- [ ] G19. Monteur IA (Mon Hub) : choisir les punchlines (G11), le texte du générique et des cartons
+
+## H. Arko écoute tes sons (10/11)
+- [x] H1. CLAP (LAION, audio quantifié 34 Mo, Apache 2.0, modèle « ecoute ») ; préparation du son identique à transformers
+  (test sur un sinus) ; 9 genres (whoosh, pop, impact, rire, fail, victoire, cri, parole, suspense), phrases-sons.json.
+  Essai sur 48 sons de Romain : 32 bien rangés (impacts 7/8, rires 4/5, cris 4/4, fails 4/6, victoires 5/6 ; whoosh 2/5, pops 4/7).
+- [x] H2. Interrupteur « Arko écoute mes sons » (réglages du montage) : télécharge, puis écoute les sons ≤ 15 s pas encore
+  écoutés (fiche du son : `ecoute`). Les nouveaux sons sont écoutés au lancement du montage suivant.
+- [x] H3. Choix : le NOM d'abord, puis ce qui est entendu (accents : 5 points, bruitages : 50 points).
+- [x] H4. Dossier du monteur IA : `ecoute` par son ; Mon Hub l'affiche entre crochets et l'enlève s'il est recopié.
+- [x] H5. Apprendre PAR GENRE DE MOMENT : chaque son posé garde `pour` (whoosh / pop / impact, ou la catégorie du bruitage) ; retiré UNE fois pour ce genre → plus proposé pour lui (`cleMoment`, `rejete(g, nom, pour)`), encore ailleurs ; gardé → bonus pour ce genre. Le dossier du monteur IA le dit (« X (pas pour whoosh) »).

@@ -24,6 +24,8 @@ export interface FichierDossier {
   nom: string;
   duree: Sec;
   rayon: 'bruitages' | 'musiques' | 'memes' | 'fondsVerts';
+  /** Ce qu'Arko a entendu dans le son (« Arko écoute tes sons ») : whoosh, pop, impact, rire, fail… */
+  ecoute?: string;
 }
 
 export interface Dossier {
@@ -113,7 +115,7 @@ export function construireDossier(e: EntreeDossier): Dossier {
   if (e.exemples && e.exemples.length > 0) d.exemples = e.exemples.slice(0, 10);
   if (e.gouts && e.gouts.n > 0) {
     const notes = Object.entries(e.gouts.notes);
-    d.gouts = { n: e.gouts.n, densite: e.gouts.densite, duree: e.gouts.duree, rejetes: notes.filter(([, v]) => v <= -2).map(([k]) => k), aimes: notes.filter(([, v]) => v >= 2).map(([k]) => k) };
+    d.gouts = { n: e.gouts.n, densite: e.gouts.densite, duree: e.gouts.duree, rejetes: notes.filter(([k, v]) => (k.includes('@') ? v <= -1 : v <= -2)).map(([k]) => (k.includes('@') ? `${k.replace('@', ' (pas pour ')})` : k)), aimes: notes.filter(([, v]) => v >= 2).map(([k]) => k) };
   }
   return d;
 }

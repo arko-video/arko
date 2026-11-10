@@ -365,7 +365,8 @@
         "mode": {
           "enum": [
             "parle",
-            "toujours"
+            "toujours",
+            "reactions"
           ]
         },
         "rebond": {
@@ -1001,6 +1002,11 @@
           "minimum": 0,
           "maximum": 2,
           "default": 0.3
+        },
+        "pour": {
+          "type": "string",
+          "pattern": "^[a-z]{2,20}$",
+          "description": "Pour quel genre de moment Arko l'a posé (whoosh, pop, impact, rire, rate…) : sert à apprendre."
         }
       }
     },

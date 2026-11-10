@@ -2,6 +2,7 @@
 // (recherche floue, sons/recherche.ts) avec les mots clés de la catégorie ; sinon un son d'Arko (CC0, fabriqué par le code).
 
 import type { MonSon } from '../../stockage/mes-sons';
+import { entenduPour } from './ecoute';
 import { sansAccents, score } from '../../sons/recherche';
 import type { CategorieBruitage } from './declencheurs';
 
@@ -99,6 +100,9 @@ export function sonsPossibles(categorie: CategorieBruitage, mesSons: readonly Mo
       if (sc > 0) res.push({ s, note: (MOTS_CLES_CATEGORIES[categorie].length - rang) * 100 + sc });
     }
   });
+  // « Arko écoute tes sons » : un son dont le NOM ne dit rien mais qu'Arko a entendu comme allant ici (50 points :
+  // toujours après les sons trouvés par leur nom, qui ont 100 points et plus).
+  for (const s of courts) if (!res.some((x) => x.s.id === s.id) && entenduPour(s.ecoute, { categorie })) res.push({ s, note: 50 });
   const vus = new Set<string>();
   return res
     .sort((a, b) => b.note - a.note)

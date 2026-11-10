@@ -5,9 +5,11 @@
 // Règles : discrets (−8 dB, 1,2 s au plus, fondu court), 2,5 s d'écart au moins, 10 par minute au plus, jamais à
 // moins d'1 s d'un son déjà posé (bruitage, mème) ni pendant l'accroche si on le demande.
 
+import { placerAvatars, placesDeReaction } from '../../moteur/couches/avatars';
 import { compiler, sortiesDe } from '../../recette/chronologie';
 import type { Recette, Sec } from '../../recette/types';
 import { scoreFlou } from './choix-son';
+import { entenduPour } from './ecoute';
 
 export type FamilleAccent = 'whoosh' | 'pop' | 'impact';
 
@@ -28,6 +30,8 @@ export interface SonAccent {
   nom: string;
   etiquette: string;
   duree: Sec;
+  /** « Arko écoute tes sons » : ce qu'Arko a entendu (absent / null = pas écouté ou pas sûr). */
+  ecoute?: string | null;
 }
 
 /** Les sons de Mes sons d'une famille, du meilleur au moins bon (courts seulement : 3 s au plus). */
@@ -41,6 +45,8 @@ export function sonsAccent(f: FamilleAccent, sons: readonly SonAccent[]): SonAcc
         const sc = scoreFlou(s, c);
         if (sc > 0) note = Math.max(note, (cles.length - rang) * 10 + sc);
       });
+      // Le NOM d'abord (10 points et plus) ; sinon ce qu'Arko a entendu (5 points).
+      if (note === 0 && entenduPour(s.ecoute, { accent: f })) note = 5;
       return { s, note: note - (s.duree > 1.5 ? 3 : 0) };
     })
     .filter((x) => x.note > 0)
@@ -51,7 +57,7 @@ export function sonsAccent(f: FamilleAccent, sons: readonly SonAccent[]): SonAcc
 export interface Accent {
   t: Sec;
   famille: FamilleAccent;
-  pourquoi: 'transition' | 'punchline' | 'zoom';
+  pourquoi: 'transition' | 'punchline' | 'zoom' | 'carton' | 'reaction' | 'geant';
 }
 
 /** Où mettre des accents dans le montage (temps de sortie), triés. `apres` : rien avant (fin de l'accroche). */
@@ -64,6 +70,12 @@ export function proposerAccents(r: Recette, o: { apres?: Sec; facteur?: number }
   for (const p of sc.plans) {
     if (p.trans && p.t0 > 0) bruts.push({ t: Math.max(0, p.t0 - ACCENTS.avance), famille: 'whoosh', pourquoi: 'transition', rang: 0 });
     if (p.zoomFixe && p.zoomFixe.force >= ACCENTS.zoomFort && !p.ins) bruts.push({ t: p.t0, famille: 'impact', pourquoi: 'zoom', rang: 1 });
+  }
+  // 10/11 (best-of modèle) : whoosh à l'entrée d'un carton / perso du générique, IMPACT sur une tête géante,
+  // POP quand un perso surgit sur une réaction (mode « réactions »).
+  for (const p of sc.plans) if (p.ins && (p.ins.type === 'carton' || p.ins.type === 'chibi')) bruts.push({ t: p.t0, famille: 'whoosh', pourquoi: 'carton', rang: 0 });
+  if (r.avatars?.mode === 'reactions' && r.personnes?.length && r.paroles?.length) {
+    for (const pl of placesDeReaction(placerAvatars(r, sc))) bruts.push(pl.xxl ? { t: pl.t0, famille: 'impact', pourquoi: 'geant', rang: 0 } : { t: pl.t0, famille: 'pop', pourquoi: 'reaction', rang: 3 });
   }
   for (const z of sc.zooms) if ((z.element.force ?? 0) >= ACCENTS.zoomFort || z.element.style === 'punch') bruts.push({ t: z.t, famille: 'impact', pourquoi: 'zoom', rang: 1 });
   const src = r.sousTitres?.src ?? r.sources.find((s) => s.type === 'video')?.id;

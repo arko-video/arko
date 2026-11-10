@@ -28,6 +28,8 @@ export interface AvatarPlace {
   /** Temps source au début du placement (pour lire les bits de bouche). */
   ts0: Sec;
   vit: number;
+  /** Mode « réactions » : tête géante au centre au début de ce placement. */
+  xxl?: boolean;
 }
 
 /** Ce qu'il faut dessiner au temps t pour une personne. */
@@ -42,12 +44,64 @@ export interface AvatarVisible {
   /** Échelle d'apparition / disparition (0 à 1,08) et décalage vertical du rebond (part de la hauteur du chibi). */
   echelle: number;
   saut: number;
+  /** Tête géante au centre (mode « réactions ») : l'image est assombrie derrière. */
+  xxl?: boolean;
 }
 
 export const ANIMATION_AVATAR = { pop: 0.12, depop: 0.15, rebond: 0.25, hauteurRebond: 0.06, echelleMax: 1.08 } as const;
 /** Moment du sommet de l'apparition (échelle 1,08) et petit saut quand la bouche s'ouvre. */
 export const POP_SOMMET = 0.08;
 export const SAUT_BOUCHE = 0.015;
+
+/**
+ * Mode « réactions » (10/11/2026, d'après le best-of modèle de Romain : les persos surgissent sur les réactions et ne
+ * restent pas posés tout le long). Une réaction = un tour avec une vraie émotion ou une situation de jeu.
+ */
+export const REACTIONS = {
+  /** Une réaction reste visible au plus `dureeMax` s. */
+  dureeMax: 4,
+  /** Sans réaction depuis `rappel` s, le prochain tour montre son perso `dureeRappel` s (on sait qui parle). */
+  rappel: 15,
+  dureeRappel: 2,
+  /** Tête géante au centre : seulement ces émotions, `dureeXxl` s, une fois toutes les `ecartXxl` s au plus. */
+  emosXxl: ['hurle', 'mortDeRire', 'rage', 'choque', 'victoire', 'pleure'] as readonly Emotion[],
+  dureeXxl: 1.4,
+  ecartXxl: 45,
+  placeXxl: { x: 0.5, y: 1.04, taille: 0.92 } as PlaceAvatar,
+  /** Assombrissement de l'image derrière la tête géante. */
+  sombreXxl: 0.45,
+} as const;
+
+/** Placements retenus en mode « réactions » (pure, triés) : réactions (bornées), rappels, têtes géantes marquées. */
+export function placesDeReaction(places: readonly AvatarPlace[]): AvatarPlace[] {
+  const R = REACTIONS;
+  const res: AvatarPlace[] = [];
+  let finVue = -Infinity;
+  let dernierXxl = -Infinity;
+  for (const pl of [...places].sort((a, b) => a.t0 - b.t0)) {
+    const emo = pl.tour.emo;
+    const fort = (emo !== undefined && emo !== 'parle') || (pl.tour.sit !== undefined && pl.tour.sit !== 'aucune');
+    if (fort) {
+      const xxl = emo !== undefined && R.emosXxl.includes(emo) && pl.t0 - dernierXxl >= R.ecartXxl;
+      if (xxl) dernierXxl = pl.t0;
+      const t1 = Math.min(pl.t1, pl.t0 + R.dureeMax);
+      res.push({ ...pl, t1, ...(xxl ? { xxl: true } : {}) });
+      finVue = Math.max(finVue, t1);
+    } else if (pl.t0 - finVue >= R.rappel) {
+      const t1 = Math.min(pl.t1, pl.t0 + R.dureeRappel);
+      res.push({ ...pl, t1 });
+      finVue = t1;
+    }
+  }
+  return res;
+}
+
+const REACTIONS_CACHE = new WeakMap<readonly AvatarPlace[], AvatarPlace[]>();
+function reactionsDe(places: readonly AvatarPlace[]): AvatarPlace[] {
+  let r = REACTIONS_CACHE.get(places);
+  if (!r) REACTIONS_CACHE.set(places, (r = placesDeReaction(places)));
+  return r;
+}
 
 /**
  * Place par défaut de la voix de rang `rang` parmi `n` voix (placement des persos de qui parle : places-persos.ts).
@@ -172,7 +226,7 @@ export function avatarsAuTemps(recette: Recette, places: readonly AvatarPlace[],
   const tenue = reglages.tenue ?? AVATARS.tenue;
   const toujours = reglages.mode === 'toujours';
   const rebond = reglages.rebond !== false;
-  const index = momentsDe(places, tenue);
+  const index = momentsDe(reglages.mode === 'reactions' ? reactionsDe(places) : places, tenue);
   const res: AvatarVisible[] = [];
   avecAvatar(recette).forEach((pers, rang) => {
     const liste = index.get(pers.id);
@@ -207,8 +261,10 @@ export function avatarsAuTemps(recette: Recette, places: readonly AvatarPlace[],
     const sit = repos ? undefined : pl.tour.sit;
     const emo: Emotion = repos ? 'parle' : emotionAvecSituation(pl.tour.emo, sit);
     const chibi = chibiDe(pers, reglages.style);
-    const v: AvatarVisible = { p: pers.id, chibi, emo, bouche, place: ou.get(pers.id) ?? placeParDefaut(rang, gab), echelle, saut };
+    const xxl = pl.xxl === true && t - pl.t0 < REACTIONS.dureeXxl;
+    const v: AvatarVisible = { p: pers.id, chibi, emo, bouche, place: xxl ? REACTIONS.placeXxl : (ou.get(pers.id) ?? placeParDefaut(rang, gab)), echelle, saut };
     if (sit) v.sit = sit;
+    if (xxl) v.xxl = true;
     res.push(v);
   });
   return res;
@@ -248,7 +304,15 @@ function motsDe(recette: Recette): readonly Mot[] | undefined {
 
 /** Dessine les avatars visibles (pure côté calcul ; le dessin passe par le cache d'images des chibis). */
 export function dessinerAvatars(ctx: Ctx2D, visibles: readonly AvatarVisible[], t: Sec, env: Env) {
-  for (const v of visibles) {
+  const geant = visibles.find((v) => v.xxl && v.echelle > 0);
+  if (geant) {
+    ctx.save();
+    ctx.fillStyle = `rgba(0,0,0,${REACTIONS.sombreXxl * Math.min(1, geant.echelle)})`;
+    ctx.fillRect(0, 0, env.l, env.h);
+    ctx.restore();
+  }
+  // La tête géante passe devant les autres.
+  for (const v of [...visibles].sort((a, b) => Number(a.xxl === true) - Number(b.xxl === true))) {
     if (v.echelle <= 0) continue;
     const h = v.place.taille * env.h;
     const cadre = { x: v.place.x * env.l, y: v.place.y * env.h - v.saut * h, h };

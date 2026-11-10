@@ -211,6 +211,7 @@ export {
   lireMonSon,
   modifierMonSon,
   nomDepuisFichier,
+  noterEcoute,
   supprimerMonSon,
   type MonSon,
 } from '../stockage/mes-sons';

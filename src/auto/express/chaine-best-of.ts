@@ -31,7 +31,7 @@ import { DUREE_INITIALE, recetteVide, SOUS_TITRES, ySousTitres } from '../../rec
 import { gabarit, gabaritDe, type Destination } from '../../recette/destination';
 import { MEILLEUR } from '../../recette/modeles';
 import { normaliser } from '../../recette/normaliser';
-import { VOLUME_FINAL } from '../../recette/normaliser-auto-son';
+import { LUFS_MONTAGE, VOLUME_FINAL } from '../../recette/normaliser-auto-son';
 import { choisirBips, choisirVolumeFinal, couperLesBlancs, definirMusique, definirPassages, definirSousTitres, rognerSource } from '../../recette/operations';
 import type { Mot, Recette, Sec, Source } from '../../recette/types';
 import { TAILLE_MODULE } from '../../sous-titres/config';
@@ -455,7 +455,7 @@ export function poserMusique(r0: Recette, musique: MusiquePrete | null): Recette
           .filter((m, i) => i === 0 || m.t > debut + 0.01);
     r = definirMusique(r, { ...musique.piste, baisseSur: 'parole', morceaux }, musique.sources);
   }
-  return choisirVolumeFinal(r, { lufs: VOLUME_FINAL.lufs, crete: VOLUME_FINAL.crete });
+  return choisirVolumeFinal(r, { lufs: LUFS_MONTAGE, crete: VOLUME_FINAL.crete });
 }
 
 /** Tout le montage d'un coup (banc, tests) : monterSansMusique puis poserMusique. */

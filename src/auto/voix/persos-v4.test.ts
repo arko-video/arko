@@ -161,7 +161,7 @@ describe('poserPersosV4', () => {
   it('un perso par voix, avatars de la DA (parle, rebond, tenue 0,35 s), émotion PAR PHRASE', () => {
     const r = poserPersosV4(recette(), entree());
     expect(r.personnes!.map((p) => [p.id, p.nom])).toEqual([['p1', 'Guts'], ['p2', 'Romain']]);
-    expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 0.35 });
+    expect(r.avatars).toEqual({ mode: 'reactions', rebond: true, tenue: 0.35 });
     const p1 = r.paroles!.filter((t) => t.p === 'p1');
     expect(p1.length).toBeGreaterThanOrEqual(3); // « … château. » | « regarde ici » | le tour du jeu
     const romain = r.paroles!.filter((t) => t.p === 'p2');
@@ -180,7 +180,9 @@ describe('poserPersosV4', () => {
   });
 
   it('p1 (la voix forte) à gauche, p2 à droite ; visible 0,1 s avant, jusqu\'à 0,35 s après, puis plus', () => {
-    const r = poserPersosV4(recette(), entree());
+    // Mode « quand la personne parle » (le mode « réactions » d'office est vérifié dans avatars.test.ts).
+    const r0 = poserPersosV4(recette(), entree());
+    const r = { ...r0, avatars: { ...r0.avatars, mode: 'parle' as const } };
     const sc = compiler(r);
     const places = placerAvatars(r, sc);
     const vus = (t: number) => avatarsAuTemps(r, places, t, sc.gab).filter((x) => x.echelle > 0);

@@ -251,7 +251,7 @@ test('Montage express : capture OBS + pack de sons + musique → montage 16:9 �
   expect(r.sousTitres.punchlines.length).toBeGreaterThanOrEqual(2);
   expect(r.sons.filter((s: { role?: string }) => s.role === 'bruitage')).toHaveLength(1);
   expect(r.musique.morceaux).toHaveLength(1);
-  expect(r.volumeFinal).toEqual({ lufs: -14, crete: -1.5 });
+  expect(r.volumeFinal).toEqual({ lufs: -13, crete: -1.5 });
   expect(r.textes.some((x: { role?: string }) => x.role === 'accroche')).toBe(true);
   // Voix (2 × ~8,5 s) + explosion + accroche de 6 s.
   expect(dureeMontage).toBeGreaterThan(18);

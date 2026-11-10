@@ -14,6 +14,8 @@ export interface BruitagePose {
   vol: number;
   dur: Sec;
   fondu: Sec;
+  /** Genre de moment (catégorie du bruitage : rire, rate…), pour apprendre quel son va où. */
+  pour?: string;
 }
 
 /** Normalise ; la recette d'origine si rien n'a changé. `nettoyer` retire les sources audio devenues inutiles. */
@@ -43,6 +45,7 @@ export function poserBruitages(recette: Recette, poses: readonly BruitagePose[],
     role: 'bruitage',
     dur: arrondir(p.dur),
     fondu: arrondir(p.fondu),
+    ...(p.pour ? { pour: p.pour } : {}),
   }));
   return finir(recette, { ...recette, sources: avecSources(recette, sources), sons: [...recette.sons, ...sons] });
 }

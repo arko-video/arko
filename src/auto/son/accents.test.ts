@@ -41,3 +41,13 @@ describe('accents sonores (dynamisme)', () => {
     expect(sonsAccent('pop', sons).map((s) => s.id)).toEqual(['d']);
   });
 });
+
+describe('accents de la structure YouTube', () => {
+  it('un whoosh à l\'entrée de chaque carton (générique, « Quelques minutes plus tard »)', async () => {
+    const { poserStructureYoutube } = await import('../habillage/structure-youtube');
+    const { normaliserRecette } = await import('../../recette/normaliser');
+    const r = poserStructureYoutube(normaliserRecette({ plans: [{ de: 10, a: 40 }, { de: 400, a: 440 }], destination: 'youtube' }, { sources: [SOURCE_TEST] }), { chaine: 'Ma chaîne' });
+    const a = proposerAccents(r);
+    expect(a.filter((x) => x.pourquoi === 'carton').map((x) => x.t)).toEqual([0, 32]);
+  });
+});

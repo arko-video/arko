@@ -234,10 +234,10 @@ test('Best-of v4 : Analyser → Monter (2 touchers), VAD sans accord = banc, 2 p
 
   // 2 voix, la faible sous-titrée ; persos tenus 0,35 s (DA).
   expect(r.personnes?.map((p) => p.id)).toEqual(['p1', 'p2']);
-  expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 0.35 });
+  expect(r.avatars).toEqual({ mode: 'reactions', rebond: true, tenue: 0.35 });
   expect(r.sousTitres).toMatchObject({ mode: 'punchlines', pour: 'p2' });
   expect(r.sons.some((x) => x.role === 'bruitage')).toBe(false);
-  expect(r.volumeFinal).toEqual({ lufs: -14, crete: -1.5 });
+  expect(r.volumeFinal).toEqual({ lufs: -13, crete: -1.5 });
   // Musique d'office : les morceaux de Kevin MacLeod (servis par le serveur de test), après l'accroche, baisse sur la parole.
   const musique = r.musique!;
   expect(musique.morceaux.length).toBeGreaterThanOrEqual(1);

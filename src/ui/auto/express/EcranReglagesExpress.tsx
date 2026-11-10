@@ -25,9 +25,11 @@ import { tailleArrondie } from '../../sous-titres-ui';
 import { enBestOf, styleMontage } from './etat-best-of';
 import { ChoixStyle, InterrupteursBestOf } from './ReglagesStyle';
 import { candidatsBibliotheque } from '../../../auto/son/musique-auto';
+import { chaineYoutube, reglerChaine } from './etat-express';
 import { basculerMorceau, choisirDestinationExpress, choisirMusiqueAuto, destinationExpress, DUREES_EXPRESS, fournisseurExpress, lancerExpress, reglagesExpress, reglerExpress, sourceExpress } from './etat-express';
 import { reglagesBestOf } from './etat-best-of';
 import { CarteModules } from './CarteModules';
+import { basculerEcoute, ecouteActive, etatEcoute, tailleEcouteMo, TEXTES_ECOUTE as TE } from '../son/ecoute-ui';
 import { basculerRegard, etatRegard, regardActif, tailleRegardMo, TEXTES_REGARD as TR, verifierRegard } from './regard-ui';
 import { TEXTES_MUSIQUE_EXPRESS as TM } from './textes-musique';
 import { TEXTES_V4 } from './textes-v4';
@@ -152,6 +154,9 @@ export function EcranReglagesExpress() {
   if (!s) return null;
   const er = etatRegard.value;
   if (er.phase === 'inconnu') void verifierRegard();
+  const ee = etatEcoute.value;
+  const texteEcoute = () =>
+    ee.phase === 'telechargement' ? TE.telechargement(ee.p) : ee.phase === 'ecoute' ? TE.ecoute(ee.n, ee.total) : ee.phase === 'pret' ? TE.pret(ee.n) : ee.phase === 'erreur' ? TE.erreur : TE.aTelecharger(tailleEcouteMo);
   const texteRegard = () =>
     er.phase === 'telechargement' ? TR.telechargement(er.p) : er.phase === 'pret' ? TR.pret : er.phase === 'erreur' ? TR.erreur : TR.aTelecharger(tailleRegardMo);
   // Ma bibliothèque : le rayon Musiques d'abord.
@@ -251,9 +256,19 @@ export function EcranReglagesExpress() {
         <Segments titre={TX.pour} id="pour" valeurs={['youtube', 'tiktok', 'short'] as Destination[]} actif={d} nom={(v) => TX.destinations[v]} choisir={choisirDestinationExpress} />
         <ChoixStyle />
         <Segments titre={TX.dureeVisee} id="duree" valeurs={['0', '1', '2']} actif={String(iDuree)} nom={(v) => fourchette(durees[Number(v)]!)} choisir={(v) => reglerExpress({ dureeVisee: durees[Number(v)]! })} />
+        {d === 'youtube' && (
+          <section class="champ" data-testid="express-chaine">
+            <span class="champ-titre">Nom de ta chaîne</span>
+            <input class="champ-saisie" type="text" maxLength={40} placeholder="Ex. le nom de ta chaîne YouTube" value={chaineYoutube.value} onInput={(e) => reglerChaine((e.currentTarget as HTMLInputElement).value)} />
+            <span class="petit doux">Arko le met en gros au début (après l'accroche) et à la fin (« Abonne-toi »). Vide : pas de générique.</span>
+          </section>
+        )}
         <div class="express-interrupteurs" data-testid="express-regard">
           <Interrupteur titre={TR.titre} aide={TR.aide} coche={regardActif.value} changer={(v) => void basculerRegard(v)} id="regard">
             {regardActif.value && <span class="petit">{texteRegard()}</span>}
+          </Interrupteur>
+          <Interrupteur titre={TE.titre} aide={TE.aide} coche={ecouteActive.value} changer={(v) => void basculerEcoute(v)} id="ecoute">
+            {ecouteActive.value && <span class="petit">{texteEcoute()}</span>}
           </Interrupteur>
         </div>
         {bestOf ? (

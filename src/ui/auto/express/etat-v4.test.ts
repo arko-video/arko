@@ -536,7 +536,7 @@ describe('Best-of v4, montage : UN seul modifier() = un seul Annuler', () => {
     expect(r.titre).toBe('Best-of — session');
     expect(r.plans.length).toBeGreaterThan(2);
     expect(r.musique?.morceaux.length).toBe(1);
-    expect(r.volumeFinal).toEqual({ lufs: -14, crete: -1.5 });
+    expect(r.volumeFinal).toEqual({ lufs: -13, crete: -1.5 });
     expect(r.blancs?.niveau).toBe('normal');
     expect(annoncee).toBeGreaterThan(0);
     // L'écran du Montage express est vidé.

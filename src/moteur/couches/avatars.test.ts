@@ -8,7 +8,7 @@ import { TIKTOK, YOUTUBE } from '../../recette/destination';
 import { normaliser } from '../../recette/normaliser';
 import { activerAvatars, donnerChibi, montrerAvatar, placerAvatar } from '../../recette/operations-chibis';
 import type { Recette } from '../../recette/types';
-import { ANIMATION_AVATAR, avatarsAuTemps, placeParDefaut, placerAvatars, preparerAvatars } from './avatars';
+import { ANIMATION_AVATAR, avatarsAuTemps, placeParDefaut, placerAvatars, placesDeReaction, preparerAvatars, REACTIONS } from './avatars';
 import { FauxContexte } from './faux-contexte';
 
 const sources = [{ id: 's1', nom: 'v', taille: 1, emp: '', duree: 120, type: 'video' as const, l: 1920, h: 1080 }];
@@ -153,5 +153,22 @@ describe('opérations des avatars (un seul Annuler, recette d\'origine si sans e
     expect(montrerAvatar(c, 'p1', false).personnes![0]!.avatar).toBe(false);
     expect(donnerChibi(c, 'inconnu', def)).toBe(c);
     expect(activerAvatars(recette({ personnes: undefined, paroles: undefined }), {})).toEqual(recette({ personnes: undefined, paroles: undefined }));
+  });
+});
+
+
+describe('mode « réactions » (best-of YouTube)', () => {
+  const pl = (t0: number, t1: number, emo?: string, sit?: string) => ({ p: 'p1', t0, t1, ts0: t0, vit: 1, tour: { ts: t0, fin: t1, p: 'p1', ...(emo ? { emo } : {}), ...(sit ? { sit } : {}) } }) as never;
+  it('garde les réactions (bornées à 4 s), un rappel après 15 s sans réaction, et une seule tête géante par 45 s', () => {
+    const r = placesDeReaction([pl(0, 3), pl(5, 12, 'rit'), pl(13, 14), pl(30, 40), pl(41, 43, 'hurle'), pl(50, 52, 'hurle'), pl(100, 101, 'choque')]);
+    expect(r.map((x: { t0: number; t1: number; xxl?: boolean }) => [x.t0, x.t1, x.xxl === true])).toEqual([
+      [0, 2, false],
+      [5, 9, false],
+      [30, 32, false],
+      [41, 43, true],
+      [50, 52, false],
+      [100, 101, true],
+    ]);
+    expect(REACTIONS.dureeMax).toBe(4);
   });
 });

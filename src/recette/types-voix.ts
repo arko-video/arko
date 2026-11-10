@@ -41,8 +41,12 @@ export interface PlaceAvatar {
 
 /** Avatars à l'écran (C) : le chibi de la personne qui parle apparaît, change selon l'émotion, bouche animée. */
 export interface ReglagesAvatars {
-  /** 'parle' (défaut) = visible seulement quand la personne parle ; 'toujours' = toujours là, bouche fermée sinon. */
-  mode?: 'parle' | 'toujours';
+  /**
+   * 'parle' (défaut) = visible seulement quand la personne parle ; 'toujours' = toujours là, bouche fermée sinon ;
+   * 'reactions' = comme les best-of YouTube : le perso surgit sur les réactions (rire, cri, choc, victoire…), un
+   * petit rappel de temps en temps, et une tête GÉANTE au centre sur les plus fortes.
+   */
+  mode?: 'parle' | 'toujours' | 'reactions';
   /** Petit rebond à chaque prise de parole et sur les syllabes fortes (défaut oui). */
   rebond?: boolean;
   /** Reste visible encore `tenue` s après la fin du tour (défaut 0,5 s ; 0 à 2). */

@@ -34,6 +34,7 @@ Les fichiers sous MPL-2.0 ne sont pas modifiés. Leur code source est disponible
   (k2-fsa). 28 Mo, téléchargé une seule fois depuis huggingface.co à une révision figée, SHA-256 vérifié, et
   seulement après le geste de l'utilisateur (« Séparer les voix »). Il n'est pas inclus dans le dépôt.
 - **CLIP ViT-B/32, partie vision (« regard sur l'image », facultatif)** — [OpenAI CLIP](https://github.com/openai/CLIP), licence MIT ; conversion ONNX quantifiée : [Xenova/clip-vit-base-patch32](https://huggingface.co/Xenova/clip-vit-base-patch32) (MIT). Téléchargé une fois seulement si l'utilisateur coche « Couper les menus et chargements ».
+- **CLAP HTSAT unfused, partie audio (« écoute des sons », facultatif)** — [LAION CLAP](https://huggingface.co/laion/clap-htsat-unfused), licence Apache 2.0 ; conversion ONNX quantifiée : [Xenova/clap-htsat-unfused](https://huggingface.co/Xenova/clap-htsat-unfused). 34 Mo, téléchargé une fois seulement si l'utilisateur coche « Arko écoute mes sons ».
 - Les deux tournent sur l'appareil avec ONNX Runtime Web (WASM, 1 fil) : rien n'est envoyé.
 
 ## Améliorer l'image

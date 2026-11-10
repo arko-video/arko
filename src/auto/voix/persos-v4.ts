@@ -269,7 +269,7 @@ export function poserPersosV4(r0: Recette, e: EntreePersos): Recette {
     signaux: e.signaux,
     avatars: e.avatars,
     completer: (t, c) => completerToursV4(t, { ...c, vad, moments: e.moments }),
-    reglagesAvatars: { mode: 'parle', rebond: true, tenue: PERSOS_V4.tenue },
+    reglagesAvatars: { mode: 'reactions', rebond: true, tenue: PERSOS_V4.tenue },
   });
   const pour = e.sousTitresPour === undefined ? voixMalEntendue(v) : e.sousTitresPour;
   if (pour && r.personnes?.some((p) => p.id === pour) && r.sousTitres && Array.isArray(r.sousTitres.mots)) {

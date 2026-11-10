@@ -9,7 +9,7 @@
 
 import { premiereVideo } from '../coupes/decoupe';
 import { morceauxDeParole, REGLAGES_BLANCS } from '../coupes/blancs';
-import { trouverPunchlines } from '../habillage/punchlines';
+import { garderMeilleuresPunchlines, trouverPunchlines } from '../habillage/punchlines';
 import type { ForceZoomsAuto } from '../habillage/zooms-auto';
 import { transitionsDesScenes } from '../habillage/transitions-auto';
 import { eclaircir } from '../apprentissage/appliquer-gouts';
@@ -19,7 +19,7 @@ import { SOUS_TITRES, ySousTitres } from '../../recette/defauts';
 import { gabaritDe } from '../../recette/destination';
 import { MEILLEUR, modeleMeilleurDAbord } from '../../recette/modeles';
 import { normaliser } from '../../recette/normaliser';
-import { VOLUME_FINAL } from '../../recette/normaliser-auto-son';
+import { LUFS_MONTAGE, VOLUME_FINAL } from '../../recette/normaliser-auto-son';
 import {
   choisirModeSousTitres,
   choisirVolumeFinal,
@@ -207,7 +207,10 @@ export function etapesMontage(
   if (reglages.bords && analyse.cadreBords) r = rognerSource(r, src, analyse.cadreBords);
   // 4. B — Punchlines.
   if (vraisMots && reglages.punchlines) {
-    r = choisirModeSousTitres(definirPunchlines(r, eclaircir(trouverPunchlines(mots, signaux), o.facteurPunchlines ?? 1)), 'punchlines');
+    const toutes = eclaircir(trouverPunchlines(mots, signaux), o.facteurPunchlines ?? 1);
+    // YouTube (16:9) : comme les best-of, 1 à 2 punchlines par minute, les plus fortes (TikTok en garde plus).
+    const choisies = gabaritDe(r).paysage ? garderMeilleuresPunchlines(toutes, r.plans.filter((p) => !p.ins && (p.src ?? src) === src)) : toutes;
+    r = choisirModeSousTitres(definirPunchlines(r, choisies), 'punchlines');
   }
   // 5. E — Bruitages (préparés par la page).
   if ((o.bruitages ?? reglages.bruitages) && ressources.bruitages.length > 0) r = poserBruitages(r, ressources.bruitages, ressources.sourcesAudio);
@@ -239,7 +242,7 @@ export function etapesMontage(
     const morceauxMusique = places ? ressources.musique.morceaux.map((m) => ({ ...m })) : placerMorceaux(srcs, (r.chapitres ?? []).map((c) => c.t), compiler(r).duree);
     r = definirMusique(r, { ...ressources.musique, morceaux: morceauxMusique }, ressources.sourcesAudio);
   }
-  return choisirVolumeFinal(r, { lufs: VOLUME_FINAL.lufs, crete: VOLUME_FINAL.crete });
+  return choisirVolumeFinal(r, { lufs: LUFS_MONTAGE, crete: VOLUME_FINAL.crete });
 }
 
 /** Persos de qui parle (étape partagée), si demandés et si des voix ont été reconnues. Pure. */

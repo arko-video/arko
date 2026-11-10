@@ -216,6 +216,11 @@ export interface Son {
   dur?: Sec;
   /** E. Fondu de sortie quand le son est coupé par `dur` (défaut 0,3 s). */
   fondu?: Sec;
+  /**
+   * Pour quel genre de moment Arko l'a posé (accent : whoosh / pop / impact ; bruitage : rire, rate, explosion…).
+   * Sert à apprendre : un son retiré d'un genre de moment n'est plus proposé POUR CE GENRE, il reste permis ailleurs.
+   */
+  pour?: string;
 }
 
 export interface Zoom {

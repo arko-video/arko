@@ -8,7 +8,7 @@ import { basculerPunchline, choisirModeSousTitres, definirPunchlines, lignesSous
 import type { Mot, Recette } from '../../recette/types';
 import type { SignauxSource } from '../types';
 import { estJuron, masquer, masquerJuron } from './jurons';
-import { indiceCle, phraseDuMot, trouverPunchlines } from './punchlines';
+import { garderMeilleuresPunchlines, indiceCle, phraseDuMot, trouverPunchlines } from './punchlines';
 
 /** Signaux fabriqués : 60 s de son calme, avec les pics / rires / cris donnés. */
 export function signaux(o: Partial<SignauxSource> = {}): SignauxSource {
@@ -155,5 +155,14 @@ describe('placement', () => {
     const sc = compiler(base());
     expect(sc.sousTitres).not.toHaveProperty('couleurCle');
     expect(sc.sousTitres).not.toHaveProperty('masquer');
+  });
+});
+
+describe('punchlines YouTube : 1 à 2 par minute, les plus fortes', () => {
+  it('garde les rires d\'abord, 18 s d\'écart au moins, et rien dans un passage coupé', () => {
+    const pl = (ts: number, raison: 'rire' | 'exclamation' | 'pic') => ({ ts, fin: ts + 1, k0: 0, k1: 1, raison, cle: null });
+    const plans = [{ de: 0, a: 30 }, { de: 100, a: 130 }];
+    const r = garderMeilleuresPunchlines([pl(2, 'exclamation'), pl(5, 'rire'), pl(20, 'pic'), pl(50, 'rire'), pl(110, 'exclamation')], plans);
+    expect(r.map((x) => x.ts)).toEqual([5, 110]);
   });
 });

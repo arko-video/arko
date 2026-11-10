@@ -172,7 +172,7 @@ describe('construireBestOf (ordre du contrat §6)', () => {
     expect(r.textes).toEqual([]); // titres décochés : ni « ATTENDS… », ni titres de section
     expect((r.chapitres ?? []).length).toBeGreaterThanOrEqual(3);
     expect(r.musique?.morceaux).toHaveLength(1);
-    expect(r.volumeFinal).toEqual({ lufs: -14, crete: -1.5 });
+    expect(r.volumeFinal).toEqual({ lufs: -13, crete: -1.5 });
     // Jamais de bruitages en Best-of (retour de Romain), même cochés dans les réglages.
     expect(r.sons.some((s) => s.role === 'bruitage')).toBe(false);
   });
@@ -191,7 +191,7 @@ describe('construireBestOf (ordre du contrat §6)', () => {
     expect(r.personnes![1]!.bib).toBe('c7');
     expect(r.paroles!.length).toBe(TOURS.length);
     expect(r.paroles!.every((t) => t.emo !== undefined)).toBe(true);
-    expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 1 });
+    expect(r.avatars).toEqual({ mode: 'reactions', rebond: true, tenue: 1 });
     expect(r.bips).toBeUndefined();
   });
 
@@ -205,7 +205,9 @@ describe('construireBestOf (ordre du contrat §6)', () => {
     expect(punch.length).toBeGreaterThan(0);
     for (const l of voix) {
       expect(l.y).toBe(0.88);
-      expect(l.t1 - l.t0).toBeGreaterThanOrEqual(0.69);
+      // 0,7 s au moins, sauf si la ligne suivante commence avant (elle s'arrête alors pile où elle commence).
+      const suivante = lignes.find((x) => x.t0 >= l.t1 - 1e-6 && x !== l);
+      if (l.t1 - l.t0 < 0.69) expect(suivante && Math.abs(suivante.t0 - l.t1) < 1e-6).toBe(true);
       // Chaque mot est dit par p1.
       for (const m of l.mots) expect(TOURS.some((t) => t.p === 'p1' && m.mot[1] >= t.ts - 0.01 && m.mot[2] <= t.fin + 0.01)).toBe(true);
       for (const x of punch) expect(l.t0 < x.t1 && x.t0 < l.t1).toBe(false);

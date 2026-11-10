@@ -83,6 +83,7 @@ export const TEXTES_CHIBIS = {
     quand: `Quand${NBSP}?`,
     parle: 'Quand la personne parle',
     toujours: 'Tout le temps',
+    reactions: 'Sur les réactions (style YouTube)',
     rebond: 'Petit rebond',
     taille: 'Taille',
     placer: 'Glisse l\'avatar sur l\'aperçu pour le placer.',

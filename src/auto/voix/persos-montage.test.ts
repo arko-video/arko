@@ -7,7 +7,7 @@ import { PERSOS_PRETS } from '../../chibis/persos/prets';
 import { chibiAuHasard } from '../../chibis/hasard';
 import { clipsSansIA } from '../../ia/sans-ia';
 import type { Moment } from '../../ia/moments';
-import { avatarsAuTemps, placerAvatars } from '../../moteur/couches/avatars';
+import { avatarsAuTemps, placerAvatars, placesDeReaction } from '../../moteur/couches/avatars';
 import { compiler } from '../../recette/chronologie';
 import { fusionnerRecettes } from '../../recette/compilation';
 import { normaliser } from '../../recette/normaliser';
@@ -59,12 +59,13 @@ function analyse(voix: VoixDetectees | null = VOIX): AnalyseExpress {
 
 /** Le montage a des avatars, et l'avatar de chaque voix apparaît quand elle parle. */
 function verifierAvatars(r: Recette, n: number) {
-  expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 1 });
+  expect(r.avatars).toEqual({ mode: 'reactions', rebond: true, tenue: 1 });
   expect(r.personnes).toHaveLength(n);
   const sc = compiler(r);
   const places = placerAvatars(r, sc);
   expect(places.length).toBeGreaterThan(0);
-  const pl = places[Math.floor(places.length / 2)]!;
+  // Mode « réactions » : le perso surgit sur ses réactions (et en rappel) ; le 1er placement retenu est visible.
+  const pl = placesDeReaction(places)[0]!;
   const vus = avatarsAuTemps(r, places, (pl.t0 + pl.t1) / 2, sc.gab);
   expect(vus.map((v) => v.p)).toContain(pl.p);
 }

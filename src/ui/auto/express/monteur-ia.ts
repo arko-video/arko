@@ -30,7 +30,7 @@ export async function dossierDepuisAnalyse(): Promise<Dossier | null> {
   await chargerMesSons().catch(() => undefined);
   const clips = await listerClips().catch(() => []);
   const bibliotheque: FichierDossier[] = [
-    ...mesSons.peek().map((s) => ({ nom: s.nom, duree: s.duree, rayon: s.rayon === 'musiques' ? ('musiques' as const) : ('bruitages' as const) })),
+    ...mesSons.peek().map((s) => ({ nom: s.nom, duree: s.duree, rayon: s.rayon === 'musiques' ? ('musiques' as const) : ('bruitages' as const), ...(s.ecoute ? { ecoute: s.ecoute } : {}) })),
     ...clips.map((c) => ({ nom: c.nom, duree: c.duree, rayon: c.rayon })),
   ];
   const voix = a.voix ?? null;

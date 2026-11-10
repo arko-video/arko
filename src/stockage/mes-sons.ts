@@ -29,6 +29,11 @@ export interface MonSon {
   ajouteLe: number;
   /** Ma bibliothèque : 'musiques' pour une musique de fond ; absent = Bruitages. */
   rayon?: 'musiques';
+  /**
+   * « Arko écoute tes sons » (CLAP) : ce qu'Arko a entendu (whoosh, pop, impact, rire…), null = pas sûr.
+   * Absent = pas encore écouté. Le texte reste un simple mot : aucune dépendance vers auto/.
+   */
+  ecoute?: string | null;
 }
 
 /** Rayon d'un son gardé. */
@@ -127,6 +132,13 @@ export async function modifierMonSon(id: string, partiel: { nom?: string; etique
   else if (partiel.rayon === 'bruitages') delete nouveau.rayon;
   await set(cleFiche(id), nouveau, magasin());
   return nouveau;
+}
+
+/** Retient ce qu'Arko a entendu dans un son (« Arko écoute tes sons »). */
+export async function noterEcoute(id: string, genre: string | null): Promise<void> {
+  const fiche = await get<MonSon>(cleFiche(id), magasin());
+  if (!fiche) return;
+  await set(cleFiche(id), { ...fiche, ecoute: genre }, magasin());
 }
 
 /** Supprime un son gardé (les montages qui l'utilisent gardent leur propre copie). */

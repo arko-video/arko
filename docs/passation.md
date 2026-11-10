@@ -950,3 +950,17 @@ Reste à faire (demandes de Romain du 9/11), par ordre conseillé :
 - UI : `ui/auto/express/regard-ui.ts` + interrupteur dans les réglages express (cocher = télécharger 89 Mo).
 - Dossier du monteur IA : `zonesMortes` ; Mon Hub `nettoyerPlan` retaille les séquences (test Dart à lancer).
 - À faire : essai réel par Romain ; F7 (dose d'effets en jeu) à juger sur une vraie vidéo ; chargement Nuke raté.
+
+## Session du 10/11/2026 (soir) — section G « comme la référence »
+- Avatars : mode `reactions` (recette, normaliseur, schéma, outil Avatars) d'office ; `placesDeReaction`, tête XXL.
+- Punchlines YouTube : `garderMeilleuresPunchlines` (punchlines.ts) dans express.ts.
+- Menus gardés quand on réagit : `zonesSansReactions` (signaux-source.ts).
+- Structure YouTube : `auto/habillage/structure-youtube.ts`, appelée dans etat-express (toutes les branches) ;
+  nom de chaîne : `chaineYoutube` (localStorage `arko.chaine`), champ dans les réglages express (YouTube).
+- Volume des montages −13 LUFS (`LUFS_MONTAGE`). Tests : 1478 verts.
+- Pas faits : G3 plateau, jingle, cercle noir, sons « pop », G12–G13 inserts, G15, G18 (CLIP pas fiable), G19.
+- Suite (21 h) : cartes « nom » (`cartesNoms`), costumes du générique, accents sur cartons / réactions / tête géante
+  (accents.ts). Tests 1480 verts. Restent : G3 (voix off à enregistrer), iris, jingle, G12–G13, G16 contraste, G18, G19.
+- « Arko écoute tes sons » : auto/son/ecoute.ts (pur), worker-ecoute.ts, ui/auto/son/ecoute-ui.ts, modèle `ecoute`,
+  `MonSon.ecoute` + `noterEcoute` (stockage/mes-sons.ts), choix-son.ts / accents.ts (`entenduPour`). Tests 1485 verts.
+- H5 : apprentissage par genre de moment (Son.pour, cleMoment). Tests 1486 verts.

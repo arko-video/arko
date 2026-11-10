@@ -94,7 +94,7 @@ export function normaliserAvatars(brut: unknown, journal: Journal): ReglagesAvat
   }
   verifierCles(brut, ['mode', 'rebond', 'tenue', 'style'], 'avatars', journal);
   const res: ReglagesAvatars = {};
-  if (brut.mode === 'parle' || brut.mode === 'toujours') res.mode = brut.mode;
+  if (brut.mode === 'parle' || brut.mode === 'toujours' || brut.mode === 'reactions') res.mode = brut.mode;
   else if (brut.mode !== undefined) journal.corrige('avatars.mode', `Le mode "${String(brut.mode)}" n'existe pas : « quand la personne parle ».`);
   if (typeof brut.rebond === 'boolean') res.rebond = brut.rebond;
   if (brut.tenue !== undefined) res.tenue = lireNombre(brut.tenue, 'avatars.tenue', journal, { defaut: AVATARS.tenue, min: 0, max: AVATARS.tenueMax, nom: 'la tenue après la parole' });

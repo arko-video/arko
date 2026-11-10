@@ -166,7 +166,7 @@ test('Best-of serré : 2 voix (−40 / −25 dB) + musique → avatars, sous-tit
   expect(r.textes).toEqual([]); // ni « ATTENDS… » ni titre de section
   expect(r.personnes?.map((p) => p.nom)).toEqual(['Guts', 'Romain']);
   expect(r.personnes?.every((p) => !!p.chibi)).toBe(true);
-  expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 0.35 });
+  expect(r.avatars).toEqual({ mode: 'reactions', rebond: true, tenue: 0.35 });
   expect(r.sousTitres).toMatchObject({ mode: 'punchlines', pour: 'p2' });
   expect(r.derush?.passages.length).toBeGreaterThan(0);
   expect(r.sons.some((s) => s.role === 'bruitage')).toBe(false);
@@ -175,7 +175,7 @@ test('Best-of serré : 2 voix (−40 / −25 dB) + musique → avatars, sous-tit
   // Le morceau choisi à la main : après l'accroche (pas à 0:00), et la baisse suit la parole (v4).
   expect(r.musique!.morceaux[0]!.t).toBeGreaterThan(3);
   expect(r.musique?.baisseSur).toBe('parole');
-  expect(r.volumeFinal).toEqual({ lufs: -14, crete: -1.5 });
+  expect(r.volumeFinal).toEqual({ lufs: -13, crete: -1.5 });
 
   // Un seul Annuler revient à la vidéo brute ; Rétablir remet le Best-of.
   await page.getByTestId('retour').click();

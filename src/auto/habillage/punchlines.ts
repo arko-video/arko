@@ -114,3 +114,38 @@ export function dansPunchline(mot: Mot, plages: readonly PlagePunchline[]): bool
 export function dureePunchlines(p: readonly PlagePunchline[]): Sec {
   return p.reduce((s, x) => s + (x.fin - x.ts), 0);
 }
+
+/**
+ * Comme le best-of modèle de Romain (10/11/2026) : seulement 1 à 2 punchlines par minute de MONTAGE, les plus fortes
+ * (rire > juron > pic > mot fort > exclamation), jamais deux à moins de 18 s l'une de l'autre dans le montage.
+ * `plans` : les plans gardés (temps source, dans l'ordre du montage). Rend les punchlines gardées, dans l'ordre. Pure.
+ */
+export const DENSITE_PUNCHLINES = { parMinute: 2, ecartMin: 18 } as const;
+const RANG_RAISON: Record<RaisonPunchline, number> = { rire: 5, juron: 4, pic: 3, 'mot-fort': 2, exclamation: 1 };
+
+export function garderMeilleuresPunchlines<P extends PunchlineProposee>(liste: readonly P[], plans: readonly { de: Sec; a: Sec }[], o: { parMinute?: number; ecartMin?: Sec } = {}): P[] {
+  const parMinute = o.parMinute ?? DENSITE_PUNCHLINES.parMinute;
+  const ecart = o.ecartMin ?? DENSITE_PUNCHLINES.ecartMin;
+  // Temps de sortie d'un temps source (premier plan qui le contient), null s'il est coupé.
+  const sortie = (t: Sec): Sec | null => {
+    let acc = 0;
+    for (const p of plans) {
+      if (t >= p.de && t < p.a) return acc + (t - p.de);
+      acc += Math.max(0, p.a - p.de);
+    }
+    return null;
+  };
+  const total = plans.reduce((s, p) => s + Math.max(0, p.a - p.de), 0);
+  const max = Math.max(1, Math.round((total / 60) * parMinute));
+  const candidats = liste
+    .map((p) => ({ p, t: sortie((p.ts + p.fin) / 2) }))
+    .filter((x): x is { p: P; t: Sec } => x.t !== null)
+    .sort((x, y) => RANG_RAISON[y.p.raison] - RANG_RAISON[x.p.raison] || x.t - y.t);
+  const pris: { p: P; t: Sec }[] = [];
+  for (const c of candidats) {
+    if (pris.length >= max) break;
+    if (pris.some((x) => Math.abs(x.t - c.t) < ecart)) continue;
+    pris.push(c);
+  }
+  return pris.sort((x, y) => x.p.ts - y.p.ts).map((x) => x.p);
+}

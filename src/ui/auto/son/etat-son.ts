@@ -8,7 +8,7 @@ import { choisirSon, type ChoixSon } from '../../../auto/son/choix-son';
 import { proposerEchos } from '../../../auto/son/echos';
 import { rejete } from '../../../auto/apprentissage/gouts';
 import { gouts, memoriserMontageAuto } from '../../apprentissage';
-import { ACCENTS, ACCENTS_ARKO, proposerAccents, sonsAccent, type FamilleAccent } from '../../../auto/son/accents';
+import { ACCENTS, proposerAccents, sonsAccent, type FamilleAccent } from '../../../auto/son/accents';
 import { ajouterSon, ajouterSource } from '../../../recette/operations-effets';
 import { DECLENCHEURS_DEFAUT, lireDeclencheurs, type Declencheur } from '../../../auto/son/declencheurs';
 import { fichierPropose, kevinGardes } from '../../../auto/son/musiques-arko';
@@ -110,14 +110,17 @@ export async function ouvrirBruitages(o: { bibliothequeSeule?: boolean } = {}) {
   const lignesEchos: LigneRevue[] = echos.map((e) => ({ ...e, choix: { type: 'mesSons', id: e.son, nom: e.nomSon }, garde: true }));
   const pris = new Set<string>(echos.map((e) => e.son));
   const lignes = props.filter((p) => !echos.some((e) => Math.abs(e.ts - p.ts) < 4)).map((p) => {
-    const choix = choisirSon(p.categorie, permis, { eviter: pris });
+    // Un son retiré pour ce genre de moment n'est plus proposé pour lui (il reste permis ailleurs).
+    const choix = choisirSon(p.categorie, permis.filter((x) => !rejete(g, x.nom, p.categorie)), { eviter: pris });
     pris.add(choix.id);
     // Cochés d'office quand le son vient de TA bibliothèque (presque tout en auto) ; décocher reste possible.
     return { ...p, choix, garde: choix.type === 'mesSons' };
   });
   const tout = [...lignesEchos, ...lignes].sort((a, b) => a.ts - b.ts);
-  const gardees = o.bibliothequeSeule ? tout.filter((l) => l.choix.type === 'mesSons') : tout;
-  if (o.bibliothequeSeule && gardees.length === 0) {
+  // Romain (10/11) : jamais les sons d'Arko, seulement ceux de sa bibliothèque (quelle que soit l'option).
+  const seule = o.bibliothequeSeule ?? true;
+  const gardees = seule ? tout.filter((l) => l.choix.type === 'mesSons') : tout;
+  if (seule && gardees.length === 0) {
     // YouTube sans sons à toi qui conviennent : on ne montre pas une revue vide.
     revue.value = null;
     panneauSonAuto.value = null;
@@ -160,7 +163,7 @@ async function poseDe(l: LigneRevue): Promise<{ pose: BruitagePose; source: Sour
     duree = source.infos.duree;
   }
   // Jamais plus long que la place laissée avant que quelqu'un reparle (l.dur).
-  return { pose: { id, ts: l.ts, src: l.src, vol: l.vol, dur: Math.min(dureeBruitage(duree), l.dur), fondu: l.fondu }, source };
+  return { pose: { id, ts: l.ts, src: l.src, vol: l.vol, dur: Math.min(dureeBruitage(duree), l.dur), fondu: l.fondu, pour: l.categorie }, source };
 }
 
 /** « Écouter dans la vidéo » : l'aperçu joue 2 s avant le bruitage jusqu'à 2 s après sa fin, sans rien poser. */
@@ -338,9 +341,9 @@ export async function poserAccentsAuto(apres = 0, o: { bibliothequeSeule?: boole
   const mes = mesSons.peek().filter((x) => estBruitage(x) && !rejete(g, x.nom));
   const parFamille = new Map<FamilleAccent, MonSon[]>();
   const n = new Map<FamilleAccent, number>();
-  const prets: { id: string; t: number; dur: number; source: SourceOuverte | null }[] = [];
+  const prets: { id: string; t: number; dur: number; source: SourceOuverte | null; pour: string }[] = [];
   for (const a of accents) {
-    if (!parFamille.has(a.famille)) parFamille.set(a.famille, sonsAccent(a.famille, mes).slice(0, 3) as MonSon[]);
+    if (!parFamille.has(a.famille)) parFamille.set(a.famille, sonsAccent(a.famille, mes.filter((x) => !rejete(g, x.nom, a.famille))).slice(0, 3) as MonSon[]);
     const liste = parFamille.get(a.famille)!;
     const k = n.get(a.famille) ?? 0;
     n.set(a.famille, k + 1);
@@ -349,11 +352,9 @@ export async function poserAccentsAuto(apres = 0, o: { bibliothequeSeule?: boole
       const source = copiesRevue.get(mien.id) ?? (await copierMonSon(mien.id).catch(() => null));
       if (!source) continue;
       copiesRevue.set(mien.id, source);
-      prets.push({ id: source.infos.id, t: a.t, dur: Math.min(ACCENTS.durMax, source.infos.duree), source });
-    } else if (!o.bibliothequeSeule) {
-      const id = ACCENTS_ARKO[a.famille];
-      prets.push({ id, t: a.t, dur: Math.min(ACCENTS.durMax, catalogueSons.find((x) => x.id === id)?.duree ?? 0.6), source: null });
+      prets.push({ id: source.infos.id, t: a.t, dur: Math.min(ACCENTS.durMax, source.infos.duree), source, pour: a.famille });
     }
+    // Pas de son à toi pour cette famille : rien (Romain, 10/11 : jamais les sons d'Arko).
   }
   const vol = Math.round(10 ** (ACCENTS.gainDb / 20) * 1000) / 1000;
   let poses = 0;
@@ -361,7 +362,7 @@ export async function poserAccentsAuto(apres = 0, o: { bibliothequeSeule?: boole
     let res = r;
     for (const p of prets) {
       if (p.source) res = ajouterSource(res, p.source.infos);
-      const x = ajouterSon(res, { id: p.id, t: p.t, vol, role: 'accent', dur: p.dur, fondu: ACCENTS.fondu });
+      const x = ajouterSon(res, { id: p.id, t: p.t, vol, role: 'accent', dur: p.dur, fondu: ACCENTS.fondu, pour: p.pour });
       if (x.i >= 0) {
         res = x.recette;
         poses++;

@@ -182,7 +182,7 @@ describe('construireMontageExpress', () => {
     expect(r.musique?.morceaux.map((m) => m.src)).toEqual(['m1', 'm2']);
     expect(r.musique!.morceaux[0]!.t).toBe(0);
     expect((r.chapitres ?? []).map((c) => c.t)).toContain(r.musique!.morceaux[1]!.t);
-    expect(r.volumeFinal).toEqual({ lufs: -14, crete: -1.5 });
+    expect(r.volumeFinal).toEqual({ lufs: -13, crete: -1.5 });
   });
 
   it('montage normal : normaliseur sans problème, idempotent, un seul Annuler', () => {

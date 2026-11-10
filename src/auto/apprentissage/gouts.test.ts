@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { apprendre, cleNom, comparer, GOUTS_DEPART, lireGouts, rejete, resumeGouts, type Empreinte } from './gouts';
+import { apprendre, bonus, cleNom, comparer, GOUTS_DEPART, lireGouts, rejete, resumeGouts, type Empreinte } from './gouts';
 
 const el = (f: Empreinte['elements'][number]['f'], t: number, nom: string, auto = true) => ({ f, t, nom, auto });
 
@@ -62,5 +62,18 @@ describe('exemples pour le monteur IA (D1)', () => {
     expect(x.ajoutes).toEqual(['staring meme']);
     expect(x.dureeRatio).toBe(0.9);
     expect(JSON.stringify(x).length).toBeLessThan(800);
+  });
+});
+
+describe('apprendre QUEL son va OÙ (genre de moment)', () => {
+  it('un son retiré d\'un whoosh n\'est plus proposé pour un whoosh, mais l\'est encore pour un impact', () => {
+    const g0 = GOUTS_DEPART;
+    const auto = { duree: 60, elements: [{ f: 'accents' as const, t: 10, nom: cleNom('Bonk.mp3'), auto: true, pour: 'whoosh' }, { f: 'accents' as const, t: 20, nom: cleNom('Pop.mp3'), auto: true, pour: 'pop' }] };
+    const fin = { duree: 60, elements: [{ f: 'accents' as const, t: 20, nom: cleNom('Pop.mp3'), auto: true, pour: 'pop' }] };
+    const g = apprendre(g0, comparer(auto, fin));
+    expect(rejete(g, 'Bonk.mp3', 'whoosh')).toBe(true);
+    expect(rejete(g, 'Bonk.mp3', 'impact')).toBe(false);
+    expect(rejete(g, 'Bonk.mp3')).toBe(false);
+    expect(bonus(g, 'Pop.mp3', 'pop')).toBe(2);
   });
 });

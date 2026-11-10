@@ -19,7 +19,7 @@ import './chibis.css';
 /** Le bouton « Avatars » de la barre d'outils de Habiller ne s'affiche que si c'est prêt (ou forcé : drapeau « avatars »). */
 export const PRETE_AVATARS = true;
 
-const MODES = ['parle', 'toujours'] as const;
+const MODES = ['reactions', 'parle', 'toujours'] as const;
 
 function LignePersonne({ r, p }: { r: Recette; p: Personne }) {
   const t = TV.chibis.avatars;

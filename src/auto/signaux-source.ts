@@ -87,9 +87,33 @@ const deja = new Map<string, SignauxSource>();
 /** Zones mortes vues à l'image (« Arko regarde l'image »), par empreinte de source. */
 const regards = new Map<string, PlageMuette[]>();
 
+/**
+ * Un menu où l'on RÉAGIT (rire, cri) se garde, comme dans le best-of modèle de Romain (inventaire, caisse, vote) :
+ * autour de chaque réaction, `avant` s avant et `apres` s après sont rendus au montage ; le reste de la zone ne
+ * reste mort que s'il fait encore `dureeMin` s.
+ */
+export const MENU_GARDE = { avant: 6, apres: 4, dureeMin: 6 } as const;
+
+/** Zones mortes vues, moins les passages autour des réactions (pure). */
+export function zonesSansReactions(zones: readonly PlageMuette[], s: Pick<SignauxSource, 'rires' | 'cris'>): PlageMuette[] {
+  const reactions = [...s.rires, ...s.cris].map((x) => x.t).sort((a, b) => a - b);
+  const res: PlageMuette[] = [];
+  for (const z of zones) {
+    let morceaux: PlageMuette[] = [z];
+    for (const t of reactions) {
+      if (t < z.de - MENU_GARDE.apres || t > z.a + MENU_GARDE.avant) continue;
+      const g0 = t - MENU_GARDE.avant;
+      const g1 = t + MENU_GARDE.apres;
+      morceaux = morceaux.flatMap((m) => (g1 <= m.de || g0 >= m.a ? [m] : [{ ...m, a: g0 }, { ...m, de: g1 }].filter((x) => x.a > x.de)));
+    }
+    res.push(...morceaux.filter((m) => m.a - m.de >= MENU_GARDE.dureeMin));
+  }
+  return res;
+}
+
 /** Les signaux avec les zones mortes vues à l'image dans `muets` (pure) : remplace celles d'avant, garde l'ordre. */
 export function avecRegard(s: SignauxSource, zones: readonly PlageMuette[]): SignauxSource {
-  const muets = [...s.muets.filter((m) => !m.vu), ...zones.filter((z) => z.a > z.de)].sort((x, y) => x.de - y.de);
+  const muets = [...s.muets.filter((m) => !m.vu), ...zonesSansReactions(zones.filter((z) => z.a > z.de), s)].sort((x, y) => x.de - y.de);
   return { ...s, muets };
 }
 
