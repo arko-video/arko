@@ -14,6 +14,7 @@
 // Ce qui est fait ≠ ce qui est écouté (`ecoutees`) : le Best-of ne fait écouter que la parole ; transcrireLongue et
 // les sous-titres retranscrivent donc ce que Whisper n'a jamais entendu.
 
+import { retirerPrisesRatees } from '../auto/coupes/prises';
 import { del, get, set } from 'idb-keyval';
 import {
   ajouterTranche,
@@ -204,7 +205,8 @@ export async function transcrireParTranches(source: SourceOuverte, options: Opti
   }
   if (ratees > 0 && reussies === 0 && premiere !== null) throw premiere;
   progresser(0);
-  return { src: source.infos.id, mots: motsDansPlage(g.mots, voulue), plages: plagesDans(faites(g), voulue), complete: ratees === 0 && sautees === 0 };
+  // Prises ratées retirées AUSSI ici : les transcriptions gardées avant le 10/11 ne les avaient pas triées.
+  return { src: source.infos.id, mots: retirerPrisesRatees(motsDansPlage(g.mots, voulue)).mots, plages: plagesDans(faites(g), voulue), complete: ratees === 0 && sautees === 0 };
 }
 
 /** Transcrit la source (ou la plage), en reprenant ce qui était déjà fait. Lève ErreurArko 'annule' si on annule. */
@@ -218,7 +220,7 @@ export async function transcriptionGardee(source: SourceOuverte, langue = 'fr'):
   const ecoutees = g ? plagesEcoutees(g) : [];
   if (!g || ecoutees.length === 0) return null;
   const toute = { de: 0, a: source.infos.duree };
-  return { src: source.infos.id, mots: g.mots, plages: ecoutees, complete: plagesManquantes(toute, ecoutees).length === 0 };
+  return { src: source.infos.id, mots: retirerPrisesRatees(g.mots).mots, plages: ecoutees, complete: plagesManquantes(toute, ecoutees).length === 0 };
 }
 
 export async function oublierTranscription(source: SourceOuverte): Promise<void> {
@@ -236,5 +238,5 @@ export async function oublierTranscription(source: SourceOuverte): Promise<void>
 export async function motsDejaTranscrits(source: SourceOuverte, plages: readonly PlageTemps[], langue = 'fr'): Promise<Mot[] | null> {
   const g = await lire(source, langue);
   const mots = g ? motsCouverts(g, plages) : null;
-  return mots && mots.length > 0 ? appliquerCorrections(mots) : null;
+  return mots && mots.length > 0 ? retirerPrisesRatees(appliquerCorrections(mots)).mots : null;
 }

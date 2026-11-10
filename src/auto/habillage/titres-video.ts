@@ -7,6 +7,7 @@ import type { Mot } from '../../recette/types';
 
 const JEUX: readonly [RegExp, string][] = [
   [/\bminecraft\b|\bcreeper|\bender\s?dragon|\bnether\b|\bvillageois/, 'Minecraft'],
+  [/\bcounter[- ]?strike|\bcs ?2\b|\bcs ?go\b|\bglobal offensive\b/, 'Counter-Strike 2'],
   [/\bfortnite\b/, 'Fortnite'],
   [/\bgta\b/, 'GTA'],
   [/\bamong\s?us\b/, 'Among Us'],
@@ -29,6 +30,8 @@ const MODES: readonly [RegExp, string][] = [
   [/\bcache[- ]cache\b/, 'CACHE-CACHE'],
   [/\bmod(s|é|ée)?\b/, 'MODDÉ'],
   [/\bsurvie\b/, 'SURVIE'],
+  [/\bcompetitive\b|\bcompet\b|\branked\b|\bclasse\b/, 'EN RANKED'],
+  [/\bpremier\b/, 'PREMIER'],
 ];
 
 const VIDES = new Set(

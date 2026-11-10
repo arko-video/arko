@@ -19,6 +19,12 @@ import type { AccrocheV4, GenreMoment, MomentV4 } from '../types-v4';
 import { phrases } from './punchlines';
 
 export const ACCROCHE_V4 = {
+  /**
+   * 10/11 : les 90 premières secondes de la source (lancement du jeu, bureau, menus) ne font une accroche qu'en
+   * dernier recours : grosse pénalité sur la note.
+   */
+  debutSource: 90,
+  penaliteDebut: 1000,
   /** Durée visée (s) et fourchette acceptée. */
   duree: 6,
   min: 5.5,
@@ -266,7 +272,7 @@ export function choisirAccroche(r: Recette, e: EntreeAccrocheV4): AccrocheV4 | n
   for (const c of candidats(gardes, e).slice(0, ACCROCHE_V4.candidats)) {
     const m = morceauxAutour(c, gardes, e);
     if (!m) continue;
-    const valeur = c.note - ACCROCHE_V4.poidsCout * m.cout;
+    const valeur = c.note - ACCROCHE_V4.poidsCout * m.cout - (c.t < ACCROCHE_V4.debutSource ? ACCROCHE_V4.penaliteDebut : 0);
     if (!meilleur || valeur > meilleur.valeur + 1e-9) meilleur = { valeur, a: { plages: m.plages, t: Math.round(c.t * 100) / 100, raison: c.raison } };
   }
   return meilleur?.a ?? null;

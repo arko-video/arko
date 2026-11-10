@@ -106,11 +106,14 @@ function finir(r: Recette): Recette {
 export function meilleurMoment(r: Recette, s: SignauxSource | null): Sec | null {
   if (!s) return null;
   const sc = compiler(r);
-  const candidats = [
-    ...[...s.pics].sort((a, b) => b.z - a.z).map((p) => p.ts),
+  // 10/11 : une RÉACTION humaine (cri, rire) avant un simple pic de son (un clic, un bruit de menu) ; et jamais les
+  // 90 premières secondes de la source (lancement du jeu, bureau) sauf en dernier recours.
+  const tous = [
     ...[...s.cris].sort((a, b) => b.force - a.force).map((c) => c.t),
     ...[...s.rires].sort((a, b) => b.force - a.force).map((x) => x.t),
+    ...[...s.pics].sort((a, b) => b.z - a.z).map((p) => p.ts),
   ];
+  const candidats = [...tous.filter((t) => t >= 90), ...tous.filter((t) => t < 90)];
   for (const ts of candidats) {
     const t = sortiesDe(sc, s.src, ts)[0];
     if (t !== undefined) return t;

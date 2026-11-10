@@ -16,12 +16,12 @@ const aucunChevauchement = (liste: PlaceAvatar[], gab: { l: number; h: number })
 };
 
 describe('places automatiques', () => {
-  it('16:9 : en bas collés au bord ; voix 1 à gauche, voix 2 à droite, 3 et 4 à côté, sans chevauchement (1 à 4 voix)', () => {
+  it('16:9 : en bas, au-dessus de l\'interface du jeu ; voix 1 à gauche, voix 2 à droite, 3 et 4 à côté, sans chevauchement (1 à 4 voix)', () => {
     for (const n of [1, 2, 3, 4]) {
       const l = places(n, YOUTUBE);
-      expect(l.every((p) => p.y === 1 && p.taille === 0.3)).toBe(true);
-      expect(l[0]!.x).toBe(0.12);
-      if (n >= 2) expect(l[1]!.x).toBe(0.88);
+      expect(l.every((p) => p.y === 1 && p.taille <= 0.42)).toBe(true);
+      expect(l[0]!.x).toBe(0.13);
+      if (n >= 2) expect(l[1]!.x).toBe(0.87);
       if (n >= 3) expect(l[2]!.x).toBeGreaterThan(l[0]!.x);
       if (n >= 4) expect(l[3]!.x).toBeLessThan(l[1]!.x);
       aucunChevauchement(l, YOUTUBE);
@@ -67,7 +67,7 @@ describe('places automatiques', () => {
 describe('évitement des punchlines', () => {
   it('16:9 : une punchline large en bas → le perso rétrécit / se décale vers le bord et ne la touche plus', () => {
     const p = placeAuto(0, 2, YOUTUBE, true);
-    const punch: Boite = { x0: 0.15, x1: 0.85, y0: 0.76, y1: 0.88 };
+    const punch: Boite = { x0: 0.13, x1: 0.87, y0: 0.74, y1: 0.86 };
     expect(recouvrement(boitePerso(p, YOUTUBE), punch)).toBeGreaterThan(0);
     const q = eviterTextes(p, [punch], YOUTUBE);
     expect(recouvrement(boitePerso(q, YOUTUBE), punch)).toBe(0);
@@ -127,6 +127,6 @@ describe('dans le rendu', () => {
   it('une place choisie à la main est gardée', () => {
     const r = recette({ personnes: [{ id: 'p1', nom: 'Moi', place: { x: 0.5, y: 0.5, taille: 0.2 } }, { id: 'p2', nom: 'Guts' }] });
     expect(placesAuto(r, YOUTUBE, null).get('p1')).toEqual({ x: 0.5, y: 0.5, taille: 0.2 });
-    expect(placesAuto(r, YOUTUBE, null).get('p2')!.x).toBe(0.88);
+    expect(placesAuto(r, YOUTUBE, null).get('p2')!.x).toBe(0.87);
   });
 });

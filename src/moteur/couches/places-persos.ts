@@ -28,7 +28,8 @@ export const PLACES_PERSOS = {
   demiLargeur: 0.32,
   /** Écart entre deux persos voisins (part de la largeur de l'image). */
   ecart: 0.012,
-  paysage: { taille: 0.3, x1: 0.12, yBuste: 1, yEntier: 0.97 },
+  // 10/11 (Romain) : GRANDS, comme les persos des best-of YouTube (≈ 40 % de la hauteur), en bas dans les coins.
+  paysage: { taille: 0.42, x1: 0.13, yBuste: 1, yEntier: 0.97 },
   carre: { taille: 0.22, x1: 0.13, yBuste: 1, yEntier: 0.97 },
   // 9:16 : bord gauche, bande de droite de TikTok (15 %), bas caché (20 %), demi-hauteur prévue d'une punchline.
   vertical: { taille: 0.12, gauche: 0.04, droite: 0.15, bas: 0.2, demiTexte: 0.045, marge: 0.012, yHaut: 0.45 },

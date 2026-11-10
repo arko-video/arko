@@ -46,3 +46,25 @@ Savoir donné à l'IA : savoir-du-monteur.md.
 - [x] E4a. `rythmeDe(recette)` : coupes, zooms, sons, mèmes, textes, transitions PAR MINUTE (pur) — 9/11 (`auto/apprentissage/rythme.ts`, + `densitesVers` pour E4c)
 - [x] E4b. « Prendre ce projet comme modèle de rythme » (un de tes montages réussis) : rythme gardé sur l'appareil — 9/11 (bouton dans Exporter, après l export)
 - [x] E4c. Au montage auto suivant : densités = rythme du modèle / rythme d'Arko (dans les goûts) — 9/11 (`rapprocherDuModele` dans ui/apprentissage.ts)
+
+## Journal des essais
+- 10/11, 1er essai réel (session CS de 40 min, 213 phrases) : plan avec 0 séquence / 0 effet (les morceaux
+  dépassaient la mémoire par défaut de 4096 et l'erreur était avalée) et accroche INVENTÉE (« 100 jours ONE
+  BLOCK », recopiée de l'exemple du savoir). Corrigé : `ModelParams(contextSize: 16384 / 8192)`, morceaux de
+  80 / 45 phrases, bibliothèque 80 / 40 sons, erreurs montrées (`erreurs_monteur`), `momentsDuDossier` si les
+  morceaux ne donnent rien, savoir sans exemple concret + « N'invente JAMAIS ». À retester.
+- 10/11, 2e essai : plan sur le bon jeu (CS2) mais 35 min gardées sur 40 (visée 12), séquences de 6 min, 10 zooms à 0,25 s, 4 sons inventés, prénom « Guts » deviné (voix non nommées). Ajouté : `nettoyerPlan` (règles après le modèle) + consignes (noms, 15 à 90 s) + savoir sans prénoms. À retester.
+
+## F. Retours sur la vidéo CS2 du 10/11 (« le montage est affreux »)
+- [x] F1. Prises ratées : seule la DERNIÈRE prise d'une phrase redite (≤ 15 s, ≥ 3 mots, 70 % pareille) ou commencée
+  puis reprise est gardée (`auto/coupes/prises.ts`, appliqué dans `nettoyer` et à la relecture des transcriptions
+  gardées) — 10/11
+- [x] F2. Accroche : une réaction humaine (cri, rire) avant un simple pic de son ; jamais les 90 premières s de la
+  source sauf en dernier recours (express `meilleurMoment`, Best-of v4 `choisirAccroche`) — 10/11
+- [x] F3. Persos 16:9 GRANDS comme dans les best-of YouTube (taille 0,42 de la hauteur, en bas dans les coins, x 0,13 / 0,87), demande de Romain — 10/11
+- [ ] F4. « Arko regarde l'image » : échantillonner 1 image / s en tout petit (64 × 36) pendant l'analyse
+  (worker, mediabunny), mesurer mouvement + part d'aplats / de texte ; marquer bureau, menus, chargements
+- [ ] F5. Couper ces zones mortes (ou les raccourcir à 2 s) dans les scènes ; accroche jamais dedans
+- [ ] F6. Couper le début jusqu'à la première vraie image de jeu (bureau, lanceur, OBS)
+- [ ] F7. Plus d'effets sur les vrais moments forts (zoom + texte + son sur cri / rire / gros pic EN JEU)
+- [ ] F8. Envoyer au monteur IA les zones « menu / bureau » (pour qu'il ne les choisisse pas)

@@ -68,16 +68,16 @@ describe('avatarsAuTemps, image par image', () => {
   it('2 personnes = 2 places (16:9 : bas gauche, bas droite) ; 9:16 au-dessus de la zone cachée', () => {
     const r = recette({ paroles: [{ ts: 2, fin: 4, p: 'p1' }, { ts: 3, fin: 5, p: 'p2' }] });
     const v = voir(r, 3.5);
-    // Persos tout prêts (papier découpé, en buste) : posés sur le bas de l'image en 16:9 ; chibi entier : 0,97.
-    expect(v.map((x) => [x.p, x.place.x, x.place.y, x.place.taille])).toEqual([['p1', 0.12, 1, 0.3], ['p2', 0.88, 1, 0.3]]);
-    expect(placeParDefaut(0, YOUTUBE)).toEqual({ x: 0.12, y: 0.97, taille: 0.3 });
+    // 10/11 : persos tout prêts en buste, GRANDS (0,42 de la hauteur), posés sur le bas ; chibi entier : 0,97.
+    expect(v.map((x) => [x.p, x.place.x, x.place.y, x.place.taille])).toEqual([['p1', 0.13, 1, 0.42], ['p2', 0.87, 1, 0.42]]);
+    expect(placeParDefaut(0, YOUTUBE)).toEqual({ x: 0.13, y: 0.97, taille: 0.42 });
     expect(placeParDefaut(0, TIKTOK, true)).toEqual(placeParDefaut(0, TIKTOK));
     // 9:16 (7/11) : plus petit, hors des 20 % du bas et de la bande de droite (15 %) ; au-dessus des sous-titres.
     expect(placeParDefaut(0, TIKTOK).taille).toBeLessThan(0.16);
     expect(placeParDefaut(0, TIKTOK).y).toBeLessThanOrEqual(0.8);
     expect(placeParDefaut(0, TIKTOK, true, 2, 0.66).y).toBeLessThan(0.66 - 0.045);
     // Voix 3 en 16:9 : en bas, à côté de la voix 1 (plus en haut à gauche).
-    expect(placeParDefaut(2, YOUTUBE, true, 3)).toMatchObject({ y: 1, taille: 0.3 });
+    expect(placeParDefaut(2, YOUTUBE, true, 3).y).toBe(1);
     expect(placeParDefaut(2, YOUTUBE, true, 3).x).toBeGreaterThan(0.2);
   });
   it('bouche = bits du tour (temps source), même après une coupe', () => {

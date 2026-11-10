@@ -156,11 +156,11 @@ describe('construireMontageExpress', () => {
     for (const p of r.plans.slice(1)) expect(p.a).toBeLessThanOrEqual(600);
   });
 
-  it('accroche de 6 s du meilleur moment (le pic à 201 s) au début', () => {
+  it('accroche de 6 s du meilleur moment (10/11 : la réaction humaine, le rire à 212 s, avant le pic) au début', () => {
     const premier = sc.plans[0]!;
     expect(premier.t1 - premier.t0).toBeCloseTo(6, 1);
-    expect(premier.de).toBeLessThan(201);
-    expect(premier.a).toBeGreaterThan(201);
+    expect(premier.de).toBeLessThan(212);
+    expect(premier.a).toBeGreaterThan(212);
     expect(r.textes.find((x) => x.role === 'accroche')).toMatchObject({ txt: 'ATTENDS…', t: 0 });
   });
 
@@ -225,9 +225,12 @@ describe('construireMontageExpress', () => {
 });
 
 describe('aides', () => {
-  it('meilleurMoment : le pic le plus fort encore dans le montage (temps de sortie)', () => {
+  it('meilleurMoment : la réaction humaine (cri, rire) avant un pic, encore dans le montage (temps de sortie)', () => {
     const r = normaliser({ ...recette(), plans: [{ de: 100, a: 110 }, { de: 195, a: 215 }] }).recette;
-    expect(meilleurMoment(r, SIGNAUX)).toBeCloseTo(16, 1);
+    // Le rire à 212 s (source) = 10 + (212 - 195) = 27 s en sortie.
+    expect(meilleurMoment(r, SIGNAUX)).toBeCloseTo(27, 1);
+    // Sans le rire dans le montage : le pic à 201 s.
+    expect(meilleurMoment(normaliser({ ...recette(), plans: [{ de: 100, a: 110 }, { de: 195, a: 205 }] }).recette, SIGNAUX)).toBeCloseTo(16, 1);
     expect(meilleurMoment(r, null)).toBeNull();
     expect(meilleurMoment(normaliser({ ...recette(), plans: [{ de: 0, a: 50 }] }).recette, SIGNAUX)).toBeNull();
   });

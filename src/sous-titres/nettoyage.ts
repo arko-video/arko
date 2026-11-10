@@ -1,6 +1,7 @@
 // Nettoyage (pur) des mots donnés par Whisper : ponctuation collée au mot, hallucinations retirées,
 // mots forts marqués. Entrée : mots bruts en temps source. Sortie : Mot[] de la recette.
 
+import { retirerPrisesRatees } from '../auto/coupes/prises';
 import type { Mot } from '../recette/types';
 import type { MotBrut } from './messages';
 
@@ -146,8 +147,10 @@ export function espaceFrancaise(txt: string): string {
 /** Chaîne complète : mots bruts de Whisper → mots de la recette, triés par temps. langue : "fr", "en"… ou "auto". */
 export function nettoyer(bruts: MotBrut[], langue = 'fr'): Mot[] {
   const tries = [...bruts].sort((a, b) => a.ts - b.ts);
-  return filtrerHallucinations(collerPonctuation(tries)).map((m): Mot => {
+  const mots = filtrerHallucinations(collerPonctuation(tries)).map((m): Mot => {
     const txt = langue === 'fr' ? espaceFrancaise(m.txt) : m.txt;
     return estFort(txt) ? [txt, m.ts, m.fin, 1] : [txt, m.ts, m.fin];
   });
+  // Prises ratées (phrase redite pour l'intonation, ou commencée puis reprise) : seule la dernière est gardée.
+  return retirerPrisesRatees(mots).mots;
 }

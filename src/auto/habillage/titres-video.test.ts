@@ -22,4 +22,11 @@ describe('titres de vidéo proposés', () => {
     expect(proposerTitres(mots('salut ça va')).length).toBeGreaterThan(1);
     expect(textesMiniature(m)).toContain('100 JOURS');
   });
+
+  it('Counter-Strike reconnu, jamais « 100 jours » sans qu\'on en parle', () => {
+    const cs = mots('ok on va jouer à Counter Strike la manche est chaude headshot headshot headshot');
+    expect(indicesVideo(cs).jeu).toBe('Counter-Strike 2');
+    expect(indicesVideo(cs).jours).toBeNull();
+    expect(proposerTitres(cs).join(' ')).not.toMatch(/100|ONE BLOCK|Minecraft/);
+  });
 });
