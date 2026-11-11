@@ -37,7 +37,8 @@ export interface Dossier {
   phrases: PhraseDossier[];
   reactions: { t: Sec; type: 'rire' | 'cri' | 'pic'; force: number }[];
   /** Scènes de l'analyse ; `garde` = le DÉRUSH d'Arko (ce qu'il monterait, après les choix de Romain sur la revue). */
-  scenes: { de: Sec; a: Sec; note: number; garde?: true }[];
+  /** `dc` = durée de la scène APRÈS Couper les blancs (estimée par Arko) : c'est elle qui compte pour la durée visée. */
+  scenes: { de: Sec; a: Sec; note: number; garde?: true; dc?: Sec }[];
   bibliotheque: FichierDossier[];
   gouts?: Pick<Gouts, 'n' | 'densite' | 'duree'> & { rejetes: string[]; aimes: string[] };
   /** D1 : derniers exemples « Arko a proposé → Romain a fait » (le monteur IA s'en inspire, D2). */
@@ -105,7 +106,7 @@ export interface EntreeDossier {
   tours?: readonly TourDeParole[];
   personnes?: readonly { id: string; nom: string }[];
   signaux?: SignauxSource | null;
-  scenes?: readonly (PlageTemps & { score?: number; note?: number; garde?: boolean })[];
+  scenes?: readonly (PlageTemps & { score?: number; note?: number; garde?: boolean; duree?: Sec })[];
   bibliotheque?: readonly FichierDossier[];
   gouts?: Gouts | null;
   exemples?: readonly ExempleMonteur[];
@@ -130,7 +131,7 @@ export function construireDossier(e: EntreeDossier): Dossier {
     personnes: [...(e.personnes ?? [])],
     phrases: phrasesDe(e.mots, e.tours ?? [], s).filter((p) => !dedans((p.de + p.a) / 2)),
     reactions: reactions.filter((x) => !dedans(x.t)),
-    scenes: (e.scenes ?? []).map((x) => ({ de: r2(x.de), a: r2(x.a), note: Math.round(x.note ?? x.score ?? 0), ...(x.garde ? { garde: true as const } : {}) })),
+    scenes: (e.scenes ?? []).map((x) => ({ de: r2(x.de), a: r2(x.a), note: Math.round(x.note ?? x.score ?? 0), ...(x.garde ? { garde: true as const } : {}), ...(x.duree !== undefined ? { dc: r2(x.duree) } : {}) })),
     bibliotheque: [...(e.bibliotheque ?? [])].map((f) => ({ ...f, duree: r2(f.duree) })),
   };
   if (vues.length > 0) d.zonesMortes = vues.map((z) => ({ de: r2(z.de), a: r2(z.a), genre: z.vu! }));

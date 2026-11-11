@@ -71,8 +71,8 @@ describe('monteur IA : validation du plan', () => {
 
 describe('le dossier dit au monteur IA ce qu\'Arko a gardé (dérush)', () => {
   it('scènes cochées : garde: true', () => {
-    const d = construireDossier({ da: 'youtube', duree: 600, dureeVisee: { min: 60, max: 120 }, mots: [], scenes: [{ de: 0, a: 30, score: 80, garde: true }, { de: 40, a: 70, score: 20, garde: false }] });
-    expect(d.scenes).toEqual([{ de: 0, a: 30, note: 80, garde: true }, { de: 40, a: 70, note: 20 }]);
+    const d = construireDossier({ da: 'youtube', duree: 600, dureeVisee: { min: 60, max: 120 }, mots: [], scenes: [{ de: 0, a: 30, score: 80, garde: true, duree: 12 }, { de: 40, a: 70, score: 20, garde: false }] });
+    expect(d.scenes).toEqual([{ de: 0, a: 30, note: 80, garde: true, dc: 12 }, { de: 40, a: 70, note: 20 }]);
   });
 });
 
