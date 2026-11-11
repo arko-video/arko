@@ -968,3 +968,8 @@ Reste à faire (demandes de Romain du 9/11), par ordre conseillé :
   de la soirée étaient faux ; la publication #11 a échoué (sans-sons-arko.ts : `trans` peut être une chaîne ;
   structure-youtube.ts : `dur` facultatif). Corrigé. Vérifier les types dans le conteneur cloud (npm ci + npx tsc),
   jamais se fier à une sortie vide dans la VM.
+- 11/11 : le plan du monteur IA NE REMPLACE PLUS le montage d'Arko (avant : appliquerPlan → ancien Montage express,
+  perte du dérush, des persos et de la musique du Best-of v4). Maintenant : Arko monte toujours (express ou v4), puis
+  `ajouterPlanAuMontage` pose les zooms / textes / transitions / sons / mèmes du plan, titres et miniature, et ses
+  séquences deviennent des SUGGESTIONS (`suggestionsSequences`, panneau Pourquoi). Dossier : `scenes[].garde` (dérush),
+  `scenes[].dc` (durée après coupes), `reglages`. Mon Hub : part du dérush (retirer / ajouter), compte la durée après coupes.

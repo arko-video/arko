@@ -4,8 +4,7 @@
 // (un seul Annuler revient à la vidéo brute).
 
 import { reglagesAvecGouts } from '../../../auto/apprentissage/appliquer-gouts';
-import { appliquerPlan } from '../../../auto/monteur-ia/appliquer';
-import { planMonteur, poserEffetsBibliotheque, retenirPourquois } from './monteur-ia';
+import { ajouterPlanAuMontage, planMonteur } from './monteur-ia';
 import { gouts, memoriserMontageAuto } from '../../apprentissage';
 import { poserMemesAuto } from '../../clips-montage';
 import { signalerFinTravail } from '../../fin-travail';
@@ -314,11 +313,21 @@ export async function monterExpress() {
   const source = sourceExpress.peek();
   const a = analyseExpress.peek();
   const scenes = scenesExpress.peek();
-  // Monteur IA (A9) : un plan validé est ouvert → c'est LUI qui décide des séquences, de l'accroche et des effets.
+  // Monteur IA : un plan validé est ouvert → Arko monte comme d'habitude, puis le plan S'AJOUTE (effets, idées,
+  // suggestions de séquences). Il ne remplace plus le montage d'Arko (11/11, retour de Romain).
   const planIA = planMonteur.peek()?.plan ?? null;
-  const avecPlan = planIA !== null && planIA.sequences.length > 0;
-  if (!avecPlan && estV4(a) && routeBestOf.monter) return void (await routeBestOf.monter());
-  if (!source || !a || montageEnCours.peek() || (!avecPlan && !scenes.some((s) => s.garde))) return;
+  const avecPlan = planIA !== null;
+  if (estV4(a) && routeBestOf.monter) {
+    // Best-of v4 : Arko monte comme d'habitude ; le plan du monteur IA s'ajoute PAR-DESSUS (11/11).
+    const ok = await routeBestOf.monter();
+    if (ok && planIA && avecPlan) {
+      const msg = await ajouterPlanAuMontage(planIA).catch((e: unknown) => (console.error(e), ''));
+      planMonteur.value = null;
+      if (msg) afficherToast(msg, 9000);
+    }
+    return;
+  }
+  if (!source || !a || montageEnCours.peek() || !scenes.some((s) => s.garde)) return;
   montageEnCours.value = true;
   try {
     // Goûts appris (exports précédents) : zooms, punchlines, durée visée nuancés (E1, E2).
@@ -329,12 +338,10 @@ export async function monterExpress() {
     const nom = source.infos.nom.replace(/\.[^.]+$/, '');
     demarrerProjet(source, { ...recetteInitiale(source, destinationExpress.peek()), titre: (bestOf ? TV.bestOf.titreProjet : TA.express.titreProjet)(nom) });
     idCourant.value = null;
-    const journalPlan: string[] = [];
     const construire = (r: Recette, res: RessourcesExpress) => sansSonsArko(poserStructureYoutube(construireSans(r, res), { chaine: chaineYoutube.peek() }));
+    // 11/11 : Arko monte TOUJOURS lui-même (dérush, persos, musique) ; le plan du monteur IA s'ajoute après.
     const construireSans = (r: Recette, res: RessourcesExpress) =>
-      avecPlan
-        ? ((x) => (journalPlan.splice(0, journalPlan.length, ...x.journal), x.recette))(appliquerPlan(r, a, planIA, reg, { ...res, ...choixVoix() }))
-        : bestOf ? construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(res)) : construireMontageExpress(r, a, scenes, reg, { ...res, ...choixVoix() }, { transitions: gouts.peek().densite.transitions >= 0.5, facteurPunchlines: gouts.peek().densite.punchlines, ...(gouts.peek().marges ? { marges: gouts.peek().marges } : {}) });
+      bestOf ? construireBestOf(r, a as AnalyseBestOf, scenes as SceneBestOf[], reg, reglagesBestOf.peek(), ressourcesBestOf(res)) : construireMontageExpress(r, a, scenes, reg, { ...res, ...choixVoix() }, { transitions: gouts.peek().densite.transitions >= 0.5, facteurPunchlines: gouts.peek().densite.punchlines, ...(gouts.peek().marges ? { marges: gouts.peek().marges } : {}) });
     // Un nouveau montage, construit en UNE opération : un seul Annuler revient à la vidéo brute.
     if (reg.musiqueAuto === true) {
       // Musique automatique : le montage est construit une fois SANS musique (pur), Arko y choisit un morceau par
@@ -363,12 +370,11 @@ export async function monterExpress() {
     afficherToast((bestOf ? TV.bestOf.pret : TA.express.pret)(formatDuree(r ? compiler(r).duree : 0)), 8000, { label: TA.express.annulerMontage, agir: annulerAction });
     // Plan du monteur IA : ses sons / mèmes à lui (une opération, un Annuler), puis on s'arrête là (pas les choix
     // automatiques d'Arko par-dessus). Le journal des corrections est rappelé.
-    if (avecPlan) {
-      const n = await poserEffetsBibliotheque(planIA.effets).catch((e: unknown) => (console.error(e), 0));
+    if (planIA && avecPlan) {
+      const msg = await ajouterPlanAuMontage(planIA).catch((e: unknown) => (console.error(e), ''));
       memoriserMontageAuto(recette.peek());
-      retenirPourquois(planIA);
       planMonteur.value = null;
-      afficherToast(`Monté avec le plan du monteur IA${n > 0 ? ` (${n} sons et mèmes)` : ''}.${journalPlan.length > 0 ? ` ${journalPlan[0]}` : ''}`, 9000, { label: TA.express.annulerMontage, agir: annulerAction });
+      afficherToast(msg || 'Monté par Arko.', 9000, { label: TA.express.annulerMontage, agir: annulerAction });
       return;
     }
     // Mèmes et fonds verts de Ma bibliothèque aux moments forts (TikTok) : une opération à part, son propre Annuler.

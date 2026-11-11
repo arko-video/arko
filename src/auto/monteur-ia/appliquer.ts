@@ -8,7 +8,7 @@ import { compiler, sortiesDe } from '../../recette/chronologie';
 import { TYPES_TRANSITION } from '../../recette/defauts';
 import { ajouterTexte } from '../../recette/operations-habillage';
 import { ajouterZoom, choisirTransition } from '../../recette/operations-effets';
-import type { Recette } from '../../recette/types';
+import type { Recette, Sec } from '../../recette/types';
 import type { EffetPlan, PlanMonteur } from './plan';
 
 /** Les séquences du plan, prêtes pour le montage (toutes gardées, durée après coupes estimée). */
@@ -79,4 +79,26 @@ export function poserEffetsSimples(r0: Recette, effets: readonly EffetPlan[], sr
     }
   }
   return { recette: r, journal: hors > 0 ? [`${hors} effet${hors > 1 ? 's' : ''} sur un moment coupé du montage : sauté${hors > 1 ? 's' : ''}.`] : [] };
+}
+
+/**
+ * 11/11/2026 (Romain : « Arko fait un bon dérush, place bien les persos et la musique ; l'autre fout le bordel ») :
+ * le plan du monteur IA ne REMPLACE plus le montage d'Arko. Ses séquences deviennent des SUGGESTIONS : celles qui ne
+ * touchent aucun morceau du montage d'Arko (à ajouter), et les morceaux d'Arko qu'aucune séquence du plan ne couvre (à
+ * retirer, selon lui). Temps source. Pure.
+ */
+export function suggestionsSequences(plan: Pick<PlanMonteur, 'sequences'>, montage: readonly { de: Sec; a: Sec }[]): { ajouter: PlanMonteur['sequences']; retirer: { de: Sec; a: Sec }[] } {
+  const recouvre = (x: { de: Sec; a: Sec }, y: { de: Sec; a: Sec }) => x.de < y.a && x.a > y.de;
+  // Morceaux contigus du montage regroupés (Couper les blancs découpe une séquence en dizaines de petits plans).
+  const blocs: { de: Sec; a: Sec }[] = [];
+  for (const p of [...montage].sort((x, y) => x.de - y.de)) {
+    const der = blocs[blocs.length - 1];
+    if (der && p.de - der.a < 5) der.a = Math.max(der.a, p.a);
+    else blocs.push({ de: p.de, a: p.a });
+  }
+  if (plan.sequences.length === 0) return { ajouter: [], retirer: [] };
+  return {
+    ajouter: plan.sequences.filter((s) => !blocs.some((b) => recouvre(s, b))),
+    retirer: blocs.filter((b) => b.a - b.de >= 5 && !plan.sequences.some((s) => recouvre(s, b))),
+  };
 }

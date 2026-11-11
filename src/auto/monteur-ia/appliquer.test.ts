@@ -61,3 +61,14 @@ describe('monteur IA : zooms, textes, transitions (A7)', () => {
     expect(journal.join(' ')).toMatch(/1 effet sur un moment coupé/);
   });
 });
+
+describe('le plan du monteur IA ne remplace plus le montage d\'Arko : ses séquences sont des suggestions', () => {
+  it('à ajouter : hors du montage ; à retirer : morceaux d\'Arko que le plan ne couvre pas', async () => {
+    const { suggestionsSequences } = await import('./appliquer');
+    const montage = [{ de: 100, a: 110 }, { de: 111, a: 130 }, { de: 300, a: 340 }];
+    const plan = { sequences: [{ de: 105, a: 125, titre: '', pourquoi: '' }, { de: 600, a: 640, titre: 'ajout', pourquoi: 'fort' }] };
+    const s = suggestionsSequences(plan, montage);
+    expect(s.ajouter.map((x) => x.de)).toEqual([600]);
+    expect(s.retirer).toEqual([{ de: 300, a: 340 }]);
+  });
+});

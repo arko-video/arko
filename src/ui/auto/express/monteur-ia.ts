@@ -5,6 +5,7 @@
 import { signal } from '@preact/signals';
 import { construireDossier, type Dossier, type FichierDossier } from '../../../auto/monteur-ia/dossier';
 import { validerPlan, type EffetPlan, type PlanValide } from '../../../auto/monteur-ia/plan';
+import { poserEffetsSimples, suggestionsSequences } from '../../../auto/monteur-ia/appliquer';
 import { cleNom } from '../../../auto/apprentissage/gouts';
 import { placeMeme } from '../../../auto/insertion/memes-auto';
 import { compiler, sortiesDe } from '../../../recette/chronologie';
@@ -97,6 +98,30 @@ export function retenirPourquois(p: PlanValide['plan']) {
     ...p.sequences.map((s) => ({ quand: mmss(s.de), quoi: `Séquence « ${s.titre || 'sans titre'} »`, pourquoi: s.pourquoi })),
     ...p.effets.map((e) => ({ quand: mmss(e.t), quoi: `${e.type} ${e.quoi}`, pourquoi: e.pourquoi })),
   ].filter((x) => x.pourquoi);
+}
+
+/**
+ * 11/11/2026 : le plan du monteur IA s'AJOUTE au montage d'Arko (qui garde son dérush, ses persos, sa musique) :
+ * zooms, textes, transitions, sons et mèmes du plan, titres / miniature / intro, et ses séquences en SUGGESTIONS
+ * (à ajouter / à retirer) dans le panneau « Pourquoi ». Rend un message court pour Romain.
+ */
+export async function ajouterPlanAuMontage(plan: PlanValide['plan']): Promise<string> {
+  const r0 = recette.peek();
+  const src = r0?.sources.find((x) => x.type === 'video')?.id;
+  if (!r0 || !src) return '';
+  const montage = r0.plans.filter((p) => !p.ins && (p.src ?? src) === src).map((p) => ({ de: p.de, a: p.a }));
+  modifier((r) => poserEffetsSimples(r, plan.effets, src).recette);
+  const n = await poserEffetsBibliotheque(plan.effets).catch((e: unknown) => (console.error(e), 0));
+  retenirPourquois(plan);
+  const sug = suggestionsSequences(plan, montage);
+  const mmss = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+  pourquoisPlan.value = [
+    ...sug.ajouter.map((s) => ({ quand: mmss(s.de), quoi: `Suggestion : AJOUTER ${mmss(s.de)} → ${mmss(s.a)}`, pourquoi: s.pourquoi || 'Le monteur IA trouve ce passage fort.' })),
+    ...sug.retirer.map((s) => ({ quand: mmss(s.de), quoi: `Suggestion : RETIRER ${mmss(s.de)} → ${mmss(s.a)}`, pourquoi: 'Le monteur IA ne l\'a pas gardé.' })),
+    ...pourquoisPlan.peek().filter((x) => !x.quoi.startsWith('Séquence')),
+  ];
+  const morceaux = [n > 0 ? `${n} sons et mèmes` : '', sug.ajouter.length + sug.retirer.length > 0 ? `${sug.ajouter.length + sug.retirer.length} suggestions de séquences (Habiller → Sons → Pourquoi)` : ''].filter(Boolean);
+  return `Montage d'Arko + idées du monteur IA${morceaux.length > 0 ? ` : ${morceaux.join(', ')}` : ''}.`;
 }
 
 /** A5. Le dernier plan ouvert et validé (null : aucun), avec le journal des corrections. */
