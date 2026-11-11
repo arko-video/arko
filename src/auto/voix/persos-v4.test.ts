@@ -161,7 +161,7 @@ describe('poserPersosV4', () => {
   it('un perso par voix, avatars de la DA (parle, rebond, tenue 0,35 s), émotion PAR PHRASE', () => {
     const r = poserPersosV4(recette(), entree());
     expect(r.personnes!.map((p) => [p.id, p.nom])).toEqual([['p1', 'Guts'], ['p2', 'Romain']]);
-    expect(r.avatars).toEqual({ mode: 'reactions', rebond: true, tenue: 0.35 });
+    expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 0.35 });
     const p1 = r.paroles!.filter((t) => t.p === 'p1');
     expect(p1.length).toBeGreaterThanOrEqual(3); // « … château. » | « regarde ici » | le tour du jeu
     const romain = r.paroles!.filter((t) => t.p === 'p2');

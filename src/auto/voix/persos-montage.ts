@@ -92,6 +92,6 @@ export function poserPersos(r: Recette, ecoute: VoixEcoutees, o: OptionsPersos =
     const c = o.chibis?.[p.id];
     res = donnerChibi(res, p.id, c?.def ?? p.chibi ?? chibiParDefaut(p.id), c?.bib ?? p.bib);
   }
-  if (o.avatars !== false) res = activerAvatars(res, o.reglagesAvatars ?? { mode: 'reactions', rebond: true, tenue: PERSOS.tenue });
+  if (o.avatars !== false) res = activerAvatars(res, o.reglagesAvatars ?? { mode: 'parle', rebond: true, tenue: PERSOS.tenue });
   return res;
 }

@@ -166,7 +166,7 @@ test('Best-of serré : 2 voix (−40 / −25 dB) + musique → avatars, sous-tit
   expect(r.textes).toEqual([]); // ni « ATTENDS… » ni titre de section
   expect(r.personnes?.map((p) => p.nom)).toEqual(['Guts', 'Romain']);
   expect(r.personnes?.every((p) => !!p.chibi)).toBe(true);
-  expect(r.avatars).toEqual({ mode: 'reactions', rebond: true, tenue: 0.35 });
+  expect(r.avatars).toEqual({ mode: 'parle', rebond: true, tenue: 0.35 });
   expect(r.sousTitres).toMatchObject({ mode: 'punchlines', pour: 'p2' });
   expect(r.derush?.passages.length).toBeGreaterThan(0);
   expect(r.sons.some((s) => s.role === 'bruitage')).toBe(false);
