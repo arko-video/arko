@@ -36,11 +36,17 @@ export interface Dossier {
   personnes: { id: string; nom: string }[];
   phrases: PhraseDossier[];
   reactions: { t: Sec; type: 'rire' | 'cri' | 'pic'; force: number }[];
-  scenes: { de: Sec; a: Sec; note: number }[];
+  /** Scènes de l'analyse ; `garde` = le DÉRUSH d'Arko (ce qu'il monterait, après les choix de Romain sur la revue). */
+  scenes: { de: Sec; a: Sec; note: number; garde?: true }[];
   bibliotheque: FichierDossier[];
   gouts?: Pick<Gouts, 'n' | 'densite' | 'duree'> & { rejetes: string[]; aimes: string[] };
   /** D1 : derniers exemples « Arko a proposé → Romain a fait » (le monteur IA s'en inspire, D2). */
   exemples?: ExempleMonteur[];
+  /**
+   * Les réglages de Romain dans Arko (11/11) : le monteur IA les respecte (pas de zoom si les zooms sont coupés, pas
+   * de texte sans punchlines, pas d'accroche si elle est décochée…) et connaît le nom de la chaîne pour les titres.
+   */
+  reglages?: ReglagesDossier;
   /** F8 : menus, chargements, bureau vus à l'image (« Arko regarde l'image ») : à ne JAMAIS mettre dans le montage. */
   zonesMortes?: { de: Sec; a: Sec; genre: 'menu' | 'chargement' | 'bureau' }[];
 }
@@ -75,7 +81,23 @@ export function phrasesDe(mots: readonly Mot[], tours: readonly TourDeParole[] =
   return res;
 }
 
+export interface ReglagesDossier {
+  chaine?: string;
+  accroche: boolean;
+  punchlines: boolean;
+  bruitages: boolean;
+  /** null = pas de zooms. */
+  zooms: string | null;
+  sections: boolean;
+  musiqueAuto: boolean;
+  persos: boolean;
+  /** « Couper les menus et chargements » et « Arko écoute mes sons » cochés. */
+  regard: boolean;
+  ecoute: boolean;
+}
+
 export interface EntreeDossier {
+  reglages?: ReglagesDossier;
   da: Dossier['da'];
   duree: Sec;
   dureeVisee: Dossier['dureeVisee'];
@@ -83,7 +105,7 @@ export interface EntreeDossier {
   tours?: readonly TourDeParole[];
   personnes?: readonly { id: string; nom: string }[];
   signaux?: SignauxSource | null;
-  scenes?: readonly (PlageTemps & { score?: number; note?: number })[];
+  scenes?: readonly (PlageTemps & { score?: number; note?: number; garde?: boolean })[];
   bibliotheque?: readonly FichierDossier[];
   gouts?: Gouts | null;
   exemples?: readonly ExempleMonteur[];
@@ -108,10 +130,11 @@ export function construireDossier(e: EntreeDossier): Dossier {
     personnes: [...(e.personnes ?? [])],
     phrases: phrasesDe(e.mots, e.tours ?? [], s).filter((p) => !dedans((p.de + p.a) / 2)),
     reactions: reactions.filter((x) => !dedans(x.t)),
-    scenes: (e.scenes ?? []).map((x) => ({ de: r2(x.de), a: r2(x.a), note: Math.round(x.note ?? x.score ?? 0) })),
+    scenes: (e.scenes ?? []).map((x) => ({ de: r2(x.de), a: r2(x.a), note: Math.round(x.note ?? x.score ?? 0), ...(x.garde ? { garde: true as const } : {}) })),
     bibliotheque: [...(e.bibliotheque ?? [])].map((f) => ({ ...f, duree: r2(f.duree) })),
   };
   if (vues.length > 0) d.zonesMortes = vues.map((z) => ({ de: r2(z.de), a: r2(z.a), genre: z.vu! }));
+  if (e.reglages) d.reglages = { ...e.reglages };
   if (e.exemples && e.exemples.length > 0) d.exemples = e.exemples.slice(0, 10);
   if (e.gouts && e.gouts.n > 0) {
     const notes = Object.entries(e.gouts.notes);

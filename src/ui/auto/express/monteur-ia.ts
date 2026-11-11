@@ -20,7 +20,9 @@ import { gouts, lireExemples } from '../../apprentissage';
 import { afficherToast } from '../../etat';
 import { chargerMesSons, mesSons } from '../../mes-sons';
 import { nomsVoix } from './etat-best-of';
-import { analyseExpress, destinationExpress, reglagesExpress, sourceExpress } from './etat-express';
+import { analyseExpress, chaineYoutube, destinationExpress, reglagesExpress, scenesExpress, sourceExpress } from './etat-express';
+import { regardActif } from './regard-ui';
+import { ecouteActive } from '../son/ecoute-ui';
 
 /** A3. Le dossier de l'analyse en cours (null s'il n'y a rien d'analysé). */
 export async function dossierDepuisAnalyse(): Promise<Dossier | null> {
@@ -43,10 +45,27 @@ export async function dossierDepuisAnalyse(): Promise<Dossier | null> {
     tours: voix?.tours ?? [],
     personnes: (voix?.voix ?? []).map((v, k) => ({ id: v.id, nom: noms[v.id] ?? `Voix ${k + 1}` })),
     signaux: a.signaux ?? null,
-    scenes: a.scenes ?? [],
+    // Le dérush d'Arko tel que Romain le voit sur la revue (scènes cochées) : Mon Hub part de lui et l'améliore.
+    scenes: scenesExpress.peek().length > 0 ? scenesExpress.peek() : (a.scenes ?? []),
     bibliotheque,
     gouts: gouts.peek(),
     exemples: lireExemples(),
+    reglages: (() => {
+      const r = reglagesExpress.peek();
+      const chaine = chaineYoutube.peek().trim();
+      return {
+        ...(chaine ? { chaine } : {}),
+        accroche: r.accroche,
+        punchlines: r.punchlines,
+        bruitages: r.bruitages,
+        zooms: r.zooms,
+        sections: r.sections,
+        musiqueAuto: r.musiqueAuto === true,
+        persos: r.persos !== false,
+        regard: regardActif.peek(),
+        ecoute: ecouteActive.peek(),
+      };
+    })(),
   });
 }
 

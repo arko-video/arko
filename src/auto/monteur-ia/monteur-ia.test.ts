@@ -68,3 +68,18 @@ describe('monteur IA : validation du plan', () => {
     expect(v.journal.some((j) => j.includes('en trop'))).toBe(true);
   });
 });
+
+describe('le dossier dit au monteur IA ce qu\'Arko a gardé (dérush)', () => {
+  it('scènes cochées : garde: true', () => {
+    const d = construireDossier({ da: 'youtube', duree: 600, dureeVisee: { min: 60, max: 120 }, mots: [], scenes: [{ de: 0, a: 30, score: 80, garde: true }, { de: 40, a: 70, score: 20, garde: false }] });
+    expect(d.scenes).toEqual([{ de: 0, a: 30, note: 80, garde: true }, { de: 40, a: 70, note: 20 }]);
+  });
+});
+
+describe('le dossier emporte les réglages de Romain', () => {
+  it('chaîne, zooms, punchlines… passent tels quels', () => {
+    const reglages = { chaine: 'Ma chaîne', accroche: true, punchlines: false, bruitages: true, zooms: null, sections: true, musiqueAuto: true, persos: true, regard: true, ecoute: true };
+    const d = construireDossier({ da: 'youtube', duree: 600, dureeVisee: { min: 60, max: 120 }, mots: [], reglages });
+    expect(d.reglages).toEqual(reglages);
+  });
+});
